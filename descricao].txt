@@ -1,0 +1,1381 @@
+Espécie	Nome Popular	Guilda	Habitat	Descrição	Na Tabela
+Aburria jacutinga	jacutinga	Frugívoro	Florestal	Frutos, especialmente palmito e figueiras	✓
+Accipiter bicolor	gavião-bombachinha-grande	Carnívoro	Florestal	Aves e pequenos mamíferos	✓
+Accipiter poliogaster	tauató-pintado	Carnívoro	Florestal	Aves de médio porte	✓
+Accipiter striatus	tauató-miúdo	Carnívoro	Florestal	Pequenas aves	✓
+Actitis macularius	maçarico-pintado	Insetívoro	Aquático	Invertebrados aquáticos e insetos	✓
+Aegolius harrisii	caburé-acanelado	Carnívoro	Florestal	Roedores e insetos	✓
+Agelaioides badius	asa-de-telha	Granívoro/Insetívoro	Campestre	Sementes e insetos	✓
+Agelasticus thilius	sargento	Insetívoro	Aquático	Insetos em banhados	✓
+Alopochelidon fucata	andorinha-morena	Insetívoro aéreo	Campestre	Insetos capturados em voo	✓
+Amadonastur lacernulatus	gavião-pombo-pequeno	Carnívoro	Florestal	Aves e pequenos mamíferos	✓
+Amaurolimnas concolor	saracura-lisa	Insetívoro	Aquático	Insetos e invertebrados	✓
+Amaurospiza moesta	negrinho-do-mato	Granívoro	Florestal	Sementes de bambu	✓
+Amazona aestiva	papagaio-verdadeiro	Frugívoro/Granívoro	Generalista	Frutos, sementes, flores	✓
+Amazona pretrei	papagaio-charão	Frugívoro/Granívoro	Florestal	Sementes de pinheiro e frutos	✓
+Amazona vinacea	papagaio-de-peito-roxo	Frugívoro/Granívoro	Florestal	Frutos, sementes, flores	✓
+Amazonetta brasiliensis	marreca-ananaí	Onívoro	Aquático	Plantas, sementes, invertebrados	✓
+Amblyramphus holosericeus	cardeal-do-banhado	Insetívoro	Aquático	Insetos em juncos	✓
+Ammodramus humeralis	tico-tico-do-campo	Granívoro/Insetívoro	Campestre	Sementes e insetos no campo	✓
+Anabacerthia amaurotis	limpa-folha-miúdo	Insetívoro	Florestal	Insetos em bambu e folhagem	✓
+Anabacerthia lichtensteini	limpa-folha-ocráceo	Insetívoro	Florestal	Insetos em folhagem do sub-bosque	✓
+Anabazenops fuscus	trepador-coleira	Insetívoro	Florestal	Insetos em lianas e cipós	✓
+Anas acuta	arrabio	Onívoro	Aquático	Plantas aquáticas e invertebrados	✓
+Anas bahamensis	marreca-toicinho	Onívoro	Aquático	Plantas, sementes, invertebrados	✓
+Anas flavirostris	marreca-pardinha	Onívoro	Aquático	Plantas, sementes, invertebrados	✓
+Anas georgica	marreca-parda	Onívoro	Aquático	Sementes, gramíneas, invertebrados	✓
+Anhima cornuta	anhuma	Herbívoro	Aquático	Plantas aquáticas, algas	✓
+Anhinga anhinga	biguatinga	Piscívoro	Aquático	Peixes capturados por mergulho	✓
+Anous stolidus	trinta-réis-escuro	Piscívoro	Costeiro	Peixes pequenos e invertebrados marinhos	✓
+Anthracothorax nigricollis	beija-flor-de-veste-preta	Nectarívoro	Generalista	Néctar e pequenos insetos	✓
+Anthus chii	caminheiro-zumbidor	Insetívoro	Campestre	Insetos e invertebrados no chão	✓
+Anthus correndera	caminheiro-de-espora	Insetívoro	Campestre	Insetos e invertebrados	✓
+Anthus hellmayri	caminheiro-de-barriga-acanelada	Insetívoro	Campestre	Insetos e invertebrados	✓
+Anthus nattereri	caminheiro-dourado	Insetívoro	Campestre	Insetos em campos	✓
+Antrostomus rufus	joão-corta-pau	Insetívoro aéreo	Florestal	Insetos em voo noturno	✓
+Antrostomus sericocaudatus	bacurau-rabo-de-seda	Insetívoro aéreo	Florestal	Insetos em voo noturno	✓
+Anumbius annumbi	cochicho	Insetívoro	Campestre	Insetos em arbustais	✓
+Aphantochroa cirrochloris	beija-flor-cinza	Nectarívoro	Florestal	Néctar floral e insetos	✓
+Aramides cajaneus	saracura-três-potes	Onívoro	Florestal	Insetos, caramujos, frutos, sementes	✓
+Aramides saracura	saracura-do-mato	Onívoro	Florestal	Insetos, caramujos, frutos, sementes	✓
+Aramides ypecaha	saracuruçu	Onívoro	Aquático	Insetos, anfíbios, plantas aquáticas	✓
+Aramus guarauna	carão	Malacófago	Aquático	Especialista em caramujos do gênero Pomacea	✓
+Ardea alba	garça-branca-grande	Piscívoro	Aquático	Peixes, anfíbios, insetos	✓
+Ardea cocoi	garça-moura	Piscívoro/Carnívoro	Aquático	Peixes, anfíbios, pequenos mamíferos	✓
+Ardenna gravis	pardela-de-barrete	Piscívoro	Costeiro	Peixes, lulas, crustáceos	✓
+Ardenna grisea	pardela-escura	Piscívoro	Costeiro	Peixes, lulas e crustáceos	✓
+Arenaria interpres	vira-pedras	Insetívoro	Costeiro	Invertebrados sob pedras na costa	✓
+Arremon semitorquatus	tico-tico-do-mato	Granívoro/Insetívoro	Florestal	Sementes e insetos no solo	✓
+Arundinicola leucocephala	freirinha	Insetívoro	Aquático	Insetos em bejiros de água	✓
+Asemospiza fuliginosa	cigarra-preta	Granívoro	Florestal	Sementes em borda e interior	✓
+Asio clamator	coruja-orelhuda	Carnívoro	Generalista	Roedores, aves pequenas, anfíbios	✓
+Asio flammeus	mocho-dos-banhados	Carnívoro	Campestre	Roedores e aves	✓
+Asio stygius	mocho-diabo	Carnívoro	Florestal	Roedores, aves, morcegos	✓
+Athene cunicularia	coruja-buraqueira	Insetívoro/Carnívoro	Campestre	Insetos, roedores, lagartos	✓
+Attila phoenicurus	capitão-castanho	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Attila rufus	capitão-de-saíra	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Automolus leucophthalmus	barranqueiro-de-olho-branco	Insetívoro	Florestal	Insetos em serapilheira e solo	✓
+Bartramia longicauda	maçarico-do-campo	Insetívoro	Campestre	Insetos e invertebrados	✓
+Baryphthengus ruficapillus	juruva	Insetívoro/Carnívoro	Florestal	Insetos grandes, lagartos, frutas	✓
+Basileuterus culicivorus	pula-pula	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Batara cinerea	matracão	Insetívoro	Florestal	Insetos no sub-bosque denso	✓
+Biatas nigropectus	papo-branco	Insetívoro	Florestal	Insetos em bambu	✓
+Botaurus pinnatus	socó-boi-baio	Carnívoro/Piscívoro	Aquático	Anfíbios, insetos, peixes, cobras	✓
+Brotogeris chiriri	periquito-de-encontro-amarelo	Frugívoro/Granívoro	Florestal	Frutos e sementes	✓
+Brotogeris tirica	periquito-rico	Frugívoro/Granívoro	Florestal	Frutos, sementes e flores	✓
+Bubo virginianus	jacurutu	Carnívoro	Generalista	Gambás, roedores, aves, cobras	✓
+Bubulcus ibis	garça-vaqueira	Insetívoro	Campestre	Insetos e invertebrados, segue gado	✓
+Buteo albonotatus	gavião-urubu	Carnívoro	Florestal	Roedores, cobras, lagartos	✓
+Buteo brachyurus	gavião-de-cauda-curta	Carnívoro	Florestal	Lagartos, roedores, aves pequenas	✓
+Buteo platypterus	gavião-de-asa-larga	Carnívoro/Insetívoro	Florestal	Insetos, roedores, lagartos	✓
+Buteo swainsoni	gavião-papa-gafanhoto	Insetívoro/Carnívoro	Campestre	Gafanhotos, roedores em migração	✓
+Butorides striata	socozinho	Piscívoro/Insetívoro	Aquático	Peixes, insetos, crustáceos	✓
+Cacicus chrysopterus	tecelão	Onívoro	Florestal	Insetos, néctar, frutos	✓
+Cacicus haemorrhous	guaxe	Onívoro	Florestal	Insetos, néctar, frutos	✓
+Cairina moschata	pato-do-mato	Onívoro	Aquático	Plantas, invertebrados, pequenos peixes	✓
+Calidris alba	maçarico-branco	Insetívoro	Costeiro	Invertebrados marinhos	✓
+Calidris bairdii	maçarico-de-bico-fino	Insetívoro	Costeiro	Invertebrados aquáticos	✓
+Calidris canutus	maçarico-de-papo-vermelho	Insetívoro	Costeiro	Moluscos, crustáceos, invertebrados marinhos	✓
+Calidris fuscicollis	maçarico-de-sobre-branco	Insetívoro	Costeiro	Invertebrados aquáticos	✓
+Calidris himantopus	maçarico-pernilongo	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Calidris melanotos	maçarico-de-colete	Insetívoro	Aquático	Invertebrados aquáticos e insetos	✓
+Calidris minutilla	maçariquinho	Insetívoro	Costeiro	Insetos e invertebrados aquáticos	✓
+Calidris pusilla	maçarico-rasteirinho	Insetívoro	Costeiro	Invertebrados marinhos	✓
+Calidris subruficollis	maçarico-acanelado	Insetívoro	Campestre	Insetos e invertebrados	✓
+Calliphlox amethystina	estrelinha-ametista	Nectarívoro	Florestal	Néctar floral e artrópodes minúsculos	✓
+Callonetta leucophrys	marreca-de-coleira	Onívoro	Aquático	Sementes, invertebrados aquáticos	✓
+Calonectris borealis	cagarra-grande	Piscívoro	Costeiro	Peixes e lulas	✓
+Campephilus robustus	pica-pau-rei	Insetívoro	Florestal	Larvas de besouro em madeira morta	✓
+Camptostoma obsoletum	risadinha	Insetívoro/Frugívoro	Generalista	Insetos e frutos pequenos	✓
+Campylorhamphus falcularius	arapaçu-de-bico-torto	Insetívoro	Florestal	Insetos em bromélias e epífitas	✓
+Campylorhynchus turdinus	catatau	Insetívoro/Frugívoro	Florestal	Insetos, aranhas, frutos	✓
+Cantorchilus longirostris	garrinchão-de-bico-grande	Insetívoro	Florestal	Insetos em borda densa	✓
+Capsiempis flaveola	marianinha-amarela	Insetívoro	Aquático	Insetos em brejeiros	✓
+Caracara plancus	carcará	Onívoro/Detritívoro	Generalista	Carniça, invertebrados, aves, peixes	✓
+Cariama cristata	seriema	Carnívoro/Insetívoro	Campestre	Insetos, cobras, lagartos, roedores	✓
+Carpornis cucullata	corocoxó	Frugívoro	Florestal	Frutos de lauráceas e outras árvores	✓
+Castanozoster thoracicus	peito-pinhão	Granívoro/Insetívoro	Florestal	Sementes de bambu e insetos	✓
+Cathartes aura	urubu-de-cabeça-vermelha	Detritívoro	Generalista	Carniça localizada pelo olfato	✓
+Cathartes burrovianus	urubu-de-cabeça-amarela	Detritívoro	Campestre	Carniça em áreas abertas	✓
+Catharus fuscescens	sabiazinho-norte-americano	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Catharus swainsoni	sabiazinho-de-óculos	Insetívoro/Frugívoro	Florestal	Insetos, minhocas, frutos	✓
+Celeus flavescens	pica-pau-de-cabeça-amarela	Insetívoro/Frugívoro	Florestal	Insetos, frutas e mel	✓
+Celeus galeatus	pica-pau-de-cara-canela	Insetívoro	Florestal	Formigas, larvas, insetos em madeira	✓
+Certhiaxis cinnamomeus	curutié	Insetívoro	Aquático	Insetos em juncos e banhados	✓
+Chaetura cinereiventris	andorinhão-de-sobre-cinzento	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Chaetura meridionalis	andorinhão-do-temporal	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Chamaeza campanisona	tovaca-campainha	Insetívoro	Florestal	Insetos e minhocas no chão	✓
+Chamaeza ruficauda	tovaca-de-rabo-vermelho	Insetívoro	Florestal	Insetos na serapilheira	✓
+Charadrius collaris	batuíra-de-coleira	Insetívoro	Costeiro	Invertebrados aquáticos	✓
+Charadrius falklandicus	batuíra-de-coleira-dupla	Insetívoro	Costeiro	Invertebrados marinhos	✓
+Charadrius modestus	batuíra-de-peito-tijolo	Insetívoro	Costeiro	Invertebrados aquáticos e insetos	✓
+Charadrius semipalmatus	batuíra-de-bando	Insetívoro	Costeiro	Invertebrados marinhos e insetos	✓
+Chauna torquata	tachã	Herbívoro	Aquático	Plantas aquáticas e gramíneas	✓
+Chionis albus	pomba-antártica	Onívoro	Costeiro	Invertebrados, aves, ovos, carniça	✓
+Chionomesa fimbriata	beija-flor-de-garganta-verde	Nectarívoro	Florestal	Néctar floral e artrópodes	✓
+Chionomesa lactea	beija-flor-de-peito-azul	Nectarívoro	Florestal	Néctar floral e artrópodes	✓
+Chiroxiphia caudata	tangará	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Chloroceryle aenea	martim-pescador-miúdo	Piscívoro/Insetívoro	Aquático	Peixinhos e insetos aquáticos	✓
+Chloroceryle amazona	martim-pescador-verde	Piscívoro	Aquático	Peixes	✓
+Chloroceryle americana	martim-pescador-pequeno	Piscívoro	Aquático	Peixes e insetos aquáticos	✓
+Chloroceryle inda	martim-pescador-da-mata	Piscívoro	Aquático	Peixes em riachos florestais	✓
+Chlorophanes spiza	saí-verde	Nectarívoro/Frugívoro	Florestal	Néctar, frutos e insetos	✓
+Chlorophonia cyanea	gaturamo-bandeira	Frugívoro	Florestal	Frutos de visco e erva-de-passarinho	✓
+Chlorostilbon lucidus	besourinho-de-bico-vermelho	Nectarívoro	Generalista	Néctar floral e pequenos insetos	✓
+Chondrohierax uncinatus	gavião-caracoleiro	Malacófago	Florestal	Caramujos extraídos com o bico gancho	✓
+Chordeiles minor	bacurau-norte-americano	Insetívoro aéreo	Generalista	Insetos em voo crepuscular/noturno	✓
+Chroicocephalus cirrocephalus	gaivota-de-cabeça-cinza	Onívoro	Aquático	Peixes, invertebrados, restos	✓
+Chroicocephalus maculipennis	gaivota-maria-velha	Onívoro	Aquático	Peixes, invertebrados, restos orgânicos	✓
+Chrysomus ruficapillus	garibaldi	Insetívoro/Granívoro	Aquático	Insetos e sementes em banhados	✓
+Chrysuronia versicolor	beija-flor-de-banda-branca	Nectarívoro	Florestal	Néctar floral e artrópodes	✓
+Cichlocolaptes leucophrus	trepador-sobrancelha	Insetívoro	Florestal	Insetos em bambu e lianas	✓
+Ciconia maguari	maguari	Carnívoro/Piscívoro	Aquático	Peixes, anfíbios, roedores, cobras	✓
+Cinclodes fuscus	pedreiro-dos-andes	Insetívoro	Campestre	Invertebrados aquáticos e terrestres	✓
+Cinclodes pabsti	pedreiro	Insetívoro	Campestre	Invertebrados em campos úmidos	✓
+Circus buffoni	gavião-do-banhado	Carnívoro	Aquático	Aves aquáticas, roedores, anfíbios	✓
+Circus cinereus	gavião-cinza	Carnívoro	Campestre	Roedores, aves pequenas, lagartos	✓
+Cissopis leverianus	tietinga	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Cistothorus platensis	corruíra-do-campo	Insetívoro	Campestre	Insetos em campos úmidos	✓
+Claravis pretiosa	pararu-azul	Granívoro	Florestal	Sementes de bambu e gramíneas	✓
+Clibanornis dendrocolaptoides	cisqueiro	Insetívoro	Florestal	Insetos em bromélias e epífitas	✓
+Cnemotriccus fuscatus	guaracavuçu	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Coccyzus americanus	papa-lagarta-de-asa-vermelha	Insetívoro	Florestal	Lagartas, insetos	✓
+Coccyzus erythropthalmus	papa-lagarta-de-bico-preto	Insetívoro	Florestal	Lagartas e insetos	✓
+Coccyzus euleri	papa-lagarta-de-euler	Insetívoro	Florestal	Insetos e lagartas	✓
+Coccyzus melacoryphus	papa-lagarta-acanelado	Insetívoro	Florestal	Insetos, lagartas, pequenos lagartos	✓
+Cochlearius cochlearius	arapapá	Piscívoro/Carnívoro	Aquático	Peixes e invertebrados, caça noturna	✓
+Coereba flaveola	cambacica	Nectarívoro/Frugívoro	Generalista	Néctar floral e frutos	✓
+Colaptes campestris	pica-pau-do-campo	Insetívoro	Campestre	Formigas, cupins e larvas no solo	✓
+Colaptes melanochloros	pica-pau-verde-barrado	Insetívoro	Florestal	Formigas, cupins, larvas	✓
+Colibri serrirostris	beija-flor-de-orelha-violeta	Nectarívoro	Florestal	Néctar floral e pequenos insetos	✓
+Colonia colonus	viuvinha	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Columba livia	pombo-doméstico	Granívoro	Generalista	Grãos, sementes e restos humanos	✓
+Columbina picui	rolinha-picuí	Granívoro	Campestre	Sementes e grãos	✓
+Columbina squammata	rolinha-fogo-apagou	Granívoro	Campestre	Sementes e grãos	✓
+Columbina talpacoti	rolinha-roxa	Granívoro	Generalista	Sementes e grãos pequenos	✓
+Conirostrum bicolor	figuinha-do-mangue	Nectarívoro/Insetívoro	Costeiro	Néctar e insetos em mangue	✓
+Conirostrum speciosum	figuinha-de-rabo-castanho	Nectarívoro/Insetívoro	Florestal	Néctar e insetos no dossel	✓
+Conopias trivirgatus	bem-te-vi-pequeno	Insetívoro	Florestal	Insetos no dossel	✓
+Conopophaga lineata	chupa-dente	Insetívoro	Florestal	Insetos e aranhas na serapilheira	✓
+Conopophaga melanops	cuspidor-de-máscara-preta	Insetívoro	Florestal	Insetos e aranhas no chão florestal	✓
+Contopus cinereus	papa-moscas-cinzento	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Coragyps atratus	urubu-preto	Detritívoro	Generalista	Carniça e restos orgânicos	✓
+Corythopis delalandi	estalador	Insetívoro	Florestal	Insetos no chão florestal	✓
+Coscoroba coscoroba	capororoca	Herbívoro	Aquático	Plantas aquáticas, algas	✓
+Cranioleuca obsoleta	arredio-oliváceo	Insetívoro	Florestal	Insetos em bambu e cipós	✓
+Cranioleuca pallida	arredio-pálido	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Crotophaga ani	anu-preto	Insetívoro	Generalista	Insetos, especialmente parasitas de bovinos	✓
+Crotophaga major	anu-coroca	Insetívoro	Aquático	Insetos, especialmente em ambientes úmidos	✓
+Cryptopezus nattereri	pinto-do-mato	Insetívoro	Florestal	Insetos e invertebrados no solo	✓
+Crypturellus noctivagus	jaó-do-sul	Onívoro	Florestal	Frutos, sementes, invertebrados	✓
+Crypturellus obsoletus	inhambuguaçu	Onívoro	Florestal	Frutos, sementes, invertebrados	✓
+Crypturellus parvirostris	inhambu-chororó	Granívoro/Insetívoro	Campestre	Sementes e invertebrados	✓
+Crypturellus tataupa	inhambu-chintã	Granívoro/Insetívoro	Florestal	Sementes e invertebrados	✓
+Culicivora caudacuta	papa-moscas-do-campo	Insetívoro	Campestre	Insetos em campos	✓
+Cyanerpes cyaneus	saíra-beija-flor	Nectarívoro/Frugívoro	Florestal	Néctar, frutos e insetos	✓
+Cyanocorax caeruleus	gralha-azul	Onívoro	Florestal	Frutos de araucária, insetos, ovos, vertebrados	✓
+Cyanocorax chrysops	gralha-picaça	Onívoro	Florestal	Frutos, insetos, ovos	✓
+Cyanocorax cristatellus	gralha-do-campo	Onívoro	Campestre	Insetos, frutos, invertebrados	✓
+Cyanoloxia brissonii	azulão	Granívoro	Florestal	Sementes e frutos	✓
+Cyanoloxia glaucocaerulea	azulinho	Granívoro	Florestal	Sementes	✓
+Cyanophonia cyanocephala	gaturamo-rei	Frugívoro	Florestal	Frutos de visco e erva-de-passarinho	✓
+Cyclarhis gujanensis	pitiguari	Insetívoro/Frugívoro	Florestal	Insetos, lagartos, frutos	✓
+Cypseloides fumigatus	taperuçu-preto	Insetívoro aéreo	Florestal	Insetos minúsculos capturados em voo	✓
+Cypseloides senex	taperuçu-velho	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Dacnis cayana	saí-azul	Nectarívoro/Frugívoro	Florestal	Néctar, frutos e insetos	✓
+Dacnis nigripes	saí-de-pernas-pretas	Nectarívoro/Frugívoro	Florestal	Néctar, frutos e insetos	✓
+Daption capense	pomba-do-cabo	Piscívoro	Costeiro	Peixes e invertebrados marinhos	✓
+Dendrocincla turdina	arapaçu-liso	Insetívoro	Florestal	Insetos, segue correições	✓
+Dendrocolaptes platyrostris	arapaçu-grande	Insetívoro	Florestal	Insetos em troncos, segue formigas	✓
+Dendrocygna autumnalis	marreca-cabocla	Herbívoro	Aquático	Sementes e gramíneas aquáticas	✓
+Dendrocygna bicolor	marreca-caneleira	Herbívoro/Filtrador	Aquático	Sementes, grãos e plantas aquáticas	✓
+Dendrocygna viduata	irerê	Filtrador/Herbívoro	Aquático	Plantas aquáticas, invertebrados	✓
+Dendroma rufa	limpa-folha-de-testa-baia	Insetívoro	Florestal	Insetos em folhas mortas pendentes	✓
+Diomedea dabbenena	albatroz-de-tristão	Piscívoro	Costeiro	Lulas, peixes	✓
+Diomedea exulans	albatroz-errante	Piscívoro	Costeiro	Lulas, peixes, carniça	✓
+Donacospiza albifrons	tico-tico-do-banhado	Granívoro/Insetívoro	Aquático	Sementes e insetos em banhados	✓
+Dromococcyx pavoninus	peixe-frito-pavonino	Insetívoro	Florestal	Insetos e aranhas	✓
+Dromococcyx phasianellus	peixe-frito	Insetívoro	Florestal	Insetos, aranhas, pequenos lagartos	✓
+Drymophila ferruginea	dituí	Insetívoro	Florestal	Insetos em bambu e samambaias	✓
+Drymophila malura	choquinha-carijó	Insetívoro	Florestal	Insetos em bambu e taquara	✓
+Drymophila ochropyga	choquinha-de-dorso-vermelho	Insetívoro	Florestal	Insetos em bambu	✓
+Drymophila rubricollis	choquinha-dublê	Insetívoro	Florestal	Insetos em bambu	✓
+Drymophila squamata	pintadinho	Insetívoro	Florestal	Insetos em folhagem densa	✓
+Dryocopus lineatus	pica-pau-de-banda-branca	Insetívoro	Florestal	Larvas de besouros em troncos	✓
+Dysithamnus mentalis	choquinha-lisa	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Dysithamnus stictothorax	choquinha-de-peito-pintado	Insetívoro	Florestal	Insetos e aranhas no sub-bosque	✓
+Dysithamnus xanthopterus	choquinha-de-asa-ferrugem	Insetívoro	Florestal	Insetos e aranhas	✓
+Egretta caerulea	garça-azul	Piscívoro/Insetívoro	Aquático	Peixes, crustáceos, insetos	✓
+Egretta thula	garça-branca-pequena	Piscívoro/Insetívoro	Aquático	Peixes, insetos, crustáceos	✓
+Elaenia chilensis	guaracava-de-crista-branca	Insetívoro/Frugívoro	Generalista	Frutos e insetos	✓
+Elaenia flavogaster	guaracava-de-barriga-amarela	Insetívoro/Frugívoro	Generalista	Frutos e insetos	✓
+Elaenia mesoleuca	tuque	Insetívoro/Frugívoro	Florestal	Frutos e insetos	✓
+Elaenia obscura	tucão	Insetívoro/Frugívoro	Florestal	Frutos e insetos	✓
+Elaenia parvirostris	tuque-pium	Insetívoro/Frugívoro	Generalista	Frutos e insetos	✓
+Elaenia spectabilis	guaracava-grande	Insetívoro/Frugívoro	Generalista	Frutos e insetos	✓
+Elanoides forficatus	gavião-tesoura	Insetívoro/Carnívoro	Florestal	Insetos grandes, lagartos, serpentes	✓
+Elanus leucurus	gavião-peneira	Carnívoro	Campestre	Roedores, insetos grandes, lagartos	✓
+Eleoscytalopus indigoticus	macuquinho	Insetívoro	Florestal	Insetos em brejeiros e várzeas	✓
+Emberizoides herbicola	canário-do-campo	Granívoro/Insetívoro	Campestre	Sementes e insetos	✓
+Emberizoides ypiranganus	canário-do-brejo	Granívoro/Insetívoro	Aquático	Sementes e insetos	✓
+Embernagra platensis	sabiá-do-banhado	Granívoro/Insetívoro	Aquático	Sementes e insetos em banhados	✓
+Empidonomus varius	peitica	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Estrilda astrild	bico-de-lacre	Granívoro	Generalista	Sementes de gramíneas	✓
+Eudocimus ruber	guará	Insetívoro/Piscívoro	Aquático	Caranguejos, insetos, anfíbios	✓
+Eupetomena macroura	beija-flor-tesoura	Nectarívoro	Generalista	Néctar floral e artrópodes	✓
+Euphonia chalybea	cais-cais	Frugívoro	Florestal	Frutos de visco	✓
+Euphonia chlorotica	fim-fim	Frugívoro	Florestal	Frutos de visco e erva-de-passarinho	✓
+Euphonia pectoralis	ferro-velho	Frugívoro	Florestal	Frutos de visco	✓
+Euphonia violacea	gaturamo-verdadeiro	Frugívoro	Florestal	Frutos de visco e outras plantas	✓
+Euscarthmus meloryphus	barulhento	Insetívoro	Campestre	Insetos em arbustos	✓
+Falco femoralis	falcão-de-coleira	Carnívoro	Campestre	Aves em voo, insetos, morcegos	✓
+Falco peregrinus	falcão-peregrino	Carnívoro	Generalista	Aves em voo rápido	✓
+Falco rufigularis	cauré	Carnívoro	Florestal	Andorinhões e morcegos em voo	✓
+Falco sparverius	quiriquiri	Insetívoro/Carnívoro	Campestre	Insetos, lagartos, roedores	✓
+Florisuga fusca	beija-flor-preto	Nectarívoro	Florestal	Néctar floral, pequenos insetos e aranhas	✓
+Fluvicola albiventer	lavadeira-de-cara-branca	Insetívoro	Aquático	Insetos em beiras d'água	✓
+Fluvicola nengeta	lavadeira-mascarada	Insetívoro	Aquático	Insetos em beiras d'água	✓
+Formicarius colma	galinha-do-mato	Insetívoro	Florestal	Insetos, segue correições de formigas	✓
+Formicivora acutirostris	bicudinho-do-brejo	Insetívoro	Aquático	Insetos em vegetação de brejo	✓
+Forpus xanthopterygius	tuim	Granívoro	Generalista	Sementes e grãos pequenos	✓
+Fregata magnificens	fragata	Cleptoparasita/Piscívoro	Costeiro	Rouba peixes de outras aves, peixes	✓
+Fulica armillata	carqueja-de-bico-manchado	Herbívoro/Onívoro	Aquático	Plantas aquáticas e invertebrados	✓
+Fulica leucoptera	carqueja-de-bico-amarelo	Herbívoro/Onívoro	Aquático	Plantas aquáticas e invertebrados	✓
+Fulica rufifrons	carqueja-de-escudo-vermelho	Herbívoro/Onívoro	Aquático	Plantas aquáticas, algas, invertebrados	✓
+Fulmarus glacialoides	pardelão-prateado	Piscívoro	Costeiro	Peixes, lulas, crustáceos	✓
+Furnarius figulus	casaca-de-couro-da-lama	Insetívoro	Aquático	Invertebrados em barro úmido	✓
+Furnarius rufus	joão-de-barro	Insetívoro	Generalista	Insetos e invertebrados no solo	✓
+Gallinago paraguaiae	narceja	Insetívoro	Aquático	Minhocas, invertebrados do solo	✓
+Gallinago undulata	narcejão	Insetívoro	Aquático	Minhocas, invertebrados do solo	✓
+Gallinula galeata	galinha-d'água	Onívoro	Aquático	Plantas, sementes, invertebrados aquáticos	✓
+Geositta cunicularia	curriqueiro	Insetívoro	Campestre	Insetos e invertebrados no solo	✓
+Geothlypis aequinoctialis	pia-cobra	Insetívoro	Aquático	Insetos em juncos e banhados	✓
+Geotrygon montana	pariri	Granívoro/Frugívoro	Florestal	Sementes e frutos do solo	✓
+Geranoaetus albicaudatus	gavião-de-rabo-branco	Carnívoro	Campestre	Cobras, lagartos, roedores	✓
+Geranoaetus melanoleucus	águia-serrana	Carnívoro	Campestre	Tatus, roedores, coelhos	✓
+Geranospiza caerulescens	gavião-pernilongo	Carnívoro	Florestal	Lagartos, rãs, ovos em ninhos	✓
+Glaucidium brasilianum	caburé	Insetívoro/Carnívoro	Florestal	Insetos grandes, lagartos, aves pequenas	✓
+Glaucidium minutissimum	caburé-miudinho	Insetívoro/Carnívoro	Florestal	Insetos e pequenos vertebrados	✓
+Gnorimopsar chopi	pássaro-preto	Onívoro	Generalista	Insetos, frutos, sementes	✓
+Grallaria varia	tovacuçu	Insetívoro	Florestal	Minhocas, insetos e aranhas na serapilheira	✓
+Griseotyrannus aurantioatrocristatus	peitica-de-chapéu-preto	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Gubernetes yetapa	tesoura-do-brejo	Insetívoro aéreo	Aquático	Insetos capturados em voo sobre banhados	✓
+Guira guira	anu-branco	Insetívoro/Carnívoro	Generalista	Insetos, lagartos, anfíbios, pequenos vertebrados	✓
+Habia rubica	tiê-de-bando	Insetívoro	Florestal	Insetos, segue correições de formigas	✓
+Haematopus palliatus	piru-piru	Carnívoro/Insetívoro	Costeiro	Moluscos, crustáceos, equinodermas	✓
+Haplospiza unicolor	cigarra-bambu	Granívoro	Florestal	Sementes de bambu	✓
+Harpagus diodon	gavião-bombachinha	Insetívoro/Carnívoro	Florestal	Insetos grandes, lagartos, morcegos	✓
+Heliobletus contaminatus	trepadorzinho	Insetívoro	Florestal	Insetos em galhos finos	✓
+Heliodoxa rubricauda	beija-flor-rubi	Nectarívoro	Florestal	Néctar floral e pequenos insetos	✓
+Heliomaster furcifer	bico-reto-azul	Nectarívoro	Florestal	Néctar floral e insetos	✓
+Heliornis fulica	picaparra	Piscívoro/Insetívoro	Aquático	Peixes, insetos, anfíbios	✓
+Hemithraupis guira	saíra-de-papo-preto	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Hemithraupis ruficapilla	saíra-ferrugem	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Hemitriccus diops	olho-falso	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Hemitriccus kaempferi	maria-catarinense	Insetívoro	Florestal	Insetos na restinga e floresta	✓
+Hemitriccus nidipendulus	tachuri-campainha	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Hemitriccus obsoletus	catraca	Insetívoro	Florestal	Insetos em bambu	✓
+Hemitriccus orbitatus	tiririzinho-do-mato	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Herpetotheres cachinnans	acauã	Carnívoro	Florestal	Cobras, especialmente serpentes peçonhentas	✓
+Herpsilochmus rufimarginatus	chorozinho-de-asa-vermelha	Insetívoro	Florestal	Insetos no dossel	✓
+Heteronetta atricapilla	marreca-de-cabeça-preta	Onívoro	Aquático	Invertebrados, plantas aquáticas	✓
+Heterospizias meridionalis	gavião-caboclo	Carnívoro	Campestre	Cobras, lagartos, roedores	✓
+Heteroxolmis dominicanus	noivinha-de-rabo-preto	Insetívoro	Campestre	Insetos em campos	✓
+Hieraspiza superciliosa	tauató-passarinho	Carnívoro	Florestal	Pequenas aves	✓
+Himantopus melanurus	pernilongo-de-costas-brancas	Insetívoro	Aquático	Invertebrados aquáticos, insetos	✓
+Hirundinea ferruginea	gibão-de-couro	Insetívoro aéreo	Florestal	Insetos capturados em voo, poleiros rochosos	✓
+Hirundo rustica	andorinha-de-bando	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Hydropsalis anomala	curiango-do-banhado	Insetívoro aéreo	Aquático	Insetos em voo noturno	✓
+Hydropsalis forcipata	bacurau-tesourão	Insetívoro aéreo	Florestal	Insetos em voo noturno	✓
+Hydropsalis longirostris	bacurau-da-telha	Insetívoro aéreo	Generalista	Insetos em voo noturno	✓
+Hydropsalis parvula	bacurau-chintã	Insetívoro aéreo	Generalista	Insetos em voo noturno	✓
+Hydropsalis torquata	bacurau-tesoura	Insetívoro aéreo	Generalista	Insetos em voo noturno	✓
+Hylocharis chrysura	beija-flor-dourado	Nectarívoro	Florestal	Néctar floral e pequenos insetos	✓
+Hylophilus poicilotis	verdinho-coroado	Insetívoro	Florestal	Insetos no dossel	✓
+Hymenops perspicillatus	viuvinha-de-óculos	Insetívoro	Aquático	Insetos em banhados	✓
+Hypoedaleus guttatus	chocão-carijó	Insetívoro	Florestal	Insetos no interior florestal	✓
+Icterus galbula	corrupião-de-baltimore	Insetívoro/Nectarívoro	Florestal	Insetos, néctar, frutos	✓
+Icterus pyrrhopterus	encontro	Insetívoro/Nectarívoro	Florestal	Insetos, néctar e frutos	✓
+Ictinia plumbea	sovi	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Ilicura militaris	tangarazinho	Frugívoro/Insetívoro	Florestal	Frutos pequenos e insetos	✓
+Ixobrychus exilis	socoí-vermelho	Insetívoro/Piscívoro	Aquático	Insetos, pequenos peixes, anfíbios	✓
+Ixobrychus involucris	socoí-amarelo	Insetívoro/Piscívoro	Aquático	Insetos, pequenos peixes, anfíbios	✓
+Jabiru mycteria	tuiuiú	Carnívoro/Piscívoro	Aquático	Peixes, anfíbios, moluscos, cobras	✓
+Jacana jacana	jaçanã	Insetívoro	Aquático	Insetos, invertebrados aquáticos	✓
+Knipolegus cyanirostris	maria-preta-de-bico-azulado	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Knipolegus lophotes	maria-preta-de-penacho	Insetívoro	Campestre	Insetos em arbustos	✓
+Knipolegus nigerrimus	maria-preta-de-garganta-vermelha	Insetívoro	Florestal	Insetos em borda de floresta	✓
+Larus atlanticus	gaivota-de-rabo-preto	Piscívoro/Onívoro	Costeiro	Peixes, invertebrados marinhos	✓
+Larus dominicanus	gaivotão	Onívoro	Costeiro	Peixes, invertebrados, ovos, carniça	✓
+Laterallus exilis	sanã-do-capim	Insetívoro	Aquático	Insetos e pequenos invertebrados	✓
+Laterallus flaviventer	sanã-amarela	Insetívoro	Aquático	Insetos e invertebrados aquáticos	✓
+Laterallus leucopyrrhus	sanã-vermelha	Insetívoro	Aquático	Insetos e invertebrados	✓
+Laterallus melanophaius	sanã-parda	Insetívoro	Aquático	Insetos e invertebrados	✓
+Laterallus spilopterus	sanã-cinza	Insetívoro	Aquático	Insetos e invertebrados aquáticos	✓
+Lathrotriccus euleri	enferrujado	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Legatus leucophaius	bem-te-vi-pirata	Insetívoro/Frugívoro	Florestal	Frutos e insetos, cleptoparasita	✓
+Leistes superciliaris	polícia-inglesa-do-sul	Insetívoro/Granívoro	Campestre	Insetos e sementes	✓
+Lepidocolaptes angustirostris	arapaçu-de-cerrado	Insetívoro	Florestal	Insetos em cascas de árvores	✓
+Lepidocolaptes falcinellus	arapaçu-escamoso-do-sul	Insetívoro	Florestal	Insetos em cascas no sub-bosque	✓
+Leptasthenura setaria	grimpeiro	Insetívoro	Florestal	Insetos em araucárias	✓
+Leptasthenura striolata	grimpeirinho	Insetívoro	Florestal	Insetos em araucárias	✓
+Leptodon cayanensis	gavião-gato	Carnívoro	Florestal	Ovos e filhotes de aves, lagartos	✓
+Leptopogon amaurocephalus	cabeçudo	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Leptotila rufaxilla	juriti-de-testa-branca	Granívoro/Frugívoro	Florestal	Sementes e frutos no chão	✓
+Leptotila verreauxi	juriti-pupu	Granívoro/Frugívoro	Florestal	Sementes e frutos caídos	✓
+Lessonia rufa	colegial	Insetívoro	Aquático	Insetos em beiras de rios	✓
+Leucochloris albicollis	beija-flor-de-papo-branco	Nectarívoro	Florestal	Néctar floral e pequenos insetos	✓
+Leucophaeus atricilla	gaivota-alegre	Onívoro	Costeiro	Peixes, invertebrados, restos	✓
+Leucophaeus modestus	gaivota-cinzenta	Onívoro	Costeiro	Invertebrados, restos orgânicos	✓
+Leucophaeus pipixcan	gaivota-de-franklin	Insetívoro/Onívoro	Campestre	Insetos em campo, restos orgânicos	✓
+Limnoctites rectirostris	arredio-do-gravatá	Insetívoro	Aquático	Insetos em gravatás	✓
+Limnodromus griseus	maçarico-de-costas-brancas	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Limnornis curvirostris	joão-da-palha	Insetívoro	Aquático	Insetos em juncais	✓
+Limosa haemastica	maçarico-de-bico-virado	Insetívoro	Costeiro	Invertebrados aquáticos	✓
+Lipaugus lanioides	tropeiro-da-serra	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Lochmias nematura	joão-porca	Insetívoro	Aquático	Insetos e invertebrados em riachos	✓
+Lophornis chalybeus	topetinho-verde	Nectarívoro	Florestal	Néctar floral e artrópodes	✓
+Lophornis magnificus	topetinho-vermelho	Nectarívoro	Florestal	Néctar floral e pequenos artrópodes	✓
+Loriotus cristatus	tiê-galo	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Lurocalis semitorquatus	tuju	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Machetornis rixosa	suiriri-cavaleiro	Insetívoro	Campestre	Insetos, segue gado e aves grandes	✓
+Mackenziaena leachii	borralhara-assobiadora	Insetívoro	Florestal	Insetos no bambu e sub-bosque	✓
+Mackenziaena severa	borralhara	Insetívoro	Florestal	Insetos no bambu	✓
+Macronectes giganteus	petrel-grande	Detritívoro/Piscívoro	Costeiro	Carniça de aves marinhas e mamíferos	✓
+Macronectes halli	petrel-grande-do-norte	Detritívoro/Piscívoro	Costeiro	Carniça e peixes	✓
+Malacoptila striata	barbudo-rajado	Insetívoro	Florestal	Insetos grandes, lagartos, artrópodes	✓
+Manacus manacus	rendeira	Frugívoro/Insetívoro	Florestal	Frutos pequenos e insetos	✓
+Mareca sibilatrix	marreca-oveira	Herbívoro	Aquático	Gramíneas e plantas aquáticas	✓
+Megaceryle torquata	martim-pescador-grande	Piscívoro	Aquático	Peixes capturados em mergulho	✓
+Megarynchus pitangua	neinei	Insetívoro/Frugívoro	Florestal	Insetos, frutos e anfíbios	✓
+Megascops atricapilla	corujinha-sapo	Insetívoro/Carnívoro	Florestal	Insetos e lagartos	✓
+Megascops choliba	corujinha-do-mato	Insetívoro/Carnívoro	Florestal	Insetos, lagartos, aves pequenas	✓
+Megascops sanctaecatarinae	corujinha-do-sul	Insetívoro/Carnívoro	Florestal	Insetos e pequenos vertebrados	✓
+Melanerpes candidus	pica-pau-branco	Onívoro	Florestal	Insetos, frutos, néctar, mel	✓
+Melanerpes flavifrons	benedito-de-testa-amarela	Insetívoro/Frugívoro	Florestal	Insetos, frutos e mel	✓
+Merulaxis ater	entufado	Insetívoro	Florestal	Insetos na serapilheira	✓
+Mesembrinibis cayennensis	coró-coró	Insetívoro	Aquático	Insetos, moluscos, anfíbios	✓
+Micrastur ruficollis	falcão-caburé	Carnívoro	Florestal	Aves pequenas e lagartos	✓
+Micrastur semitorquatus	falcão-relógio	Carnívoro	Florestal	Aves de médio porte em clareiras	✓
+Micrococcyx cinereus	papa-lagarta-cinzento	Insetívoro	Florestal	Insetos e lagartas	✓
+Microspingus cabanisi	quete-do-sul	Insetívoro	Campestre	Insetos em arbustais	✓
+Milvago chimachima	carrapateiro	Insetívoro/Onívoro	Generalista	Insetos, carrapatos, parasitas	✓
+Milvago chimango	chimango	Onívoro	Generalista	Carniça, insetos, frutos, ovos	✓
+Mimus saturninus	sabiá-do-campo	Onívoro	Campestre	Insetos, frutos, pequenos vertebrados	✓
+Mimus triurus	calhandra-de-três-rabos	Onívoro	Campestre	Insetos, frutos, lagartos	✓
+Mionectes rufiventris	abre-asa-de-cabeça-cinza	Frugívoro/Insetívoro	Florestal	Frutos e insetos no sub-bosque	✓
+Molothrus bonariensis	chupim	Granívoro/Insetívoro	Generalista	Sementes e insetos, parasita	✓
+Molothrus oryzivorus	iraúna-grande	Granívoro/Insetívoro	Generalista	Grãos e insetos, parasita	✓
+Molothrus rufoaxillaris	chupim-azeviche	Granívoro/Insetívoro	Campestre	Sementes e insetos, parasita	✓
+Morus serrator	atobá-australiano	Piscívoro	Costeiro	Peixes capturados por mergulho em picada	✓
+Muscipipra vetula	tesoura-cinzenta	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Mustelirallus albicollis	sanã-carijó	Insetívoro	Aquático	Insetos e invertebrados do solo	✓
+Mycteria americana	cabeça-seca	Piscívoro	Aquático	Peixes capturados por tato	✓
+Myiarchus ferox	maria-cavaleira	Insetívoro/Frugívoro	Generalista	Insetos e frutos	✓
+Myiarchus swainsoni	irré	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Myiobius atricaudus	assanhadinho-de-cauda-preta	Insetívoro	Florestal	Insetos capturados em voo	✓
+Myiobius barbatus	assanhadinho	Insetívoro	Florestal	Insetos capturados em voo	✓
+Myiodynastes maculatus	bem-te-vi-rajado	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Myiopagis caniceps	guaracava-cinzenta	Insetívoro	Florestal	Insetos no dossel	✓
+Myiopagis viridicata	guaracava-de-crista-alaranjada	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Myiophobus fasciatus	filipe	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Myiopsitta monachus	caturrita	Granívoro/Frugívoro	Generalista	Sementes, grãos, frutos	✓
+Myiornis auricularis	miudinho	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Myiothlypis leucoblephara	pula-pula-assobiador	Insetívoro	Florestal	Insetos no sub-bosque e solo	✓
+Myiothlypis rivularis	pula-pula-ribeirinho	Insetívoro	Aquático	Insetos em beiras de riachos	✓
+Myiozetetes similis	bentevizinho-de-penacho-vermelho	Insetívoro/Frugívoro	Generalista	Insetos e frutos	✓
+Myrmoderus squamosus	papa-formiga-de-grota	Insetívoro	Florestal	Insetos e formigas no solo	✓
+Myrmotherula unicolor	choquinha-cinzenta	Insetívoro	Florestal	Insetos e aranhas no sub-bosque	✓
+Nannopterum brasilianum	biguá	Piscívoro	Aquático	Peixes capturados por perseguição	✓
+Nemosia pileata	saíra-de-chapéu-preto	Insetívoro	Florestal	Insetos no dossel	✓
+Nengetus cinereus	primavera	Insetívoro	Campestre	Insetos em campos	✓
+Neocrex erythrops	turu-turu	Insetívoro	Aquático	Insetos e pequenos invertebrados	✓
+Netta erythrophthalma	paturi-preta	Onívoro	Aquático	Plantas aquáticas e invertebrados	✓
+Netta peposaca	marrecão	Herbívoro/Filtrador	Aquático	Plantas aquáticas, sementes	✓
+Nomonyx dominicus	marreca-caucau	Onívoro	Aquático	Invertebrados e plantas aquáticas	✓
+Nonnula rubecula	macuru	Insetívoro	Florestal	Insetos e aranhas	✓
+Notharchus swainsoni	macuru-de-barriga-castanha	Insetívoro	Florestal	Insetos grandes, lagartos, anfíbios	✓
+Nothura maculosa	codorna-amarela	Granívoro/Insetívoro	Campestre	Sementes e insetos	✓
+Numenius hudsonicus	maçarico-de-bico-torto	Insetívoro	Costeiro	Invertebrados marinhos, crustáceos	✓
+Nyctanassa violacea	savacu-de-coroa	Onívoro	Aquático	Crustáceos, peixes, invertebrados	✓
+Nyctibius griseus	urutau	Insetívoro aéreo	Florestal	Insetos capturados em voo à noite	✓
+Nycticorax nycticorax	socó-dorminhoco	Piscívoro/Carnívoro	Aquático	Peixes, anfíbios, invertebrados	✓
+Nycticryphes semicollaris	narceja-de-bico-torto	Insetívoro	Aquático	Invertebrados do solo úmido	✓
+Nyctidromus albicollis	bacurau	Insetívoro aéreo	Florestal	Insetos em voo noturno	✓
+Nystalus chacuru	joão-bobo	Insetívoro/Carnívoro	Campestre	Insetos grandes, lagartos, serpentes	✓
+Oceanites oceanicus	alma-de-mestre	Piscívoro	Costeiro	Zooplâncton, peixinhos, invertebrados marinhos	✓
+Odontophorus capueira	uru	Granívoro/Insetívoro	Florestal	Sementes, frutos caídos, invertebrados	✓
+Onychorhynchus swainsoni	maria-leque-do-sudeste	Insetívoro	Florestal	Insetos grandes, aranhas	✓
+Orchesticus abeillei	sanhaço-pardo	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Oreopholus ruficollis	batuíra-de-papo-ferrugíneo	Insetívoro	Campestre	Insetos e invertebrados do solo	✓
+Ortalis squamata	aracuã-escamoso	Frugívoro/Onívoro	Florestal	Frutos, sementes, invertebrados	✓
+Orthogonys chloricterus	catirumbava	Frugívoro/Insetívoro	Florestal	Frutos e insetos no dossel	✓
+Oxyruncus cristatus	araponga-do-horto	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Oxyura vittata	marreca-rabo-de-espinho	Insetívoro/Filtrador	Aquático	Invertebrados aquáticos e sementes	✓
+Pachyramphus castaneus	caneleiro	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Pachyramphus marginatus	caneleiro-bordado	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Pachyramphus polychopterus	caneleiro-preto	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Pachyramphus validus	caneleiro-de-chapéu-preto	Insetívoro/Frugívoro	Florestal	Insetos e frutos no dossel	✓
+Pachyramphus viridis	caneleiro-verde	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Pandion haliaetus	águia-pescadora	Piscívoro	Aquático	Peixes capturados com as garras	✓
+Panyptila cayennensis	andorinhão-estofador	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Parabuteo leucorrhous	gavião-de-sobre-branco	Carnívoro	Florestal	Aves e pequenos mamíferos	✓
+Parabuteo unicinctus	gavião-asa-de-telha	Carnívoro	Campestre	Aves, mamíferos, lagartos	✓
+Pardirallus maculatus	saracura-carijó	Onívoro	Aquático	Insetos, pequenos vertebrados, plantas	✓
+Pardirallus nigricans	saracura-sanã	Onívoro	Aquático	Insetos, sementes, plantas aquáticas	✓
+Pardirallus sanguinolentus	saracura-do-banhado	Onívoro	Aquático	Invertebrados, sementes, pequenos vertebrados	✓
+Paroaria coronata	cardeal	Granívoro/Insetívoro	Campestre	Sementes e insetos	✓
+Passer domesticus	pardal	Granívoro/Insetívoro	Generalista	Sementes, grãos, insetos	✓
+Patagioenas cayennensis	pomba-galega	Granívoro/Frugívoro	Florestal	Frutos e sementes	✓
+Patagioenas picazuro	pomba-asa-branca	Granívoro/Frugívoro	Florestal	Sementes, grãos e frutos	✓
+Patagioenas plumbea	pomba-amargosa	Frugívoro	Florestal	Frutos de árvores florestais	✓
+Penelope obscura	jacuguaçu	Frugívoro/Onívoro	Florestal	Frutos, sementes, flores, invertebrados	✓
+Penelope superciliaris	jacupemba	Frugívoro/Onívoro	Florestal	Frutos, folhas, flores, invertebrados	✓
+Petrochelidon pyrrhonota	andorinha-de-dorso-acanelado	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Phacellodomus ferrugineigula	joão-botina-do-brejo	Insetívoro	Aquático	Insetos em brejeiros	✓
+Phacellodomus striaticollis	tio-tio	Insetívoro	Campestre	Insetos em gramíneas	✓
+Phaethornis eurynome	rabo-branco-de-garganta-rajada	Nectarívoro	Florestal	Néctar floral e artrópodes	✓
+Phaethornis pretrei	rabo-branco-acanelado	Nectarívoro	Florestal	Néctar floral e pequenos insetos	✓
+Phaethornis squalidus	rabo-branco-pequeno	Nectarívoro	Florestal	Néctar de flores heliconiáceas e aranhas	✓
+Phaetusa simplex	trinta-réis-grande	Piscívoro	Aquático	Peixes	✓
+Phalaropus fulicarius	pisa-n'água-de-bico-grosso	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Phalaropus tricolor	pisa-n'água	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Phibalura flavirostris	tesourinha-da-mata	Frugívoro/Insetívoro	Florestal	Frutos e insetos no dossel	✓
+Philydor atricapillus	limpa-folha-coroado	Insetívoro	Florestal	Insetos em folhas mortas e bambu	✓
+Phimosus infuscatus	tapicuru	Insetívoro	Aquático	Invertebrados do solo úmido	✓
+Phleocryptes melanops	bate-bico	Insetívoro	Aquático	Insetos aquáticos em juncos	✓
+Phoenicoparrus andinus	flamingo-dos-andes	Filtrador	Aquático	Algas, diatomáceas e invertebrados por filtração	✓
+Phyllomyias fasciatus	piolhinho	Insetívoro	Florestal	Insetos no sub-bosque e borda	✓
+Phyllomyias griseocapilla	piolhinho-serrano	Insetívoro	Florestal	Insetos no dossel florestal	✓
+Phyllomyias virescens	piolhinho-verdoso	Insetívoro	Florestal	Insetos no dossel	✓
+Phylloscartes difficilis	estalinho	Insetívoro	Florestal	Insetos em bambu	✓
+Phylloscartes eximius	barbudinho	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Phylloscartes kronei	maria-da-restinga	Insetívoro	Costeiro	Insetos na restinga	✓
+Phylloscartes oustaleti	papa-moscas-de-olheiras	Insetívoro	Florestal	Insetos no dossel	✓
+Phylloscartes sylviolus	maria-pequena	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Phylloscartes ventralis	borboletinha-do-mato	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Piaya cayana	alma-de-gato	Insetívoro	Florestal	Lagartas, gafanhotos, insetos grandes	✓
+Piculus aurulentus	pica-pau-dourado	Insetívoro	Florestal	Formigas, cupins, larvas	✓
+Piculus flavigula	pica-pau-bufador	Insetívoro	Florestal	Insetos e larvas em madeira	✓
+Picumnus nebulosus	picapauzinho-carijó	Insetívoro	Florestal	Insetos e larvas em madeira	✓
+Picumnus temminckii	picapauzinho-de-coleira	Insetívoro	Florestal	Insetos em galhos finos	✓
+Pilherodius pileatus	garça-real	Piscívoro	Aquático	Peixes e anfíbios	✓
+Pionopsitta pileata	cuiú-cuiú	Frugívoro/Granívoro	Florestal	Frutos, sementes, néctar	✓
+Pionus maximiliani	maitaca-verde	Frugívoro/Granívoro	Florestal	Frutos, sementes, flores	✓
+Pipraeidea melanonota	saíra-viúva	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Piprites chloris	papinho-amarelo	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Piprites pileata	caneleirinho-de-chapéu-preto	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Piranga flava	sanhaço-de-fogo	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Pitangus sulphuratus	bem-te-vi	Onívoro	Generalista	Insetos, frutos, anfíbios, peixes, lagartos	✓
+Platalea ajaja	colhereiro	Filtrador/Piscívoro	Aquático	Peixes e invertebrados filtrados	✓
+Platyrinchus leucoryphus	patinho-de-asa-castanha	Insetívoro	Florestal	Insetos no chão do sub-bosque	✓
+Platyrinchus mystaceus	patinho	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Plegadis chihi	caraúna	Insetívoro	Aquático	Insetos, caramujos, crustáceos	✓
+Pluvialis dominica	batuiruçu	Insetívoro	Campestre	Insetos, minhocas, invertebrados	✓
+Pluvialis squatarola	batuiruçu-de-axila-preta	Insetívoro	Costeiro	Invertebrados marinhos	✓
+Podager nacunda	corucão	Insetívoro aéreo	Campestre	Insetos capturados em voo	✓
+Podicephorus major	mergulhão-grande	Piscívoro	Aquático	Peixes e invertebrados aquáticos	✓
+Podilymbus podiceps	mergulhão-caçador	Piscívoro	Aquático	Peixes, crustáceos, invertebrados	✓
+Poecilotriccus plumbeiceps	tororó	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Polioptila dumicola	balança-rabo-de-máscara	Insetívoro	Florestal	Insetos e aranhas	✓
+Polioptila lactea	balança-rabo-leitoso	Insetívoro	Florestal	Insetos e aranhas	✓
+Polystictus pectoralis	papa-moscas-canela	Insetívoro	Campestre	Insetos em campos úmidos	✓
+Poospiza nigrorufa	quem-te-vestiu	Granívoro/Insetívoro	Campestre	Sementes e insetos	✓
+Porphyrio flavirostris	frango-d'água-pequeno	Onívoro	Aquático	Plantas aquáticas, sementes, invertebrados	✓
+Porphyrio martinica	frango-d'água-azul	Onívoro	Aquático	Plantas aquáticas, sementes, invertebrados	✓
+Porphyriops melanops	galinha-d'água-carijó	Onívoro	Aquático	Plantas aquáticas, invertebrados	✓
+Primolius maracana	maracanã	Frugívoro/Granívoro	Florestal	Frutos e sementes	✓
+Procellaria aequinoctialis	pardela-preta	Piscívoro	Costeiro	Lulas, peixes e crustáceos	✓
+Procellaria conspicillata	pardela-de-óculos	Piscívoro	Costeiro	Lulas e peixes	✓
+Procnias nudicollis	araponga	Frugívoro	Florestal	Frutos de Lauráceas	✓
+Progne chalybea	andorinha-grande	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Progne elegans	andorinha-do-sul	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Progne subis	andorinha-azul	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Progne tapera	andorinha-do-campo	Insetívoro aéreo	Campestre	Insetos capturados em voo	✓
+Pseudastur polionotus	gavião-pombo-grande	Carnívoro	Florestal	Aves, lagartos, pequenos mamíferos	✓
+Pseudocolopteryx acutipennis	tricolino-oliváceo	Insetívoro	Aquático	Insetos em brejeiros	✓
+Pseudocolopteryx flaviventris	amarelinho-do-junco	Insetívoro	Aquático	Insetos em juncos	✓
+Pseudocolopteryx sclateri	tricolino	Insetívoro	Aquático	Insetos em banhados	✓
+Pseudoleistes guirahuro	chupim-do-brejo	Insetívoro/Granívoro	Aquático	Insetos e sementes em banhados	✓
+Pseudoleistes virescens	dragão	Insetívoro/Granívoro	Aquático	Insetos e sementes	✓
+Psilorhamphus guttatus	tapaculo-pintado	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Psittacara leucophthalmus	periquitão	Frugívoro/Granívoro	Florestal	Frutos, sementes, flores	✓
+Pterodroma incerta	grazina-de-barriga-branca	Piscívoro	Costeiro	Lulas e peixes	✓
+Pterodroma mollis	grazina-delicada	Piscívoro	Costeiro	Lulas e peixes	✓
+Pteroglossus bailloni	araçari-banana	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Pteroglossus castanotis	araçari-castanho	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Puffinus puffinus	pardela-sombria	Piscívoro	Costeiro	Peixes e invertebrados marinhos	✓
+Pulsatrix koeniswaldiana	murucututu-de-barriga-amarela	Carnívoro	Florestal	Aves, roedores, anfíbios	✓
+Pygochelidon cyanoleuca	andorinha-pequena-de-casa	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Pyriglena leucoptera	papa-taoca-do-sul	Insetívoro	Florestal	Insetos, segue correições de formigas	✓
+Pyrocephalus rubinus	príncipe	Insetívoro aéreo	Campestre	Insetos capturados em voo	✓
+Pyroderus scutatus	pavó	Frugívoro	Florestal	Frutos do dossel florestal	✓
+Pyrrhura frontalis	tiriba-de-testa-vermelha	Frugívoro/Granívoro	Florestal	Frutos, sementes, néctar	✓
+Rallus longirostris	saracura-matraca	Onívoro	Aquático	Invertebrados, peixes, plantas aquáticas	✓
+Ramphastos dicolorus	tucano-de-bico-verde	Frugívoro/Onívoro	Florestal	Frutos, ovos, insetos, lagartos	✓
+Ramphastos toco	tucanuçu	Frugívoro/Onívoro	Florestal	Frutos, ovos, filhotes de aves, insetos	✓
+Ramphastos vitellinus	tucano-de-bico-preto	Frugívoro/Onívoro	Florestal	Frutos, ovos, insetos	✓
+Ramphocaenus melanurus	chirito	Insetívoro	Florestal	Insetos e aranhas	✓
+Ramphocelus bresilia	tiê-sangue	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Ramphocelus carbo	pipira-vermelha	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Ramphodon naevius	beija-flor-rajado	Nectarívoro	Florestal	Néctar floral e pequenos artrópodes	✓
+Ramphotrigon megacephalum	maria-cabeçuda	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Rauenia bonariensis	sanhaço-papa-laranja	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Rhea americana	ema	Onívoro	Campestre	Sementes, frutos, insetos, pequenos vertebrados	✓
+Rhopias gularis	choquinha-de-garganta-pintada	Insetívoro	Florestal	Insetos e aranhas	✓
+Rhopospina fruticeti	canário-andino-negro	Granívoro	Campestre	Sementes em campos	✓
+Rhynchotus rufescens	perdiz	Onívoro	Campestre	Sementes, tubérculos, invertebrados	✓
+Riparia riparia	andorinha-do-barranco	Insetívoro aéreo	Aquático	Insetos capturados em voo	✓
+Rollandia rolland	mergulhão-de-orelha-branca	Piscívoro/Insetívoro	Aquático	Peixes, invertebrados aquáticos	✓
+Rostrhamus sociabilis	gavião-caramujeiro	Malacófago	Aquático	Especialista em caramujos Pomacea	✓
+Rupornis magnirostris	gavião-carijó	Carnívoro	Generalista	Lagartos, insetos, roedores, aves	✓
+Rynchops niger	talha-mar	Piscívoro	Aquático	Peixes capturados rente à superfície da água	✓
+Saltator fuliginosus	bico-de-pimenta	Frugívoro/Granívoro	Florestal	Frutos e sementes	✓
+Saltator maxillosus	bico-grosso	Frugívoro/Granívoro	Florestal	Frutos e sementes duras	✓
+Saltator similis	trinca-ferro	Frugívoro/Granívoro	Florestal	Frutos, sementes e insetos	✓
+Sarcoramphus papa	urubu-rei	Detritívoro	Florestal	Carniça, especialista em localizá-la	✓
+Sarkidiornis sylvicola	pato-de-crista	Onívoro	Aquático	Plantas aquáticas, grãos, invertebrados	✓
+Satrapa icterophrys	suiriri-pequeno	Insetívoro	Aquático	Insetos em beiras d'água	✓
+Schiffornis virescens	flautim	Insetívoro/Frugívoro	Florestal	Insetos e frutos pequenos	✓
+Schistochlamys ruficapillus	bico-de-veludo	Insetívoro/Frugívoro	Campestre	Insetos e frutos em borda	✓
+Schoeniophylax phryganophilus	bichoita	Insetívoro	Campestre	Insetos em arbustais	✓
+Sclerurus scansor	vira-folha	Insetívoro	Florestal	Insetos na serapilheira	✓
+Scytalopus iraiensis	tapaculo-da-várzea	Insetívoro	Aquático	Insetos em banhados	✓
+Scytalopus pachecoi	tapaculo-ferreirinho	Insetívoro	Florestal	Insetos no chão florestal	✓
+Scytalopus speluncae	tapaculo-preto	Insetívoro	Florestal	Insetos e artrópodes	✓
+Selenidera maculirostris	araçari-poca	Frugívoro	Florestal	Frutos de palmeiras e figueiras	✓
+Serpophaga griseicapilla	alegrinho-trinador	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Serpophaga nigricans	joão-pobre	Insetívoro	Aquático	Insetos em beiras de rio	✓
+Serpophaga subcristata	alegrinho	Insetívoro	Generalista	Insetos em arbustos	✓
+Setophaga cerulea	mariquita-azul	Insetívoro	Florestal	Insetos no dossel	✓
+Setophaga pitiayumi	mariquita	Insetívoro	Florestal	Insetos no dossel	✓
+Setophaga striata	mariquita-de-perna-clara	Insetívoro	Florestal	Insetos no dossel	✓
+Sicalis citrina	canário-rasteiro	Granívoro	Campestre	Sementes de gramíneas	✓
+Sicalis flaveola	canário-da-terra	Granívoro	Generalista	Sementes e frutos	✓
+Sicalis luteola	tipio	Granívoro	Campestre	Sementes de gramíneas	✓
+Sirystes sibilator	gritador	Insetívoro	Florestal	Insetos no dossel	✓
+Sittasomus griseicapillus	arapaçu-verde	Insetívoro	Florestal	Insetos em troncos e galhos	✓
+Spartonoica maluroides	boininha	Insetívoro	Aquático	Insetos em campos úmidos	✓
+Spatula cyanoptera	marreca-colorada	Filtrador	Aquático	Invertebrados e plantas por filtração	✓
+Spatula discors	marreca-de-asa-azul	Filtrador	Aquático	Invertebrados e plantas por filtração	✓
+Spatula platalea	marreca-colhereira	Filtrador	Aquático	Invertebrados aquáticos por filtração	✓
+Spatula versicolor	marreca-cricri	Filtrador	Aquático	Invertebrados e plantas aquáticas por filtração	✓
+Spheniscus magellanicus	pinguim-de-magalhães	Piscívoro	Costeiro	Peixes, lulas e crustáceos	✓
+Spinus magellanicus	pintassilgo	Granívoro	Florestal	Sementes, especialmente de gramíneas e compostas	✓
+Spizaetus melanoleucus	gavião-pato	Carnívoro	Florestal	Aves aquáticas e terrestres	✓
+Spizaetus ornatus	gavião-de-penacho	Carnívoro	Florestal	Aves, lagartos, cobras, mamíferos	✓
+Spizaetus tyrannus	gavião-pega-macaco	Carnívoro	Florestal	Aves, macacos, lagartos, cobras	✓
+Sporophila angolensis	curió	Granívoro	Generalista	Sementes de bambu e outras gramíneas	✓
+Sporophila beltoni	patativa-tropeira	Granívoro	Campestre	Sementes de gramíneas	✓
+Sporophila caerulescens	coleirinho	Granívoro	Generalista	Sementes de gramíneas	✓
+Sporophila cinnamomea	caboclinho-de-chapéu-cinzento	Granívoro	Aquático	Sementes em campos úmidos	✓
+Sporophila collaris	coleiro-do-brejo	Granívoro	Aquático	Sementes em banhados	✓
+Sporophila falcirostris	cigarrinha-do-sul	Granívoro	Florestal	Sementes de bambu	✓
+Sporophila frontalis	pixoxó	Granívoro	Florestal	Sementes de bambu	✓
+Sporophila hypoxantha	caboclinho-de-barriga-vermelha	Granívoro	Campestre	Sementes de gramíneas	✓
+Sporophila leucoptera	chorão	Granívoro	Campestre	Sementes de gramíneas	✓
+Sporophila lineola	bigodinho	Granívoro	Campestre	Sementes de gramíneas	✓
+Sporophila melanogaster	caboclinho-de-barriga-preta	Granívoro	Campestre	Sementes de gramíneas	✓
+Sporophila palustris	caboclinho-de-papo-branco	Granívoro	Aquático	Sementes em campos úmidos	✓
+Sporophila pileata	caboclinho-coroado	Granívoro	Campestre	Sementes de gramíneas	✓
+Sporophila ruficollis	caboclinho-de-papo-escuro	Granívoro	Campestre	Sementes de gramíneas	✓
+Stelgidopteryx ruficollis	andorinha-serradora	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Stephanophorus diadematus	sanhaço-frade	Frugívoro/Onívoro	Florestal	Frutos, insetos, néctar	✓
+Stephanoxis loddigesii	beija-flor-de-topete-azul	Nectarívoro	Florestal	Néctar e artrópodes	✓
+Stercorarius antarcticus	mandrião-antártico	Cleptoparasita/Onívoro	Costeiro	Rouba alimento, ovos, carcaças	✓
+Stercorarius chilensis	mandrião-chileno	Cleptoparasita/Onívoro	Costeiro	Rouba alimento de outras aves, carniça	✓
+Stercorarius longicaudus	mandrião-de-cauda-comprida	Cleptoparasita/Insetívoro	Costeiro	Cleptoparasita, insetos, lemmings	✓
+Stercorarius maccormicki	mandrião-do-sul	Cleptoparasita/Onívoro	Costeiro	Rouba alimento de outras aves	✓
+Stercorarius parasiticus	mandrião-parasítico	Cleptoparasita/Onívoro	Costeiro	Cleptoparasita, rouba alimento	✓
+Stercorarius pomarinus	mandrião-pomarino	Cleptoparasita/Piscívoro	Costeiro	Rouba alimento de outras aves	✓
+Sterna hirundinacea	trinta-réis-de-bico-vermelho	Piscívoro	Costeiro	Peixes pequenos	✓
+Sterna hirundo	trinta-réis-boreal	Piscívoro	Costeiro	Peixes e invertebrados marinhos	✓
+Sterna trudeaui	trinta-réis-de-coroa-branca	Piscívoro	Costeiro	Peixes e invertebrados	✓
+Sternula antillarum	trinta-réis-miúdo	Piscívoro	Costeiro	Peixes e crustáceos pequenos	✓
+Sternula superciliaris	trinta-réis-pequeno	Piscívoro	Aquático	Peixes pequenos	✓
+Stilpnia peruviana	saíra-sapucaia	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Stilpnia preciosa	saíra-preciosa	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Streptoprocne biscutata	taperuçu-de-coleira-falha	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Streptoprocne zonaris	taperuçu-de-coleira-branca	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Strix huhula	coruja-preta	Carnívoro	Florestal	Roedores, anfíbios, invertebrados	✓
+Strix hylophila	coruja-listrada	Carnívoro	Florestal	Roedores, aves pequenas, anfíbios	✓
+Strix virgata	coruja-do-mato	Carnívoro	Florestal	Roedores, anfíbios, aves	✓
+Sturnus vulgaris	estorninho	Onívoro	Generalista	Insetos, frutos, grãos, invertebrados	✓
+Sula leucogaster	atobá-pardo	Piscívoro	Costeiro	Peixes capturados por mergulho	✓
+Synallaxis albescens	uí-pi	Insetívoro	Campestre	Insetos em arbustais	✓
+Synallaxis cinerascens	pi-puí	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Synallaxis frontalis	petrim	Insetívoro	Campestre	Insetos em arbustais e borda	✓
+Synallaxis ruficapilla	pichororé	Insetívoro	Florestal	Insetos no sub-bosque denso	✓
+Synallaxis spixi	joão-teneném	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Syndactyla rufosuperciliata	trepador-quiete	Insetívoro	Florestal	Insetos em folhas mortas	✓
+Syrigma sibilatrix	maria-faceira	Carnívoro/Insetívoro	Campestre	Insetos, anfíbios, pequenos vertebrados	✓
+Tachuris rubrigastra	papa-piri	Insetívoro	Aquático	Insetos em juncais	✓
+Tachybaptus dominicus	mergulhão-pequeno	Piscívoro/Insetívoro	Aquático	Insetos aquáticos, pequenos peixes	✓
+Tachycineta albiventer	andorinha-do-rio	Insetívoro aéreo	Aquático	Insetos capturados em voo sobre rios	✓
+Tachycineta leucopyga	andorinha-chilena	Insetívoro aéreo	Campestre	Insetos capturados em voo	✓
+Tachycineta leucorrhoa	andorinha-de-sobre-branco	Insetívoro aéreo	Generalista	Insetos capturados em voo	✓
+Tachyphonus coronatus	tiê-preto	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Tangara cyanocephala	saíra-militar	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Tangara desmaresti	saíra-lagarta	Frugívoro/Insetívoro	Florestal	Frutos, insetos e néctar	✓
+Tangara seledon	saíra-sete-cores	Frugívoro/Insetívoro	Florestal	Frutos, insetos e néctar	✓
+Tapera naevia	saci	Insetívoro	Generalista	Insetos e lagartas	✓
+Terenura maculata	zidedê	Insetívoro	Florestal	Insetos em bambu e sub-bosque	✓
+Tersina viridis	saí-andorinha	Frugívoro/Insetívoro	Florestal	Frutos e insetos capturados em voo	✓
+Thalassarche chlororhynchos	albatroz-de-nariz-amarelo	Piscívoro	Costeiro	Lulas, peixes, crustáceos	✓
+Thalassarche chrysostoma	albatroz-de-cabeça-cinza	Piscívoro	Costeiro	Lulas e peixes	✓
+Thalassarche melanophris	albatroz-de-sobrancelha	Piscívoro	Costeiro	Lulas, peixes, crustáceos	✓
+Thalasseus acuflavidus	trinta-réis-de-bando	Piscívoro	Costeiro	Peixes e invertebrados marinhos	✓
+Thalasseus maximus	trinta-réis-real	Piscívoro	Costeiro	Peixes, especialmente anchovas	✓
+Thalurania glaucopis	beija-flor-de-fronte-violeta	Nectarívoro	Florestal	Néctar floral e pequenos insetos	✓
+Thamnophilus caerulescens	choca-da-mata	Insetívoro	Florestal	Insetos e aranhas no sub-bosque	✓
+Thamnophilus doliatus	choca-barrada	Insetívoro	Florestal	Insetos e aranhas	✓
+Thamnophilus ruficapillus	choca-de-chapéu-vermelho	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Theristicus caerulescens	curicaca-real	Carnívoro/Insetívoro	Aquático	Cobras, anfíbios, insetos grandes	✓
+Theristicus caudatus	curicaca	Carnívoro/Insetívoro	Campestre	Cobras, anfíbios, insetos	✓
+Thinocorus rumicivorus	agachadeira-mirim	Granívoro/Insetívoro	Campestre	Sementes e invertebrados	✓
+Thlypopsis pyrrhocoma	cabecinha-castanha	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Thlypopsis sordida	saí-canário	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Thraupis cyanoptera	sanhaço-de-encontro-azul	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Thraupis ornata	sanhaço-de-encontro-amarelo	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Thraupis palmarum	sanhaço-do-coqueiro	Frugívoro/Insetívoro	Generalista	Frutos de palmeiras e insetos	✓
+Thraupis sayaca	sanhaço-cinzento	Frugívoro/Insetívoro	Generalista	Frutos, insetos, néctar	✓
+Tigrisoma fasciatum	socó-jararaca	Piscívoro/Carnívoro	Aquático	Peixes e anfíbios	✓
+Tigrisoma lineatum	socó-boi	Piscívoro/Carnívoro	Aquático	Peixes, anfíbios, cobras, invertebrados	✓
+Tinamus solitarius	macuco	Onívoro	Florestal	Frutos, sementes, invertebrados do solo	✓
+Tityra cayana	anambé-branco-de-rabo-preto	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Tityra inquisitor	anambé-branco-de-bochecha-parda	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Tityra semifasciata	anambé-branco-de-máscara-negra	Frugívoro/Insetívoro	Florestal	Frutos e insetos	✓
+Todirostrum cinereum	ferreirinho-relógio	Insetívoro	Generalista	Insetos em arbustos	✓
+Todirostrum poliocephalum	teque-teque	Insetívoro	Florestal	Insetos no sub-bosque	✓
+Tolmomyias sulphurescens	bico-chato-de-orelha-preta	Insetívoro	Florestal	Insetos no dossel	✓
+Touit melanonotus	apuim-de-costas-pretas	Frugívoro/Granívoro	Florestal	Frutos e sementes	✓
+Trichothraupis melanops	tiê-de-topete	Insetívoro	Florestal	Insetos, segue formigas	✓
+Triclaria malachitacea	sabiá-cica	Frugívoro	Florestal	Frutos de bromélias e outras plantas	✓
+Tringa flavipes	maçarico-de-perna-amarela	Insetívoro	Aquático	Insetos, crustáceos, invertebrados	✓
+Tringa inornata	maçarico-grande-de-asa-branca	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Tringa melanoleuca	maçarico-grande-de-perna-amarela	Insetívoro	Aquático	Insetos, crustáceos, pequenos peixes	✓
+Tringa semipalmata	maçarico-de-asa-branca	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Tringa solitaria	maçarico-solitário	Insetívoro	Aquático	Invertebrados aquáticos	✓
+Troglodytes musculus	corruíra	Insetívoro	Generalista	Insetos e aranhas no sub-bosque	✓
+Trogon chrysochloros	surucuá-dourado	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Trogon surrucura	surucuá-variado	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Trogon viridis	surucuá-de-barriga-amarela	Insetívoro/Frugívoro	Florestal	Insetos grandes e frutos	✓
+Turdus albicollis	sabiá-coleira	Onívoro	Florestal	Frutos, insetos, minhocas, lagartos	✓
+Turdus amaurochalinus	sabiá-poca	Onívoro	Generalista	Frutos, insetos, minhocas	✓
+Turdus flavipes	sabiá-una	Frugívoro/Insetívoro	Florestal	Frutos e invertebrados	✓
+Turdus leucomelas	sabiá-barranco	Onívoro	Generalista	Frutos, insetos, minhocas	✓
+Turdus rufiventris	sabiá-laranjeira	Onívoro	Generalista	Frutos, insetos, minhocas	✓
+Turdus subalaris	sabiá-ferreiro	Onívoro	Florestal	Frutos, insetos, minhocas	✓
+Tyranniscus burmeisteri	piolhinho-chiador	Insetívoro	Florestal	Insetos no dossel	✓
+Tyrannus albogularis	suiriri-de-garganta-branca	Insetívoro aéreo	Florestal	Insetos capturados em voo	✓
+Tyrannus melancholicus	suiriri	Insetívoro/Frugívoro	Generalista	Insetos e frutos	✓
+Tyrannus savana	tesourinha	Insetívoro aéreo	Campestre	Insetos capturados em voo	✓
+Tyrannus tyrannus	suiriri-valente	Insetívoro aéreo	Generalista	Insetos e frutos	✓
+Tyto furcata	suindara	Carnívoro	Generalista	Roedores, morcegos, insetos	✓
+Urubitinga coronata	águia-cinzenta	Carnívoro	Campestre	Cobras, tatus, roedores grandes	✓
+Urubitinga urubitinga	gavião-preto	Carnívoro	Florestal	Cobras, lagartos, anfíbios	✓
+Vanellus chilensis	quero-quero	Insetívoro	Campestre	Insetos, minhocas, invertebrados	✓
+Veniliornis spilogaster	pica-pau-verde-carijó	Insetívoro	Florestal	Insetos e larvas em madeira	✓
+Vireo chivi	juruviara	Insetívoro/Frugívoro	Florestal	Insetos e frutos	✓
+Volatinia jacarina	tiziu	Granívoro	Campestre	Sementes de gramíneas	✓
+Xanthopsar flavus	veste-amarela	Insetívoro/Granívoro	Campestre	Insetos e sementes	✓
+Xenops minutus	bico-virado-miúdo	Insetívoro	Florestal	Insetos em galhos finos	✓
+Xenops rutilans	bico-virado-carijó	Insetívoro	Florestal	Insetos em galhos	✓
+Xiphocolaptes albicollis	arapaçu-de-garganta-branca	Insetívoro	Florestal	Insetos e pequenos vertebrados	✓
+Xiphorhynchus fuscus	arapaçu-rajado	Insetívoro	Florestal	Insetos em cascas e galhos	✓
+Xolmis irupero	noivinha	Insetívoro	Campestre	Insetos no campo	✓
+Xolmis velatus	noivinha-branca	Insetívoro	Campestre	Insetos em campos	✓
+Zenaida auriculata	avoante	Granívoro	Campestre	Sementes e grãos	✓
+Zonotrichia capensis	tico-tico	Granívoro/Insetívoro	Generalista	Sementes, insetos e frutos	✓
+
+
+Espécie	Nome Popular	Descritor	Ano	Ordem	Família	Na Tabela
+Aburria jacutinga	jacutinga	Spix	1825	Galliformes	Cracidae	✓
+Accipiter bicolor	gavião-bombachinha-grande	Vieillot	1817	Accipitriformes	Accipitridae	✓
+Accipiter poliogaster	tauató-pintado	Temminck	1824	Accipitriformes	Accipitridae	✓
+Accipiter striatus	tauató-miúdo	Vieillot	1808	Accipitriformes	Accipitridae	✓
+Actitis macularius	maçarico-pintado	Linnaeus	1766	Charadriiformes	Scolopacidae	✓
+Aegolius harrisii	caburé-acanelado	Cassin	1849	Strigiformes	Strigidae	✓
+Agelaioides badius	asa-de-telha	Vieillot	1819	Passeriformes	Icteridae	✓
+Agelasticus thilius	sargento	Molina	1782	Passeriformes	Icteridae	✓
+Alopochelidon fucata	andorinha-morena	Temminck	1822	Passeriformes	Hirundinidae	✓
+Amadonastur lacernulatus	gavião-pombo-pequeno	Temminck	1827	Accipitriformes	Accipitridae	✓
+Amaurolimnas concolor	saracura-lisa	Gosse	1847	Gruiformes	Rallidae	✓
+Amaurospiza moesta	negrinho-do-mato	Hartlaub	1853	Passeriformes	Cardinalidae	✓
+Amazona aestiva	papagaio-verdadeiro	Linnaeus	1758	Psittaciformes	Psittacidae	✓
+Amazona pretrei	papagaio-charão	Temminck	1830	Psittaciformes	Psittacidae	✓
+Amazona vinacea	papagaio-de-peito-roxo	Kuhl	1820	Psittaciformes	Psittacidae	✓
+Amazonetta brasiliensis	marreca-ananaí	Gmelin	1789	Anseriformes	Anatidae	✓
+Amblyramphus holosericeus	cardeal-do-banhado	Scopoli	1786	Passeriformes	Icteridae	✓
+Ammodramus humeralis	tico-tico-do-campo	Bosc	1792	Passeriformes	Passerellidae	✓
+Anabacerthia amaurotis	limpa-folha-miúdo	Temminck	1823	Passeriformes	Furnariidae	✓
+Anabacerthia lichtensteini	limpa-folha-ocráceo	Cabanis & Heine	1859	Passeriformes	Furnariidae	✓
+Anabazenops fuscus	trepador-coleira	Vieillot	1816	Passeriformes	Furnariidae	✓
+Anas acuta	arrabio	Linnaeus	1758	Anseriformes	Anatidae	✓
+Anas bahamensis	marreca-toicinho	Linnaeus	1758	Anseriformes	Anatidae	✓
+Anas flavirostris	marreca-pardinha	Vieillot	1816	Anseriformes	Anatidae	✓
+Anas georgica	marreca-parda	Gmelin	1789	Anseriformes	Anatidae	✓
+Anhima cornuta	anhuma	Linnaeus	1766	Anseriformes	Anhimidae	✓
+Anhinga anhinga	biguatinga	Linnaeus	1766	Suliformes	Anhingidae	✓
+Anous stolidus	trinta-réis-escuro	Linnaeus	1758	Charadriiformes	Laridae	✓
+Anthracothorax nigricollis	beija-flor-de-veste-preta	Vieillot	1817	Apodiformes	Trochilidae	✓
+Anthus chii	caminheiro-zumbidor	Vieillot	1818	Passeriformes	Motacillidae	✓
+Anthus correndera	caminheiro-de-espora	Vieillot	1818	Passeriformes	Motacillidae	✓
+Anthus hellmayri	caminheiro-de-barriga-acanelada	Hartert	1909	Passeriformes	Motacillidae	✓
+Anthus nattereri	caminheiro-dourado	Sclater	1878	Passeriformes	Motacillidae	✓
+Antrostomus rufus	joão-corta-pau	Boddaert	1783	Caprimulgiformes	Caprimulgidae	✓
+Antrostomus sericocaudatus	bacurau-rabo-de-seda	Cassin	1849	Caprimulgiformes	Caprimulgidae	✓
+Anumbius annumbi	cochicho	Vieillot	1817	Passeriformes	Furnariidae	✓
+Aphantochroa cirrochloris	beija-flor-cinza	Vieillot	1818	Apodiformes	Trochilidae	✓
+Aramides cajaneus	saracura-três-potes	Statius Muller	1776	Gruiformes	Rallidae	✓
+Aramides saracura	saracura-do-mato	Spix	1825	Gruiformes	Rallidae	✓
+Aramides ypecaha	saracuruçu	Vieillot	1819	Gruiformes	Rallidae	✓
+Aramus guarauna	carão	Linnaeus	1766	Gruiformes	Aramidae	✓
+Ardea alba	garça-branca-grande	Linnaeus	1758	Pelecaniformes	Ardeidae	✓
+Ardea cocoi	garça-moura	Linnaeus	1766	Pelecaniformes	Ardeidae	✓
+Ardenna gravis	pardela-de-barrete	O'Reilly	1818	Procellariiformes	Procellariidae	✓
+Ardenna grisea	pardela-escura	Gmelin	1789	Procellariiformes	Procellariidae	✓
+Arenaria interpres	vira-pedras	Linnaeus	1758	Charadriiformes	Scolopacidae	✓
+Arremon semitorquatus	tico-tico-do-mato	Swainson	1838	Passeriformes	Passerellidae	✓
+Arundinicola leucocephala	freirinha	Linnaeus	1764	Passeriformes	Tyrannidae	✓
+Asemospiza fuliginosa	cigarra-preta	Lichtenstein	1823	Passeriformes	Thraupidae	✓
+Asio clamator	coruja-orelhuda	Vieillot	1808	Strigiformes	Strigidae	✓
+Asio flammeus	mocho-dos-banhados	Pontoppidan	1763	Strigiformes	Strigidae	✓
+Asio stygius	mocho-diabo	Wagler	1832	Strigiformes	Strigidae	✓
+Athene cunicularia	coruja-buraqueira	Molina	1782	Strigiformes	Strigidae	✓
+Attila phoenicurus	capitão-castanho	Pelzeln	1868	Passeriformes	Tyrannidae	✓
+Attila rufus	capitão-de-saíra	Vieillot	1819	Passeriformes	Tyrannidae	✓
+Automolus leucophthalmus	barranqueiro-de-olho-branco	Wied	1821	Passeriformes	Furnariidae	✓
+Bartramia longicauda	maçarico-do-campo	Bechstein	1812	Charadriiformes	Scolopacidae	✓
+Baryphthengus ruficapillus	juruva	Vieillot	1818	Coraciiformes	Momotidae	✓
+Basileuterus culicivorus	pula-pula	Deppe	1830	Passeriformes	Parulidae	✓
+Batara cinerea	matracão	Vieillot	1819	Passeriformes	Thamnophilidae	✓
+Biatas nigropectus	papo-branco	Lafresnaye & d'Orbigny	1837	Passeriformes	Thamnophilidae	✓
+Botaurus pinnatus	socó-boi-baio	Wagler	1829	Pelecaniformes	Ardeidae	✓
+Brotogeris chiriri	periquito-de-encontro-amarelo	Vieillot	1818	Psittaciformes	Psittacidae	✓
+Brotogeris tirica	periquito-rico	Gmelin	1788	Psittaciformes	Psittacidae	✓
+Bubo virginianus	jacurutu	Gmelin	1788	Strigiformes	Strigidae	✓
+Bubulcus ibis	garça-vaqueira	Linnaeus	1758	Pelecaniformes	Ardeidae	✓
+Buteo albonotatus	gavião-urubu	Kaup	1847	Accipitriformes	Accipitridae	✓
+Buteo brachyurus	gavião-de-cauda-curta	Vieillot	1816	Accipitriformes	Accipitridae	✓
+Buteo platypterus	gavião-de-asa-larga	Vieillot	1823	Accipitriformes	Accipitridae	✓
+Buteo swainsoni	gavião-papa-gafanhoto	Bonaparte	1838	Accipitriformes	Accipitridae	✓
+Butorides striata	socozinho	Linnaeus	1758	Pelecaniformes	Ardeidae	✓
+Cacicus chrysopterus	tecelão	Vigors	1825	Passeriformes	Icteridae	✓
+Cacicus haemorrhous	guaxe	Linnaeus	1766	Passeriformes	Icteridae	✓
+Cairina moschata	pato-do-mato	Linnaeus	1758	Anseriformes	Anatidae	✓
+Calidris alba	maçarico-branco	Pallas	1764	Charadriiformes	Scolopacidae	✓
+Calidris bairdii	maçarico-de-bico-fino	Coues	1861	Charadriiformes	Scolopacidae	✓
+Calidris canutus	maçarico-de-papo-vermelho	Linnaeus	1766	Charadriiformes	Scolopacidae	✓
+Calidris fuscicollis	maçarico-de-sobre-branco	Vieillot	1819	Charadriiformes	Scolopacidae	✓
+Calidris himantopus	maçarico-pernilongo	Bonaparte	1826	Charadriiformes	Scolopacidae	✓
+Calidris melanotos	maçarico-de-colete	Vieillot	1819	Charadriiformes	Scolopacidae	✓
+Calidris minutilla	maçariquinho	Vieillot	1819	Charadriiformes	Scolopacidae	✓
+Calidris pusilla	maçarico-rasteirinho	Linnaeus	1766	Charadriiformes	Scolopacidae	✓
+Calidris subruficollis	maçarico-acanelado	Vieillot	1819	Charadriiformes	Scolopacidae	✓
+Calliphlox amethystina	estrelinha-ametista	Boddaert	1783	Apodiformes	Trochilidae	✓
+Callonetta leucophrys	marreca-de-coleira	Vieillot	1816	Anseriformes	Anatidae	✓
+Calonectris borealis	cagarra-grande	Cory	1881	Procellariiformes	Procellariidae	✓
+Campephilus robustus	pica-pau-rei	Lichtenstein	1818	Piciformes	Picidae	✓
+Camptostoma obsoletum	risadinha	Temminck	1824	Passeriformes	Tyrannidae	✓
+Campylorhamphus falcularius	arapaçu-de-bico-torto	Vieillot	1822	Passeriformes	Dendrocolaptidae	✓
+Campylorhynchus turdinus	catatau	Wied	1821	Passeriformes	Troglodytidae	✓
+Cantorchilus longirostris	garrinchão-de-bico-grande	Vieillot	1819	Passeriformes	Troglodytidae	✓
+Capsiempis flaveola	marianinha-amarela	Lichtenstein	1823	Passeriformes	Tyrannidae	✓
+Caracara plancus	carcará	Miller	1777	Falconiformes	Falconidae	✓
+Cariama cristata	seriema	Linnaeus	1766	Cariamiformes	Cariamidae	✓
+Carpornis cucullata	corocoxó	Swainson	1821	Passeriformes	Cotingidae	✓
+Castanozoster thoracicus	peito-pinhão	Nordmann	1835	Passeriformes	Thraupidae	✓
+Cathartes aura	urubu-de-cabeça-vermelha	Linnaeus	1758	Cathartiformes	Cathartidae	✓
+Cathartes burrovianus	urubu-de-cabeça-amarela	Cassin	1845	Cathartiformes	Cathartidae	✓
+Catharus fuscescens	sabiazinho-norte-americano	Stephens	1817	Passeriformes	Turdidae	✓
+Catharus swainsoni	sabiazinho-de-óculos	Tschudi	1845	Passeriformes	Turdidae	✓
+Celeus flavescens	pica-pau-de-cabeça-amarela	Gmelin	1788	Piciformes	Picidae	✓
+Celeus galeatus	pica-pau-de-cara-canela	Lichtenstein	1818	Piciformes	Picidae	✓
+Certhiaxis cinnamomeus	curutié	Gmelin	1788	Passeriformes	Furnariidae	✓
+Chaetura cinereiventris	andorinhão-de-sobre-cinzento	Sclater	1865	Apodiformes	Apodidae	✓
+Chaetura meridionalis	andorinhão-do-temporal	Hellmayr	1907	Apodiformes	Apodidae	✓
+Chamaeza campanisona	tovaca-campainha	Lichtenstein	1823	Passeriformes	Formicariidae	✓
+Chamaeza ruficauda	tovaca-de-rabo-vermelho	Cabanis & Heine	1859	Passeriformes	Formicariidae	✓
+Charadrius collaris	batuíra-de-coleira	Vieillot	1818	Charadriiformes	Charadriidae	✓
+Charadrius falklandicus	batuíra-de-coleira-dupla	Latham	1790	Charadriiformes	Charadriidae	✓
+Charadrius modestus	batuíra-de-peito-tijolo	Lichtenstein	1823	Charadriiformes	Charadriidae	✓
+Charadrius semipalmatus	batuíra-de-bando	Bonaparte	1825	Charadriiformes	Charadriidae	✓
+Chauna torquata	tachã	Oken	1816	Anseriformes	Anhimidae	✓
+Chionis albus	pomba-antártica	Gmelin	1789	Charadriiformes	Chionidae	✓
+Chionomesa fimbriata	beija-flor-de-garganta-verde	Gmelin	1788	Apodiformes	Trochilidae	✓
+Chionomesa lactea	beija-flor-de-peito-azul	Lesson	1832	Apodiformes	Trochilidae	✓
+Chiroxiphia caudata	tangará	Shaw & Nodder	1793	Passeriformes	Pipridae	✓
+Chloroceryle aenea	martim-pescador-miúdo	Pallas	1764	Coraciiformes	Alcedinidae	✓
+Chloroceryle amazona	martim-pescador-verde	Latham	1790	Coraciiformes	Alcedinidae	✓
+Chloroceryle americana	martim-pescador-pequeno	Gmelin	1788	Coraciiformes	Alcedinidae	✓
+Chloroceryle inda	martim-pescador-da-mata	Linnaeus	1766	Coraciiformes	Alcedinidae	✓
+Chlorophanes spiza	saí-verde	Linnaeus	1758	Passeriformes	Thraupidae	✓
+Chlorophonia cyanea	gaturamo-bandeira	Thunberg	1822	Passeriformes	Fringillidae	✓
+Chlorostilbon lucidus	besourinho-de-bico-vermelho	Shaw	1812	Apodiformes	Trochilidae	✓
+Chondrohierax uncinatus	gavião-caracoleiro	Temminck	1822	Accipitriformes	Accipitridae	✓
+Chordeiles minor	bacurau-norte-americano	Forster	1771	Caprimulgiformes	Caprimulgidae	✓
+Chroicocephalus cirrocephalus	gaivota-de-cabeça-cinza	Vieillot	1818	Charadriiformes	Laridae	✓
+Chroicocephalus maculipennis	gaivota-maria-velha	Lichtenstein	1823	Charadriiformes	Laridae	✓
+Chrysomus ruficapillus	garibaldi	Vieillot	1819	Passeriformes	Icteridae	✓
+Chrysuronia versicolor	beija-flor-de-banda-branca	Vieillot	1818	Apodiformes	Trochilidae	✓
+Cichlocolaptes leucophrus	trepador-sobrancelha	Jardine & Selby	1830	Passeriformes	Furnariidae	✓
+Ciconia maguari	maguari	Gmelin	1789	Ciconiiformes	Ciconiidae	✓
+Cinclodes fuscus	pedreiro-dos-andes	Vieillot	1818	Passeriformes	Furnariidae	✓
+Cinclodes pabsti	pedreiro	Sick	1969	Passeriformes	Furnariidae	✓
+Circus buffoni	gavião-do-banhado	Gmelin	1788	Accipitriformes	Accipitridae	✓
+Circus cinereus	gavião-cinza	Vieillot	1816	Accipitriformes	Accipitridae	✓
+Cissopis leverianus	tietinga	Gmelin	1788	Passeriformes	Thraupidae	✓
+Cistothorus platensis	corruíra-do-campo	Latham	1790	Passeriformes	Troglodytidae	✓
+Claravis pretiosa	pararu-azul	Ferrari-Perez	1886	Columbiformes	Columbidae	✓
+Clibanornis dendrocolaptoides	cisqueiro	Pelzeln	1859	Passeriformes	Furnariidae	✓
+Cnemotriccus fuscatus	guaracavuçu	Wied	1831	Passeriformes	Tyrannidae	✓
+Coccyzus americanus	papa-lagarta-de-asa-vermelha	Linnaeus	1758	Cuculiformes	Cuculidae	✓
+Coccyzus erythropthalmus	papa-lagarta-de-bico-preto	Wilson	1811	Cuculiformes	Cuculidae	✓
+Coccyzus euleri	papa-lagarta-de-euler	Cabanis	1873	Cuculiformes	Cuculidae	✓
+Coccyzus melacoryphus	papa-lagarta-acanelado	Vieillot	1817	Cuculiformes	Cuculidae	✓
+Cochlearius cochlearius	arapapá	Linnaeus	1766	Pelecaniformes	Ardeidae	✓
+Coereba flaveola	cambacica	Linnaeus	1758	Passeriformes	Thraupidae	✓
+Colaptes campestris	pica-pau-do-campo	Vieillot	1818	Piciformes	Picidae	✓
+Colaptes melanochloros	pica-pau-verde-barrado	Gmelin	1788	Piciformes	Picidae	✓
+Colibri serrirostris	beija-flor-de-orelha-violeta	Vieillot	1816	Apodiformes	Trochilidae	✓
+Colonia colonus	viuvinha	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Columba livia	pombo-doméstico	Gmelin	1789	Columbiformes	Columbidae	✓
+Columbina picui	rolinha-picuí	Temminck	1813	Columbiformes	Columbidae	✓
+Columbina squammata	rolinha-fogo-apagou	Lesson	1831	Columbiformes	Columbidae	✓
+Columbina talpacoti	rolinha-roxa	Temminck	1811	Columbiformes	Columbidae	✓
+Conirostrum bicolor	figuinha-do-mangue	Vieillot	1809	Passeriformes	Thraupidae	✓
+Conirostrum speciosum	figuinha-de-rabo-castanho	Temminck	1824	Passeriformes	Thraupidae	✓
+Conopias trivirgatus	bem-te-vi-pequeno	Wied	1831	Passeriformes	Tyrannidae	✓
+Conopophaga lineata	chupa-dente	Wied	1831	Passeriformes	Conopophagidae	✓
+Conopophaga melanops	cuspidor-de-máscara-preta	Vieillot	1818	Passeriformes	Conopophagidae	✓
+Contopus cinereus	papa-moscas-cinzento	Spix	1825	Passeriformes	Tyrannidae	✓
+Coragyps atratus	urubu-preto	Bechstein	1793	Cathartiformes	Cathartidae	✓
+Corythopis delalandi	estalador	Lesson	1830	Passeriformes	Rhynchocyclidae	✓
+Coscoroba coscoroba	capororoca	Molina	1782	Anseriformes	Anatidae	✓
+Cranioleuca obsoleta	arredio-oliváceo	Reichenbach	1853	Passeriformes	Furnariidae	✓
+Cranioleuca pallida	arredio-pálido	Wied	1831	Passeriformes	Furnariidae	✓
+Crotophaga ani	anu-preto	Linnaeus	1758	Cuculiformes	Cuculidae	✓
+Crotophaga major	anu-coroca	Gmelin	1788	Cuculiformes	Cuculidae	✓
+Cryptopezus nattereri	pinto-do-mato	Hellmayr	1907	Passeriformes	Grallariidae	✓
+Crypturellus noctivagus	jaó-do-sul	Wied	1820	Tinamiformes	Tinamidae	✓
+Crypturellus obsoletus	inhambuguaçu	Temminck	1815	Tinamiformes	Tinamidae	✓
+Crypturellus parvirostris	inhambu-chororó	Wagler	1827	Tinamiformes	Tinamidae	✓
+Crypturellus tataupa	inhambu-chintã	Temminck	1815	Tinamiformes	Tinamidae	✓
+Culicivora caudacuta	papa-moscas-do-campo	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Cyanerpes cyaneus	saíra-beija-flor	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Cyanocorax caeruleus	gralha-azul	Vieillot	1818	Passeriformes	Corvidae	✓
+Cyanocorax chrysops	gralha-picaça	Vieillot	1818	Passeriformes	Corvidae	✓
+Cyanocorax cristatellus	gralha-do-campo	Temminck	1823	Passeriformes	Corvidae	✓
+Cyanoloxia brissonii	azulão	Lichtenstein	1823	Passeriformes	Cardinalidae	✓
+Cyanoloxia glaucocaerulea	azulinho	d'Orbigny & Lafresnaye	1837	Passeriformes	Cardinalidae	✓
+Cyanophonia cyanocephala	gaturamo-rei	Wied	1820	Passeriformes	Fringillidae	✓
+Cyclarhis gujanensis	pitiguari	Gmelin	1789	Passeriformes	Vireonidae	✓
+Cypseloides fumigatus	taperuçu-preto	Streubel	1848	Apodiformes	Apodidae	✓
+Cypseloides senex	taperuçu-velho	Temminck	1826	Apodiformes	Apodidae	✓
+Dacnis cayana	saí-azul	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Dacnis nigripes	saí-de-pernas-pretas	Pelzeln	1856	Passeriformes	Thraupidae	✓
+Daption capense	pomba-do-cabo	Linnaeus	1758	Procellariiformes	Procellariidae	✓
+Dendrocincla turdina	arapaçu-liso	Lichtenstein	1820	Passeriformes	Dendrocolaptidae	✓
+Dendrocolaptes platyrostris	arapaçu-grande	Spix	1825	Passeriformes	Dendrocolaptidae	✓
+Dendrocygna autumnalis	marreca-cabocla	Linnaeus	1758	Anseriformes	Anatidae	✓
+Dendrocygna bicolor	marreca-caneleira	Vieillot	1816	Anseriformes	Anatidae	✓
+Dendrocygna viduata	irerê	Linnaeus	1766	Anseriformes	Anatidae	✓
+Dendroma rufa	limpa-folha-de-testa-baia	Lesson	1830	Passeriformes	Furnariidae	✓
+Diomedea dabbenena	albatroz-de-tristão	Mathews	1929	Procellariiformes	Diomedeidae	✓
+Diomedea exulans	albatroz-errante	Linnaeus	1758	Procellariiformes	Diomedeidae	✓
+Donacospiza albifrons	tico-tico-do-banhado	Vieillot	1817	Passeriformes	Thraupidae	✓
+Dromococcyx pavoninus	peixe-frito-pavonino	Pelzeln	1870	Cuculiformes	Cuculidae	✓
+Dromococcyx phasianellus	peixe-frito	Spix	1824	Cuculiformes	Cuculidae	✓
+Drymophila ferruginea	dituí	Temminck	1822	Passeriformes	Thamnophilidae	✓
+Drymophila malura	choquinha-carijó	Temminck & Laugier	1830	Passeriformes	Thamnophilidae	✓
+Drymophila ochropyga	choquinha-de-dorso-vermelho	Hellmayr	1906	Passeriformes	Thamnophilidae	✓
+Drymophila rubricollis	choquinha-dublê	Bertoni	1901	Passeriformes	Thamnophilidae	✓
+Drymophila squamata	pintadinho	Lichtenstein	1823	Passeriformes	Thamnophilidae	✓
+Dryocopus lineatus	pica-pau-de-banda-branca	Linnaeus	1766	Piciformes	Picidae	✓
+Dysithamnus mentalis	choquinha-lisa	Temminck	1823	Passeriformes	Thamnophilidae	✓
+Dysithamnus stictothorax	choquinha-de-peito-pintado	Sclater & Salvin	1880	Passeriformes	Thamnophilidae	✓
+Dysithamnus xanthopterus	choquinha-de-asa-ferrugem	Burmeister	1856	Passeriformes	Thamnophilidae	✓
+Egretta caerulea	garça-azul	Linnaeus	1758	Pelecaniformes	Ardeidae	✓
+Egretta thula	garça-branca-pequena	Molina	1782	Pelecaniformes	Ardeidae	✓
+Elaenia chilensis	guaracava-de-crista-branca	Hellmayr	1927	Passeriformes	Tyrannidae	✓
+Elaenia flavogaster	guaracava-de-barriga-amarela	Thunberg	1822	Passeriformes	Tyrannidae	✓
+Elaenia mesoleuca	tuque	Deppe	1830	Passeriformes	Tyrannidae	✓
+Elaenia obscura	tucão	d'Orbigny & Lafresnaye	1837	Passeriformes	Tyrannidae	✓
+Elaenia parvirostris	tuque-pium	Pelzeln	1868	Passeriformes	Tyrannidae	✓
+Elaenia spectabilis	guaracava-grande	Pelzeln	1868	Passeriformes	Tyrannidae	✓
+Elanoides forficatus	gavião-tesoura	Linnaeus	1758	Accipitriformes	Accipitridae	✓
+Elanus leucurus	gavião-peneira	Vieillot	1818	Accipitriformes	Accipitridae	✓
+Eleoscytalopus indigoticus	macuquinho	Wied	1831	Passeriformes	Rhinocryptidae	✓
+Emberizoides herbicola	canário-do-campo	Vieillot	1817	Passeriformes	Thraupidae	✓
+Emberizoides ypiranganus	canário-do-brejo	Ihering & Ihering	1907	Passeriformes	Thraupidae	✓
+Embernagra platensis	sabiá-do-banhado	Gmelin	1789	Passeriformes	Thraupidae	✓
+Empidonomus varius	peitica	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Estrilda astrild	bico-de-lacre	Linnaeus	1758	Passeriformes	Estrildidae	✓
+Eudocimus ruber	guará	Linnaeus	1758	Pelecaniformes	Threskiornithidae	✓
+Eupetomena macroura	beija-flor-tesoura	Gmelin	1788	Apodiformes	Trochilidae	✓
+Euphonia chalybea	cais-cais	Mikan	1825	Passeriformes	Fringillidae	✓
+Euphonia chlorotica	fim-fim	Linnaeus	1766	Passeriformes	Fringillidae	✓
+Euphonia pectoralis	ferro-velho	Latham	1801	Passeriformes	Fringillidae	✓
+Euphonia violacea	gaturamo-verdadeiro	Linnaeus	1758	Passeriformes	Fringillidae	✓
+Euscarthmus meloryphus	barulhento	Wied	1831	Passeriformes	Tyrannidae	✓
+Falco femoralis	falcão-de-coleira	Temminck	1822	Falconiformes	Falconidae	✓
+Falco peregrinus	falcão-peregrino	Tunstall	1771	Falconiformes	Falconidae	✓
+Falco rufigularis	cauré	Daudin	1800	Falconiformes	Falconidae	✓
+Falco sparverius	quiriquiri	Linnaeus	1758	Falconiformes	Falconidae	✓
+Florisuga fusca	beija-flor-preto	Vieillot	1817	Apodiformes	Trochilidae	✓
+Fluvicola albiventer	lavadeira-de-cara-branca	Spix	1825	Passeriformes	Tyrannidae	✓
+Fluvicola nengeta	lavadeira-mascarada	Linnaeus	1766	Passeriformes	Tyrannidae	✓
+Formicarius colma	galinha-do-mato	Boddaert	1783	Passeriformes	Formicariidae	✓
+Formicivora acutirostris	bicudinho-do-brejo	Wied	1831	Passeriformes	Thamnophilidae	✓
+Forpus xanthopterygius	tuim	Spix	1824	Psittaciformes	Psittacidae	✓
+Fregata magnificens	fragata	Mathews	1914	Suliformes	Fregatidae	✓
+Fulica armillata	carqueja-de-bico-manchado	Vieillot	1817	Gruiformes	Rallidae	✓
+Fulica leucoptera	carqueja-de-bico-amarelo	Vieillot	1817	Gruiformes	Rallidae	✓
+Fulica rufifrons	carqueja-de-escudo-vermelho	Philippi & Landbeck	1861	Gruiformes	Rallidae	✓
+Fulmarus glacialoides	pardelão-prateado	Smith	1840	Procellariiformes	Procellariidae	✓
+Furnarius figulus	casaca-de-couro-da-lama	Lichtenstein	1823	Passeriformes	Furnariidae	✓
+Furnarius rufus	joão-de-barro	Gmelin	1788	Passeriformes	Furnariidae	✓
+Gallinago paraguaiae	narceja	Vieillot	1816	Charadriiformes	Scolopacidae	✓
+Gallinago undulata	narcejão	Boddaert	1783	Charadriiformes	Scolopacidae	✓
+Gallinula galeata	galinha-d'água	Lichtenstein	1818	Gruiformes	Rallidae	✓
+Geositta cunicularia	curriqueiro	Vieillot	1816	Passeriformes	Scleruridae	✓
+Geothlypis aequinoctialis	pia-cobra	Gmelin	1789	Passeriformes	Parulidae	✓
+Geotrygon montana	pariri	Linnaeus	1758	Columbiformes	Columbidae	✓
+Geranoaetus albicaudatus	gavião-de-rabo-branco	Vieillot	1816	Accipitriformes	Accipitridae	✓
+Geranoaetus melanoleucus	águia-serrana	Vieillot	1819	Accipitriformes	Accipitridae	✓
+Geranospiza caerulescens	gavião-pernilongo	Vieillot	1817	Accipitriformes	Accipitridae	✓
+Glaucidium brasilianum	caburé	Gmelin	1788	Strigiformes	Strigidae	✓
+Glaucidium minutissimum	caburé-miudinho	Wied	1830	Strigiformes	Strigidae	✓
+Gnorimopsar chopi	pássaro-preto	Vieillot	1819	Passeriformes	Icteridae	✓
+Grallaria varia	tovacuçu	Boddaert	1783	Passeriformes	Grallariidae	✓
+Griseotyrannus aurantioatrocristatus	peitica-de-chapéu-preto	d'Orbigny & Lafresnaye	1837	Passeriformes	Tyrannidae	✓
+Gubernetes yetapa	tesoura-do-brejo	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Guira guira	anu-branco	Gmelin	1788	Cuculiformes	Cuculidae	✓
+Habia rubica	tiê-de-bando	Vieillot	1817	Passeriformes	Cardinalidae	✓
+Haematopus palliatus	piru-piru	Temminck	1820	Charadriiformes	Haematopodidae	✓
+Haplospiza unicolor	cigarra-bambu	Cabanis	1851	Passeriformes	Thraupidae	✓
+Harpagus diodon	gavião-bombachinha	Temminck	1823	Accipitriformes	Accipitridae	✓
+Heliobletus contaminatus	trepadorzinho	Berlepsch	1885	Passeriformes	Furnariidae	✓
+Heliodoxa rubricauda	beija-flor-rubi	Boddaert	1783	Apodiformes	Trochilidae	✓
+Heliomaster furcifer	bico-reto-azul	Shaw	1812	Apodiformes	Trochilidae	✓
+Heliornis fulica	picaparra	Boddaert	1783	Gruiformes	Heliornithidae	✓
+Hemithraupis guira	saíra-de-papo-preto	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Hemithraupis ruficapilla	saíra-ferrugem	Vieillot	1818	Passeriformes	Thraupidae	✓
+Hemitriccus diops	olho-falso	Temminck	1822	Passeriformes	Rhynchocyclidae	✓
+Hemitriccus kaempferi	maria-catarinense	Zimmer	1953	Passeriformes	Rhynchocyclidae	✓
+Hemitriccus nidipendulus	tachuri-campainha	Wied	1831	Passeriformes	Rhynchocyclidae	✓
+Hemitriccus obsoletus	catraca	Miranda-Ribeiro	1906	Passeriformes	Rhynchocyclidae	✓
+Hemitriccus orbitatus	tiririzinho-do-mato	Wied	1831	Passeriformes	Rhynchocyclidae	✓
+Herpetotheres cachinnans	acauã	Linnaeus	1758	Falconiformes	Falconidae	✓
+Herpsilochmus rufimarginatus	chorozinho-de-asa-vermelha	Temminck	1822	Passeriformes	Thamnophilidae	✓
+Heteronetta atricapilla	marreca-de-cabeça-preta	Merrem	1841	Anseriformes	Anatidae	✓
+Heterospizias meridionalis	gavião-caboclo	Latham	1790	Accipitriformes	Accipitridae	✓
+Heteroxolmis dominicanus	noivinha-de-rabo-preto	Vieillot	1823	Passeriformes	Tyrannidae	✓
+Hieraspiza superciliosa	tauató-passarinho	Vieillot	1817	Accipitriformes	Accipitridae	✓
+Himantopus melanurus	pernilongo-de-costas-brancas	Vieillot	1817	Charadriiformes	Recurvirostridae	✓
+Hirundinea ferruginea	gibão-de-couro	Gmelin	1788	Passeriformes	Tyrannidae	✓
+Hirundo rustica	andorinha-de-bando	Linnaeus	1758	Passeriformes	Hirundinidae	✓
+Hydropsalis anomala	curiango-do-banhado	Gould	1837	Caprimulgiformes	Caprimulgidae	✓
+Hydropsalis forcipata	bacurau-tesourão	Nitzsch	1840	Caprimulgiformes	Caprimulgidae	✓
+Hydropsalis longirostris	bacurau-da-telha	Bonaparte	1825	Caprimulgiformes	Caprimulgidae	✓
+Hydropsalis parvula	bacurau-chintã	Gould	1837	Caprimulgiformes	Caprimulgidae	✓
+Hydropsalis torquata	bacurau-tesoura	Gmelin	1789	Caprimulgiformes	Caprimulgidae	✓
+Hylocharis chrysura	beija-flor-dourado	Shaw	1812	Apodiformes	Trochilidae	✓
+Hylophilus poicilotis	verdinho-coroado	Temminck	1822	Passeriformes	Vireonidae	✓
+Hymenops perspicillatus	viuvinha-de-óculos	Gmelin	1789	Passeriformes	Tyrannidae	✓
+Hypoedaleus guttatus	chocão-carijó	Vieillot	1816	Passeriformes	Thamnophilidae	✓
+Icterus galbula	corrupião-de-baltimore	Linnaeus	1758	Passeriformes	Icteridae	✓
+Icterus pyrrhopterus	encontro	Vieillot	1819	Passeriformes	Icteridae	✓
+Ictinia plumbea	sovi	Gmelin	1788	Accipitriformes	Accipitridae	✓
+Ilicura militaris	tangarazinho	Shaw & Nodder	1809	Passeriformes	Pipridae	✓
+Ixobrychus exilis	socoí-vermelho	Gmelin	1789	Pelecaniformes	Ardeidae	✓
+Ixobrychus involucris	socoí-amarelo	Vieillot	1823	Pelecaniformes	Ardeidae	✓
+Jabiru mycteria	tuiuiú	Lichtenstein	1819	Ciconiiformes	Ciconiidae	✓
+Jacana jacana	jaçanã	Linnaeus	1766	Charadriiformes	Jacanidae	✓
+Knipolegus cyanirostris	maria-preta-de-bico-azulado	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Knipolegus lophotes	maria-preta-de-penacho	Boie	1828	Passeriformes	Tyrannidae	✓
+Knipolegus nigerrimus	maria-preta-de-garganta-vermelha	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Larus atlanticus	gaivota-de-rabo-preto	Olrog	1958	Charadriiformes	Laridae	✓
+Larus dominicanus	gaivotão	Lichtenstein	1823	Charadriiformes	Laridae	✓
+Laterallus exilis	sanã-do-capim	Temminck	1831	Gruiformes	Rallidae	✓
+Laterallus flaviventer	sanã-amarela	Boddaert	1783	Gruiformes	Rallidae	✓
+Laterallus leucopyrrhus	sanã-vermelha	Vieillot	1819	Gruiformes	Rallidae	✓
+Laterallus melanophaius	sanã-parda	Vieillot	1819	Gruiformes	Rallidae	✓
+Laterallus spilopterus	sanã-cinza	Durnford	1877	Gruiformes	Rallidae	✓
+Lathrotriccus euleri	enferrujado	Cabanis	1868	Passeriformes	Tyrannidae	✓
+Legatus leucophaius	bem-te-vi-pirata	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Leistes superciliaris	polícia-inglesa-do-sul	Bonaparte	1850	Passeriformes	Icteridae	✓
+Lepidocolaptes angustirostris	arapaçu-de-cerrado	Vieillot	1818	Passeriformes	Dendrocolaptidae	✓
+Lepidocolaptes falcinellus	arapaçu-escamoso-do-sul	Cabanis & Heine	1859	Passeriformes	Dendrocolaptidae	✓
+Leptasthenura setaria	grimpeiro	Temminck	1824	Passeriformes	Furnariidae	✓
+Leptasthenura striolata	grimpeirinho	Pelzeln	1856	Passeriformes	Furnariidae	✓
+Leptodon cayanensis	gavião-gato	Latham	1790	Accipitriformes	Accipitridae	✓
+Leptopogon amaurocephalus	cabeçudo	Tschudi	1846	Passeriformes	Rhynchocyclidae	✓
+Leptotila rufaxilla	juriti-de-testa-branca	Richard & Bernard	1792	Columbiformes	Columbidae	✓
+Leptotila verreauxi	juriti-pupu	Bonaparte	1855	Columbiformes	Columbidae	✓
+Lessonia rufa	colegial	Gmelin	1789	Passeriformes	Tyrannidae	✓
+Leucochloris albicollis	beija-flor-de-papo-branco	Vieillot	1818	Apodiformes	Trochilidae	✓
+Leucophaeus atricilla	gaivota-alegre	Linnaeus	1758	Charadriiformes	Laridae	✓
+Leucophaeus modestus	gaivota-cinzenta	Tschudi	1843	Charadriiformes	Laridae	✓
+Leucophaeus pipixcan	gaivota-de-franklin	Wagler	1831	Charadriiformes	Laridae	✓
+Limnoctites rectirostris	arredio-do-gravatá	Gould	1839	Passeriformes	Furnariidae	✓
+Limnodromus griseus	maçarico-de-costas-brancas	Gmelin	1789	Charadriiformes	Scolopacidae	✓
+Limnornis curvirostris	joão-da-palha	Gould	1839	Passeriformes	Furnariidae	✓
+Limosa haemastica	maçarico-de-bico-virado	Linnaeus	1758	Charadriiformes	Scolopacidae	✓
+Lipaugus lanioides	tropeiro-da-serra	Lesson	1844	Passeriformes	Cotingidae	✓
+Lochmias nematura	joão-porca	Lichtenstein	1823	Passeriformes	Furnariidae	✓
+Lophornis chalybeus	topetinho-verde	Vieillot	1822	Apodiformes	Trochilidae	✓
+Lophornis magnificus	topetinho-vermelho	Vieillot	1817	Apodiformes	Trochilidae	✓
+Loriotus cristatus	tiê-galo	Gmelin	1789	Passeriformes	Thraupidae	✓
+Lurocalis semitorquatus	tuju	Gmelin	1789	Caprimulgiformes	Caprimulgidae	✓
+Machetornis rixosa	suiriri-cavaleiro	Vieillot	1819	Passeriformes	Tyrannidae	✓
+Mackenziaena leachii	borralhara-assobiadora	Such	1825	Passeriformes	Thamnophilidae	✓
+Mackenziaena severa	borralhara	Lichtenstein	1823	Passeriformes	Thamnophilidae	✓
+Macronectes giganteus	petrel-grande	Gmelin	1789	Procellariiformes	Procellariidae	✓
+Macronectes halli	petrel-grande-do-norte	Mathews	1912	Procellariiformes	Procellariidae	✓
+Malacoptila striata	barbudo-rajado	Spix	1824	Galbuliformes	Bucconidae	✓
+Manacus manacus	rendeira	Linnaeus	1766	Passeriformes	Pipridae	✓
+Mareca sibilatrix	marreca-oveira	Poeppig	1829	Anseriformes	Anatidae	✓
+Megaceryle torquata	martim-pescador-grande	Linnaeus	1766	Coraciiformes	Alcedinidae	✓
+Megarynchus pitangua	neinei	Linnaeus	1766	Passeriformes	Tyrannidae	✓
+Megascops atricapilla	corujinha-sapo	Temminck	1822	Strigiformes	Strigidae	✓
+Megascops choliba	corujinha-do-mato	Vieillot	1817	Strigiformes	Strigidae	✓
+Megascops sanctaecatarinae	corujinha-do-sul	Salvin	1897	Strigiformes	Strigidae	✓
+Melanerpes candidus	pica-pau-branco	Otto	1796	Piciformes	Picidae	✓
+Melanerpes flavifrons	benedito-de-testa-amarela	Vieillot	1818	Piciformes	Picidae	✓
+Merulaxis ater	entufado	Lesson	1830	Passeriformes	Rhinocryptidae	✓
+Mesembrinibis cayennensis	coró-coró	Gmelin	1789	Pelecaniformes	Threskiornithidae	✓
+Micrastur ruficollis	falcão-caburé	Vieillot	1817	Falconiformes	Falconidae	✓
+Micrastur semitorquatus	falcão-relógio	Vieillot	1817	Falconiformes	Falconidae	✓
+Micrococcyx cinereus	papa-lagarta-cinzento	Vieillot	1817	Cuculiformes	Cuculidae	✓
+Microspingus cabanisi	quete-do-sul	Hellmayr	1922	Passeriformes	Thraupidae	✓
+Milvago chimachima	carrapateiro	Vieillot	1816	Falconiformes	Falconidae	✓
+Milvago chimango	chimango	Vieillot	1816	Falconiformes	Falconidae	✓
+Mimus saturninus	sabiá-do-campo	Lichtenstein	1823	Passeriformes	Mimidae	✓
+Mimus triurus	calhandra-de-três-rabos	Vieillot	1818	Passeriformes	Mimidae	✓
+Mionectes rufiventris	abre-asa-de-cabeça-cinza	Cabanis	1846	Passeriformes	Rhynchocyclidae	✓
+Molothrus bonariensis	chupim	Gmelin	1789	Passeriformes	Icteridae	✓
+Molothrus oryzivorus	iraúna-grande	Gmelin	1788	Passeriformes	Icteridae	✓
+Molothrus rufoaxillaris	chupim-azeviche	Cassin	1866	Passeriformes	Icteridae	✓
+Morus serrator	atobá-australiano	Gray	1843	Suliformes	Sulidae	✓
+Muscipipra vetula	tesoura-cinzenta	Lichtenstein	1823	Passeriformes	Tyrannidae	✓
+Mustelirallus albicollis	sanã-carijó	Vieillot	1819	Gruiformes	Rallidae	✓
+Mycteria americana	cabeça-seca	Linnaeus	1758	Ciconiiformes	Ciconiidae	✓
+Myiarchus ferox	maria-cavaleira	Gmelin	1789	Passeriformes	Tyrannidae	✓
+Myiarchus swainsoni	irré	Cabanis & Heine	1859	Passeriformes	Tyrannidae	✓
+Myiobius atricaudus	assanhadinho-de-cauda-preta	Lawrence	1863	Passeriformes	Onychorhynchidae	✓
+Myiobius barbatus	assanhadinho	Gmelin	1789	Passeriformes	Onychorhynchidae	✓
+Myiodynastes maculatus	bem-te-vi-rajado	Statius Muller	1776	Passeriformes	Tyrannidae	✓
+Myiopagis caniceps	guaracava-cinzenta	Swainson	1835	Passeriformes	Tyrannidae	✓
+Myiopagis viridicata	guaracava-de-crista-alaranjada	Vieillot	1817	Passeriformes	Tyrannidae	✓
+Myiophobus fasciatus	filipe	Statius Muller	1776	Passeriformes	Tyrannidae	✓
+Myiopsitta monachus	caturrita	Boddaert	1783	Psittaciformes	Psittacidae	✓
+Myiornis auricularis	miudinho	Vieillot	1818	Passeriformes	Rhynchocyclidae	✓
+Myiothlypis leucoblephara	pula-pula-assobiador	Vieillot	1817	Passeriformes	Parulidae	✓
+Myiothlypis rivularis	pula-pula-ribeirinho	Wied	1821	Passeriformes	Parulidae	✓
+Myiozetetes similis	bentevizinho-de-penacho-vermelho	Spix	1825	Passeriformes	Tyrannidae	✓
+Myrmoderus squamosus	papa-formiga-de-grota	Pelzeln	1868	Passeriformes	Thamnophilidae	✓
+Myrmotherula unicolor	choquinha-cinzenta	Menetrés	1835	Passeriformes	Thamnophilidae	✓
+Nannopterum brasilianum	biguá	Gmelin	1789	Suliformes	Phalacrocoracidae	✓
+Nemosia pileata	saíra-de-chapéu-preto	Boddaert	1783	Passeriformes	Thraupidae	✓
+Nengetus cinereus	primavera	Vieillot	1816	Passeriformes	Tyrannidae	✓
+Neocrex erythrops	turu-turu	Sclater	1867	Gruiformes	Rallidae	✓
+Netta erythrophthalma	paturi-preta	Wied	1832	Anseriformes	Anatidae	✓
+Netta peposaca	marrecão	Vieillot	1816	Anseriformes	Anatidae	✓
+Nomonyx dominicus	marreca-caucau	Linnaeus	1766	Anseriformes	Anatidae	✓
+Nonnula rubecula	macuru	Spix	1824	Galbuliformes	Bucconidae	✓
+Notharchus swainsoni	macuru-de-barriga-castanha	Gray	1846	Galbuliformes	Bucconidae	✓
+Nothura maculosa	codorna-amarela	Temminck	1815	Tinamiformes	Tinamidae	✓
+Numenius hudsonicus	maçarico-de-bico-torto	Latham	1790	Charadriiformes	Scolopacidae	✓
+Nyctanassa violacea	savacu-de-coroa	Linnaeus	1758	Pelecaniformes	Ardeidae	✓
+Nyctibius griseus	urutau	Gmelin	1789	Nyctibiiformes	Nyctibiidae	✓
+Nycticorax nycticorax	socó-dorminhoco	Linnaeus	1758	Pelecaniformes	Ardeidae	✓
+Nycticryphes semicollaris	narceja-de-bico-torto	Vieillot	1816	Charadriiformes	Rostratulidae	✓
+Nyctidromus albicollis	bacurau	Gmelin	1789	Caprimulgiformes	Caprimulgidae	✓
+Nystalus chacuru	joão-bobo	Vieillot	1816	Galbuliformes	Bucconidae	✓
+Oceanites oceanicus	alma-de-mestre	Kuhl	1820	Procellariiformes	Oceanitidae	✓
+Odontophorus capueira	uru	Spix	1825	Galliformes	Odontophoridae	✓
+Onychorhynchus swainsoni	maria-leque-do-sudeste	Pelzeln	1868	Passeriformes	Onychorhynchidae	✓
+Orchesticus abeillei	sanhaço-pardo	Lesson	1839	Passeriformes	Thraupidae	✓
+Oreopholus ruficollis	batuíra-de-papo-ferrugíneo	Wagler	1829	Charadriiformes	Charadriidae	✓
+Ortalis squamata	aracuã-escamoso	Lesson	1829	Galliformes	Cracidae	✓
+Orthogonys chloricterus	catirumbava	Vieillot	1819	Passeriformes	Mitrospingidae	✓
+Oxyruncus cristatus	araponga-do-horto	Swainson	1821	Passeriformes	Oxyruncidae	✓
+Oxyura vittata	marreca-rabo-de-espinho	Philippi	1860	Anseriformes	Anatidae	✓
+Pachyramphus castaneus	caneleiro	Jardine & Selby	1827	Passeriformes	Tityridae	✓
+Pachyramphus marginatus	caneleiro-bordado	Lichtenstein	1823	Passeriformes	Tityridae	✓
+Pachyramphus polychopterus	caneleiro-preto	Vieillot	1818	Passeriformes	Tityridae	✓
+Pachyramphus validus	caneleiro-de-chapéu-preto	Lichtenstein	1823	Passeriformes	Tityridae	✓
+Pachyramphus viridis	caneleiro-verde	Vieillot	1816	Passeriformes	Tityridae	✓
+Pandion haliaetus	águia-pescadora	Linnaeus	1758	Accipitriformes	Pandionidae	✓
+Panyptila cayennensis	andorinhão-estofador	Gmelin	1789	Apodiformes	Apodidae	✓
+Parabuteo leucorrhous	gavião-de-sobre-branco	Quoy & Gaimard	1824	Accipitriformes	Accipitridae	✓
+Parabuteo unicinctus	gavião-asa-de-telha	Temminck	1824	Accipitriformes	Accipitridae	✓
+Pardirallus maculatus	saracura-carijó	Boddaert	1783	Gruiformes	Rallidae	✓
+Pardirallus nigricans	saracura-sanã	Vieillot	1819	Gruiformes	Rallidae	✓
+Pardirallus sanguinolentus	saracura-do-banhado	Swainson	1838	Gruiformes	Rallidae	✓
+Paroaria coronata	cardeal	Miller	1776	Passeriformes	Thraupidae	✓
+Passer domesticus	pardal	Linnaeus	1758	Passeriformes	Passeridae	✓
+Patagioenas cayennensis	pomba-galega	Bonnaterre	1792	Columbiformes	Columbidae	✓
+Patagioenas picazuro	pomba-asa-branca	Temminck	1813	Columbiformes	Columbidae	✓
+Patagioenas plumbea	pomba-amargosa	Vieillot	1818	Columbiformes	Columbidae	✓
+Penelope obscura	jacuguaçu	Temminck	1815	Galliformes	Cracidae	✓
+Penelope superciliaris	jacupemba	Temminck	1815	Galliformes	Cracidae	✓
+Petrochelidon pyrrhonota	andorinha-de-dorso-acanelado	Vieillot	1817	Passeriformes	Hirundinidae	✓
+Phacellodomus ferrugineigula	joão-botina-do-brejo	Pelzeln	1858	Passeriformes	Furnariidae	✓
+Phacellodomus striaticollis	tio-tio	Orbigny & Lafresnaye	1838	Passeriformes	Furnariidae	✓
+Phaethornis eurynome	rabo-branco-de-garganta-rajada	Lesson	1832	Apodiformes	Trochilidae	✓
+Phaethornis pretrei	rabo-branco-acanelado	Lesson & Delattre	1839	Apodiformes	Trochilidae	✓
+Phaethornis squalidus	rabo-branco-pequeno	Temminck	1822	Apodiformes	Trochilidae	✓
+Phaetusa simplex	trinta-réis-grande	Gmelin	1789	Charadriiformes	Laridae	✓
+Phalaropus fulicarius	pisa-n'água-de-bico-grosso	Linnaeus	1758	Charadriiformes	Scolopacidae	✓
+Phalaropus tricolor	pisa-n'água	Vieillot	1819	Charadriiformes	Scolopacidae	✓
+Phibalura flavirostris	tesourinha-da-mata	Vieillot	1816	Passeriformes	Cotingidae	✓
+Philydor atricapillus	limpa-folha-coroado	Wied	1821	Passeriformes	Furnariidae	✓
+Phimosus infuscatus	tapicuru	Lichtenstein	1823	Pelecaniformes	Threskiornithidae	✓
+Phleocryptes melanops	bate-bico	Vieillot	1817	Passeriformes	Furnariidae	✓
+Phoenicoparrus andinus	flamingo-dos-andes	Philippi	1854	Phoenicopteriformes	Phoenicopteridae	✓
+Phyllomyias fasciatus	piolhinho	Thunberg	1822	Passeriformes	Tyrannidae	✓
+Phyllomyias griseocapilla	piolhinho-serrano	Sclater	1862	Passeriformes	Tyrannidae	✓
+Phyllomyias virescens	piolhinho-verdoso	Temminck	1824	Passeriformes	Tyrannidae	✓
+Phylloscartes difficilis	estalinho	Ihering & Ihering	1907	Passeriformes	Rhynchocyclidae	✓
+Phylloscartes eximius	barbudinho	Temminck	1822	Passeriformes	Rhynchocyclidae	✓
+Phylloscartes kronei	maria-da-restinga	Willis & Schuchmann	1993	Passeriformes	Rhynchocyclidae	✓
+Phylloscartes oustaleti	papa-moscas-de-olheiras	Sclater	1887	Passeriformes	Rhynchocyclidae	✓
+Phylloscartes sylviolus	maria-pequena	Cabanis & Heine	1859	Passeriformes	Rhynchocyclidae	✓
+Phylloscartes ventralis	borboletinha-do-mato	Temminck & Laugier	1828	Passeriformes	Rhynchocyclidae	✓
+Piaya cayana	alma-de-gato	Linnaeus	1766	Cuculiformes	Cuculidae	✓
+Piculus aurulentus	pica-pau-dourado	Temminck	1821	Piciformes	Picidae	✓
+Piculus flavigula	pica-pau-bufador	Gmelin	1788	Piciformes	Picidae	✓
+Picumnus nebulosus	picapauzinho-carijó	Sundevall	1866	Piciformes	Picidae	✓
+Picumnus temminckii	picapauzinho-de-coleira	Lafresnaye	1845	Piciformes	Picidae	✓
+Pilherodius pileatus	garça-real	Boddaert	1783	Pelecaniformes	Ardeidae	✓
+Pionopsitta pileata	cuiú-cuiú	Scopoli	1769	Psittaciformes	Psittacidae	✓
+Pionus maximiliani	maitaca-verde	Kuhl	1820	Psittaciformes	Psittacidae	✓
+Pipraeidea melanonota	saíra-viúva	Vieillot	1819	Passeriformes	Thraupidae	✓
+Piprites chloris	papinho-amarelo	Temminck	1822	Passeriformes	Pipritidae	✓
+Piprites pileata	caneleirinho-de-chapéu-preto	Temminck	1822	Passeriformes	Pipritidae	✓
+Piranga flava	sanhaço-de-fogo	Vieillot	1822	Passeriformes	Cardinalidae	✓
+Pitangus sulphuratus	bem-te-vi	Linnaeus	1766	Passeriformes	Tyrannidae	✓
+Platalea ajaja	colhereiro	Linnaeus	1758	Pelecaniformes	Threskiornithidae	✓
+Platyrinchus leucoryphus	patinho-de-asa-castanha	Wied	1831	Passeriformes	Platyrinchidae	✓
+Platyrinchus mystaceus	patinho	Vieillot	1818	Passeriformes	Platyrinchidae	✓
+Plegadis chihi	caraúna	Vieillot	1817	Pelecaniformes	Threskiornithidae	✓
+Pluvialis dominica	batuiruçu	Statius Muller	1776	Charadriiformes	Charadriidae	✓
+Pluvialis squatarola	batuiruçu-de-axila-preta	Linnaeus	1758	Charadriiformes	Charadriidae	✓
+Podager nacunda	corucão	Vieillot	1817	Caprimulgiformes	Caprimulgidae	✓
+Podicephorus major	mergulhão-grande	Boddaert	1783	Podicipediformes	Podicipedidae	✓
+Podilymbus podiceps	mergulhão-caçador	Linnaeus	1758	Podicipediformes	Podicipedidae	✓
+Poecilotriccus plumbeiceps	tororó	Lafresnaye	1846	Passeriformes	Rhynchocyclidae	✓
+Polioptila dumicola	balança-rabo-de-máscara	Vieillot	1817	Passeriformes	Polioptilidae	✓
+Polioptila lactea	balança-rabo-leitoso	Sharpe	1885	Passeriformes	Polioptilidae	✓
+Polystictus pectoralis	papa-moscas-canela	Vieillot	1817	Passeriformes	Tyrannidae	✓
+Poospiza nigrorufa	quem-te-vestiu	d'Orbigny & Lafresnaye	1837	Passeriformes	Thraupidae	✓
+Porphyrio flavirostris	frango-d'água-pequeno	Gmelin	1789	Gruiformes	Rallidae	✓
+Porphyrio martinica	frango-d'água-azul	Linnaeus	1766	Gruiformes	Rallidae	✓
+Porphyriops melanops	galinha-d'água-carijó	Vieillot	1819	Gruiformes	Rallidae	✓
+Primolius maracana	maracanã	Vieillot	1816	Psittaciformes	Psittacidae	✓
+Procellaria aequinoctialis	pardela-preta	Linnaeus	1758	Procellariiformes	Procellariidae	✓
+Procellaria conspicillata	pardela-de-óculos	Gould	1844	Procellariiformes	Procellariidae	✓
+Procnias nudicollis	araponga	Vieillot	1817	Passeriformes	Cotingidae	✓
+Progne chalybea	andorinha-grande	Gmelin	1789	Passeriformes	Hirundinidae	✓
+Progne elegans	andorinha-do-sul	Baird	1865	Passeriformes	Hirundinidae	✓
+Progne subis	andorinha-azul	Linnaeus	1758	Passeriformes	Hirundinidae	✓
+Progne tapera	andorinha-do-campo	Vieillot	1817	Passeriformes	Hirundinidae	✓
+Pseudastur polionotus	gavião-pombo-grande	Kaup	1847	Accipitriformes	Accipitridae	✓
+Pseudocolopteryx acutipennis	tricolino-oliváceo	Sclater & Salvin	1873	Passeriformes	Tyrannidae	✓
+Pseudocolopteryx flaviventris	amarelinho-do-junco	d'Orbigny & Lafresnaye	1837	Passeriformes	Tyrannidae	✓
+Pseudocolopteryx sclateri	tricolino	Oustalet	1892	Passeriformes	Tyrannidae	✓
+Pseudoleistes guirahuro	chupim-do-brejo	Vieillot	1819	Passeriformes	Icteridae	✓
+Pseudoleistes virescens	dragão	Vieillot	1819	Passeriformes	Icteridae	✓
+Psilorhamphus guttatus	tapaculo-pintado	Ménétries	1835	Passeriformes	Rhinocryptidae	✓
+Psittacara leucophthalmus	periquitão	Statius Muller	1776	Psittaciformes	Psittacidae	✓
+Pterodroma incerta	grazina-de-barriga-branca	Schlegel	1863	Procellariiformes	Procellariidae	✓
+Pterodroma mollis	grazina-delicada	Gould	1844	Procellariiformes	Procellariidae	✓
+Pteroglossus bailloni	araçari-banana	Vieillot	1819	Piciformes	Ramphastidae	✓
+Pteroglossus castanotis	araçari-castanho	Gould	1834	Piciformes	Ramphastidae	✓
+Puffinus puffinus	pardela-sombria	Brünnich	1764	Procellariiformes	Procellariidae	✓
+Pulsatrix koeniswaldiana	murucututu-de-barriga-amarela	Bertoni & Bertoni	1901	Strigiformes	Strigidae	✓
+Pygochelidon cyanoleuca	andorinha-pequena-de-casa	Vieillot	1817	Passeriformes	Hirundinidae	✓
+Pyriglena leucoptera	papa-taoca-do-sul	Vieillot	1818	Passeriformes	Thamnophilidae	✓
+Pyrocephalus rubinus	príncipe	Boddaert	1783	Passeriformes	Tyrannidae	✓
+Pyroderus scutatus	pavó	Shaw	1792	Passeriformes	Cotingidae	✓
+Pyrrhura frontalis	tiriba-de-testa-vermelha	Vieillot	1817	Psittaciformes	Psittacidae	✓
+Rallus longirostris	saracura-matraca	Boddaert	1783	Gruiformes	Rallidae	✓
+Ramphastos dicolorus	tucano-de-bico-verde	Linnaeus	1766	Piciformes	Ramphastidae	✓
+Ramphastos toco	tucanuçu	Statius Muller	1776	Piciformes	Ramphastidae	✓
+Ramphastos vitellinus	tucano-de-bico-preto	Lichtenstein	1823	Piciformes	Ramphastidae	✓
+Ramphocaenus melanurus	chirito	Vieillot	1819	Passeriformes	Polioptilidae	✓
+Ramphocelus bresilia	tiê-sangue	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Ramphocelus carbo	pipira-vermelha	Pallas	1764	Passeriformes	Thraupidae	✓
+Ramphodon naevius	beija-flor-rajado	Dumont	1818	Apodiformes	Trochilidae	✓
+Ramphotrigon megacephalum	maria-cabeçuda	Swainson	1835	Passeriformes	Tyrannidae	✓
+Rauenia bonariensis	sanhaço-papa-laranja	Gmelin	1789	Passeriformes	Thraupidae	✓
+Rhea americana	ema	Linnaeus	1758	Rheiformes	Rheidae	✓
+Rhopias gularis	choquinha-de-garganta-pintada	Spix	1825	Passeriformes	Thamnophilidae	✓
+Rhopospina fruticeti	canário-andino-negro	Kittlitz	1833	Passeriformes	Thraupidae	✓
+Rhynchotus rufescens	perdiz	Temminck	1815	Tinamiformes	Tinamidae	✓
+Riparia riparia	andorinha-do-barranco	Linnaeus	1758	Passeriformes	Hirundinidae	✓
+Rollandia rolland	mergulhão-de-orelha-branca	Quoy & Gaimard	1824	Podicipediformes	Podicipedidae	✓
+Rostrhamus sociabilis	gavião-caramujeiro	Vieillot	1817	Accipitriformes	Accipitridae	✓
+Rupornis magnirostris	gavião-carijó	Gmelin	1788	Accipitriformes	Accipitridae	✓
+Rynchops niger	talha-mar	Linnaeus	1758	Charadriiformes	Laridae	✓
+Saltator fuliginosus	bico-de-pimenta	Daudin	1800	Passeriformes	Thraupidae	✓
+Saltator maxillosus	bico-grosso	Cabanis	1851	Passeriformes	Thraupidae	✓
+Saltator similis	trinca-ferro	d'Orbigny & Lafresnaye	1837	Passeriformes	Thraupidae	✓
+Sarcoramphus papa	urubu-rei	Linnaeus	1758	Cathartiformes	Cathartidae	✓
+Sarkidiornis sylvicola	pato-de-crista	Ihering & Ihering	1907	Anseriformes	Anatidae	✓
+Satrapa icterophrys	suiriri-pequeno	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Schiffornis virescens	flautim	Lafresnaye	1838	Passeriformes	Tityridae	✓
+Schistochlamys ruficapillus	bico-de-veludo	Vieillot	1817	Passeriformes	Thraupidae	✓
+Schoeniophylax phryganophilus	bichoita	Vieillot	1817	Passeriformes	Furnariidae	✓
+Sclerurus scansor	vira-folha	Ménétries	1835	Passeriformes	Scleruridae	✓
+Scytalopus iraiensis	tapaculo-da-várzea	Bornschein, Reinert & Pichorim	1998	Passeriformes	Rhinocryptidae	✓
+Scytalopus pachecoi	tapaculo-ferreirinho	Maurício	2005	Passeriformes	Rhinocryptidae	✓
+Scytalopus speluncae	tapaculo-preto	Ménétries	1835	Passeriformes	Rhinocryptidae	✓
+Selenidera maculirostris	araçari-poca	Lichtenstein	1823	Piciformes	Ramphastidae	✓
+Serpophaga griseicapilla	alegrinho-trinador	Straneck	2007	Passeriformes	Tyrannidae	✓
+Serpophaga nigricans	joão-pobre	Vieillot	1817	Passeriformes	Tyrannidae	✓
+Serpophaga subcristata	alegrinho	Vieillot	1817	Passeriformes	Tyrannidae	✓
+Setophaga cerulea	mariquita-azul	Wilson	1810	Passeriformes	Parulidae	✓
+Setophaga pitiayumi	mariquita	Vieillot	1817	Passeriformes	Parulidae	✓
+Setophaga striata	mariquita-de-perna-clara	Forster	1772	Passeriformes	Parulidae	✓
+Sicalis citrina	canário-rasteiro	Pelzeln & Sclater	1879	Passeriformes	Thraupidae	✓
+Sicalis flaveola	canário-da-terra	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Sicalis luteola	tipio	Sparrman	1789	Passeriformes	Thraupidae	✓
+Sirystes sibilator	gritador	Vieillot	1818	Passeriformes	Tyrannidae	✓
+Sittasomus griseicapillus	arapaçu-verde	Vieillot	1818	Passeriformes	Dendrocolaptidae	✓
+Spartonoica maluroides	boininha	d'Orbigny & Lafresnaye	1837	Passeriformes	Furnariidae	✓
+Spatula cyanoptera	marreca-colorada	Vieillot	1816	Anseriformes	Anatidae	✓
+Spatula discors	marreca-de-asa-azul	Linnaeus	1766	Anseriformes	Anatidae	✓
+Spatula platalea	marreca-colhereira	Vieillot	1816	Anseriformes	Anatidae	✓
+Spatula versicolor	marreca-cricri	Vieillot	1816	Anseriformes	Anatidae	✓
+Spheniscus magellanicus	pinguim-de-magalhães	Forster	1781	Sphenisciformes	Spheniscidae	✓
+Spinus magellanicus	pintassilgo	Vieillot	1805	Passeriformes	Fringillidae	✓
+Spizaetus melanoleucus	gavião-pato	Vieillot	1816	Accipitriformes	Accipitridae	✓
+Spizaetus ornatus	gavião-de-penacho	Daudin	1800	Accipitriformes	Accipitridae	✓
+Spizaetus tyrannus	gavião-pega-macaco	Wied	1820	Accipitriformes	Accipitridae	✓
+Sporophila angolensis	curió	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Sporophila beltoni	patativa-tropeira	Repenning & Fontana	2013	Passeriformes	Thraupidae	✓
+Sporophila caerulescens	coleirinho	Vieillot	1817	Passeriformes	Thraupidae	✓
+Sporophila cinnamomea	caboclinho-de-chapéu-cinzento	Lafresnaye	1839	Passeriformes	Thraupidae	✓
+Sporophila collaris	coleiro-do-brejo	Boddaert	1783	Passeriformes	Thraupidae	✓
+Sporophila falcirostris	cigarrinha-do-sul	Temminck	1820	Passeriformes	Thraupidae	✓
+Sporophila frontalis	pixoxó	Verreaux	1869	Passeriformes	Thraupidae	✓
+Sporophila hypoxantha	caboclinho-de-barriga-vermelha	Cabanis	1851	Passeriformes	Thraupidae	✓
+Sporophila leucoptera	chorão	Vieillot	1817	Passeriformes	Thraupidae	✓
+Sporophila lineola	bigodinho	Linnaeus	1758	Passeriformes	Thraupidae	✓
+Sporophila melanogaster	caboclinho-de-barriga-preta	Pelzeln	1870	Passeriformes	Thraupidae	✓
+Sporophila palustris	caboclinho-de-papo-branco	Barrows	1883	Passeriformes	Thraupidae	✓
+Sporophila pileata	caboclinho-coroado	Sclater	1864	Passeriformes	Thraupidae	✓
+Sporophila ruficollis	caboclinho-de-papo-escuro	Cabanis	1851	Passeriformes	Thraupidae	✓
+Stelgidopteryx ruficollis	andorinha-serradora	Vieillot	1817	Passeriformes	Hirundinidae	✓
+Stephanophorus diadematus	sanhaço-frade	Temminck	1823	Passeriformes	Thraupidae	✓
+Stephanoxis loddigesii	beija-flor-de-topete-azul	Gould	1831	Apodiformes	Trochilidae	✓
+Stercorarius antarcticus	mandrião-antártico	Lesson	1831	Charadriiformes	Stercorariidae	✓
+Stercorarius chilensis	mandrião-chileno	Bonaparte	1857	Charadriiformes	Stercorariidae	✓
+Stercorarius longicaudus	mandrião-de-cauda-comprida	Vieillot	1819	Charadriiformes	Stercorariidae	✓
+Stercorarius maccormicki	mandrião-do-sul	Saunders	1893	Charadriiformes	Stercorariidae	✓
+Stercorarius parasiticus	mandrião-parasítico	Linnaeus	1758	Charadriiformes	Stercorariidae	✓
+Stercorarius pomarinus	mandrião-pomarino	Temminck	1815	Charadriiformes	Stercorariidae	✓
+Sterna hirundinacea	trinta-réis-de-bico-vermelho	Lesson	1831	Charadriiformes	Laridae	✓
+Sterna hirundo	trinta-réis-boreal	Linnaeus	1758	Charadriiformes	Laridae	✓
+Sterna trudeaui	trinta-réis-de-coroa-branca	Audubon	1838	Charadriiformes	Laridae	✓
+Sternula antillarum	trinta-réis-miúdo	Lesson	1847	Charadriiformes	Laridae	✓
+Sternula superciliaris	trinta-réis-pequeno	Vieillot	1819	Charadriiformes	Laridae	✓
+Stilpnia peruviana	saíra-sapucaia	Desmarest	1806	Passeriformes	Thraupidae	✓
+Stilpnia preciosa	saíra-preciosa	Cabanis	1851	Passeriformes	Thraupidae	✓
+Streptoprocne biscutata	taperuçu-de-coleira-falha	Sclater	1866	Apodiformes	Apodidae	✓
+Streptoprocne zonaris	taperuçu-de-coleira-branca	Shaw	1796	Apodiformes	Apodidae	✓
+Strix huhula	coruja-preta	Daudin	1800	Strigiformes	Strigidae	✓
+Strix hylophila	coruja-listrada	Temminck	1825	Strigiformes	Strigidae	✓
+Strix virgata	coruja-do-mato	Cassin	1849	Strigiformes	Strigidae	✓
+Sturnus vulgaris	estorninho	Linnaeus	1758	Passeriformes	Sturnidae	✓
+Sula leucogaster	atobá-pardo	Boddaert	1783	Suliformes	Sulidae	✓
+Synallaxis albescens	uí-pi	Temminck	1823	Passeriformes	Furnariidae	✓
+Synallaxis cinerascens	pi-puí	Temminck	1823	Passeriformes	Furnariidae	✓
+Synallaxis frontalis	petrim	Pelzeln	1859	Passeriformes	Furnariidae	✓
+Synallaxis ruficapilla	pichororé	Vieillot	1819	Passeriformes	Furnariidae	✓
+Synallaxis spixi	joão-teneném	Sclater	1856	Passeriformes	Furnariidae	✓
+Syndactyla rufosuperciliata	trepador-quiete	Lafresnaye	1832	Passeriformes	Furnariidae	✓
+Syrigma sibilatrix	maria-faceira	Temminck	1824	Pelecaniformes	Ardeidae	✓
+Tachuris rubrigastra	papa-piri	Vieillot	1817	Passeriformes	Tachurisidae	✓
+Tachybaptus dominicus	mergulhão-pequeno	Linnaeus	1766	Podicipediformes	Podicipedidae	✓
+Tachycineta albiventer	andorinha-do-rio	Boddaert	1783	Passeriformes	Hirundinidae	✓
+Tachycineta leucopyga	andorinha-chilena	Meyen	1834	Passeriformes	Hirundinidae	✓
+Tachycineta leucorrhoa	andorinha-de-sobre-branco	Vieillot	1817	Passeriformes	Hirundinidae	✓
+Tachyphonus coronatus	tiê-preto	Vieillot	1822	Passeriformes	Thraupidae	✓
+Tangara cyanocephala	saíra-militar	Statius Muller	1776	Passeriformes	Thraupidae	✓
+Tangara desmaresti	saíra-lagarta	Vieillot	1819	Passeriformes	Thraupidae	✓
+Tangara seledon	saíra-sete-cores	Statius Muller	1776	Passeriformes	Thraupidae	✓
+Tapera naevia	saci	Linnaeus	1766	Cuculiformes	Cuculidae	✓
+Terenura maculata	zidedê	Wied	1831	Passeriformes	Thamnophilidae	✓
+Tersina viridis	saí-andorinha	Illiger	1811	Passeriformes	Thraupidae	✓
+Thalassarche chlororhynchos	albatroz-de-nariz-amarelo	Gmelin	1789	Procellariiformes	Diomedeidae	✓
+Thalassarche chrysostoma	albatroz-de-cabeça-cinza	Forster	1785	Procellariiformes	Diomedeidae	✓
+Thalassarche melanophris	albatroz-de-sobrancelha	Temminck	1828	Procellariiformes	Diomedeidae	✓
+Thalasseus acuflavidus	trinta-réis-de-bando	Cabot	1847	Charadriiformes	Laridae	✓
+Thalasseus maximus	trinta-réis-real	Boddaert	1783	Charadriiformes	Laridae	✓
+Thalurania glaucopis	beija-flor-de-fronte-violeta	Gmelin	1788	Apodiformes	Trochilidae	✓
+Thamnophilus caerulescens	choca-da-mata	Vieillot	1816	Passeriformes	Thamnophilidae	✓
+Thamnophilus doliatus	choca-barrada	Linnaeus	1764	Passeriformes	Thamnophilidae	✓
+Thamnophilus ruficapillus	choca-de-chapéu-vermelho	Vieillot	1816	Passeriformes	Thamnophilidae	✓
+Theristicus caerulescens	curicaca-real	Vieillot	1817	Pelecaniformes	Threskiornithidae	✓
+Theristicus caudatus	curicaca	Boddaert	1783	Pelecaniformes	Threskiornithidae	✓
+Thinocorus rumicivorus	agachadeira-mirim	Eschscholtz	1829	Charadriiformes	Thinocoridae	✓
+Thlypopsis pyrrhocoma	cabecinha-castanha	Cabanis	1851	Passeriformes	Thraupidae	✓
+Thlypopsis sordida	saí-canário	d'Orbigny & Lafresnaye	1837	Passeriformes	Thraupidae	✓
+Thraupis cyanoptera	sanhaço-de-encontro-azul	Vieillot	1817	Passeriformes	Thraupidae	✓
+Thraupis ornata	sanhaço-de-encontro-amarelo	Sparrman	1789	Passeriformes	Thraupidae	✓
+Thraupis palmarum	sanhaço-do-coqueiro	Wied	1823	Passeriformes	Thraupidae	✓
+Thraupis sayaca	sanhaço-cinzento	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Tigrisoma fasciatum	socó-jararaca	Such	1825	Pelecaniformes	Ardeidae	✓
+Tigrisoma lineatum	socó-boi	Boddaert	1783	Pelecaniformes	Ardeidae	✓
+Tinamus solitarius	macuco	Vieillot	1819	Tinamiformes	Tinamidae	✓
+Tityra cayana	anambé-branco-de-rabo-preto	Linnaeus	1766	Passeriformes	Tityridae	✓
+Tityra inquisitor	anambé-branco-de-bochecha-parda	Lichtenstein	1823	Passeriformes	Tityridae	✓
+Tityra semifasciata	anambé-branco-de-máscara-negra	Spix	1825	Passeriformes	Tityridae	✓
+Todirostrum cinereum	ferreirinho-relógio	Linnaeus	1766	Passeriformes	Rhynchocyclidae	✓
+Todirostrum poliocephalum	teque-teque	Wied	1831	Passeriformes	Rhynchocyclidae	✓
+Tolmomyias sulphurescens	bico-chato-de-orelha-preta	Spix	1825	Passeriformes	Rhynchocyclidae	✓
+Touit melanonotus	apuim-de-costas-pretas	Wied	1820	Psittaciformes	Psittacidae	✓
+Trichothraupis melanops	tiê-de-topete	Vieillot	1818	Passeriformes	Thraupidae	✓
+Triclaria malachitacea	sabiá-cica	Spix	1824	Psittaciformes	Psittacidae	✓
+Tringa flavipes	maçarico-de-perna-amarela	Gmelin	1789	Charadriiformes	Scolopacidae	✓
+Tringa inornata	maçarico-grande-de-asa-branca	Vieillot	1816	Charadriiformes	Scolopacidae	✓
+Tringa melanoleuca	maçarico-grande-de-perna-amarela	Gmelin	1789	Charadriiformes	Scolopacidae	✓
+Tringa semipalmata	maçarico-de-asa-branca	Gmelin	1789	Charadriiformes	Scolopacidae	✓
+Tringa solitaria	maçarico-solitário	Wilson	1813	Charadriiformes	Scolopacidae	✓
+Troglodytes musculus	corruíra	Naumann	1823	Passeriformes	Troglodytidae	✓
+Trogon chrysochloros	surucuá-dourado	Pelzeln	1856	Trogoniformes	Trogonidae	✓
+Trogon surrucura	surucuá-variado	Vieillot	1817	Trogoniformes	Trogonidae	✓
+Trogon viridis	surucuá-de-barriga-amarela	Linnaeus	1766	Trogoniformes	Trogonidae	✓
+Turdus albicollis	sabiá-coleira	Vieillot	1818	Passeriformes	Turdidae	✓
+Turdus amaurochalinus	sabiá-poca	Cabanis	1850	Passeriformes	Turdidae	✓
+Turdus flavipes	sabiá-una	Vieillot	1818	Passeriformes	Turdidae	✓
+Turdus leucomelas	sabiá-barranco	Vieillot	1818	Passeriformes	Turdidae	✓
+Turdus rufiventris	sabiá-laranjeira	Vieillot	1818	Passeriformes	Turdidae	✓
+Turdus subalaris	sabiá-ferreiro	Seebohm	1887	Passeriformes	Turdidae	✓
+Tyranniscus burmeisteri	piolhinho-chiador	Cabanis & Heine	1859	Passeriformes	Tyrannidae	✓
+Tyrannus albogularis	suiriri-de-garganta-branca	Burmeister	1856	Passeriformes	Tyrannidae	✓
+Tyrannus melancholicus	suiriri	Vieillot	1819	Passeriformes	Tyrannidae	✓
+Tyrannus savana	tesourinha	Vieillot	1808	Passeriformes	Tyrannidae	✓
+Tyrannus tyrannus	suiriri-valente	Linnaeus	1758	Passeriformes	Tyrannidae	✓
+Tyto furcata	suindara	Temminck	1827	Strigiformes	Tytonidae	✓
+Urubitinga coronata	águia-cinzenta	Vieillot	1817	Accipitriformes	Accipitridae	✓
+Urubitinga urubitinga	gavião-preto	Gmelin	1788	Accipitriformes	Accipitridae	✓
+Vanellus chilensis	quero-quero	Molina	1782	Charadriiformes	Charadriidae	✓
+Veniliornis spilogaster	pica-pau-verde-carijó	Wagler	1827	Piciformes	Picidae	✓
+Vireo chivi	juruviara	Vieillot	1817	Passeriformes	Vireonidae	✓
+Volatinia jacarina	tiziu	Linnaeus	1766	Passeriformes	Thraupidae	✓
+Xanthopsar flavus	veste-amarela	Gmelin	1788	Passeriformes	Icteridae	✓
+Xenops minutus	bico-virado-miúdo	Sparrman	1788	Passeriformes	Xenopidae	✓
+Xenops rutilans	bico-virado-carijó	Temminck	1821	Passeriformes	Xenopidae	✓
+Xiphocolaptes albicollis	arapaçu-de-garganta-branca	Vieillot	1818	Passeriformes	Dendrocolaptidae	✓
+Xiphorhynchus fuscus	arapaçu-rajado	Vieillot	1818	Passeriformes	Dendrocolaptidae	✓
+Xolmis irupero	noivinha	Vieillot	1823	Passeriformes	Tyrannidae	✓
+Xolmis velatus	noivinha-branca	Lichtenstein	1823	Passeriformes	Tyrannidae	✓
+Zenaida auriculata	avoante	Des Murs	1847	Columbiformes	Columbidae	✓
+Zonotrichia capensis	tico-tico	Statius Muller	1776	Passeriformes	Passerellidae	✓
+
