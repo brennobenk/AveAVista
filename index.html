@@ -1361,14 +1361,7 @@ const { createClient } = supabase;
 const db = createClient(
   'https://jxcscrtzbitbnkuhrmur.supabase.co',
   'sb_publishable_hFt1Re3E7sObwAIkc2_Myg_4S8tUN-e',
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: window.localStorage
-    }
-  }
+  { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage } }
 );
 </script>
 </head>
@@ -3733,7 +3726,7 @@ db.auth.onAuthStateChange(async (event, session) => {
    NAVEGAÇÃO
 ════════════════════════════════════════ */
 // Pages that require login
-const AUTH_REQUIRED_PAGES = new Set(['upload', 'profile', 'messages', 'notifications', 'public-profile']);
+const AUTH_REQUIRED_PAGES = new Set(['upload', 'messages', 'notifications']); // feed e perfis são visíveis sem login
 
 function navigateTo(pageId, btn) {
   // Gate: protect pages that need login
@@ -4095,7 +4088,10 @@ async function renderFeed(containerId, limit) {
     location: o.location_label || '',
     notes: o.notes || '',
     photoUrl: o.photo_url || null,
-    user: { name: o.profiles?.nome || 'Usuário', handle: o.profiles?.handle || 'user' },
+    user: { 
+      name: o.profiles?.nome || o.profiles?.handle || 'Usuário', 
+      handle: o.profiles?.handle || '' 
+    },
     fromDB: true
   }));
 
@@ -4130,8 +4126,8 @@ async function renderFeed(containerId, limit) {
       </div>
       <div class="obs-card-body">
         <div class="obs-card-user">
-          <div class="obs-avatar" style="background:${userColor};cursor:pointer;" onclick="event.stopPropagation();openPublicProfile&&openPublicProfile('${obs.user?.handle||''}')">${(userName||'?')[0]}</div>
-          <span class="obs-username" style="cursor:pointer;color:var(--sky);" onclick="event.stopPropagation();openPublicProfile&&openPublicProfile('${obs.user?.handle||''}')">${userName||'Usuário'}</span>
+          <div class="obs-avatar" style="background:${userColor};cursor:pointer;" onclick="event.stopPropagation();if(obs.user?.handle)openPublicProfile(obs.user.handle)">${(userName||'?')[0]}</div>
+          <span class="obs-username" style="cursor:pointer;color:var(--sky);" onclick="event.stopPropagation();if(obs.user?.handle)openPublicProfile(obs.user.handle)">${userName||'Usuário'}</span>
           <span class="obs-date">${formatDate(obs.date||'')}</span>
         </div>
         <div class="obs-species" style="${obs.unspecified?'color:var(--coral);font-style:italic;':''}">${obs.unspecified ? '<span style="opacity:0.8">❓ sem espécie</span>' : capitalize(obs.species||obs.sciName||'')}</div>
@@ -4412,8 +4408,8 @@ function renderProfile() {
   if (gallery) {
     gallery.innerHTML = withPhoto.length
       ? withPhoto.map(o => {
-          const obsObj = { id: o.id, species: o.species, sciName: o.sciName, photoUrl: o.photoUrl, date: o.date, location: o.location, notes: o.notes, user: { name: currentUser?.name||'', handle: currentUser?.handle||'' } };
-          return `<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
+          const obsForExpand = { id: o.id, species: o.species, sciName: o.sciName, photoUrl: o.photoUrl, date: o.date, location: o.location, notes: o.notes, user: { name: currentUser?.name||'', handle: currentUser?.handle||'' } };
+          return `<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
             <img src="${o.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${o.species||''}">
           </div>`;
         }).join('')
@@ -4506,23 +4502,20 @@ async function renderUsers(filter) {
     return;
   }
 
-  // Render basic cards first
   grid.innerHTML = users.map(u => `
-    <div class="user-card" style="cursor:pointer;" onclick="openPublicProfile&&openPublicProfile('${u.handle}')">
-      <div class="user-card-avatar" style="background:linear-gradient(135deg,${u.color||'#0ea5e9'},${u.color||'#0ea5e9'}cc);">${(u.name||'U')[0]}</div>
+    <div class="user-card" style="cursor:pointer;" onclick="openPublicProfile && openPublicProfile('${u.handle}')">
+      <div class="user-card-avatar" style="background:linear-gradient(135deg,${u.color||'#0ea5e9'},${u.color||'#0ea5e9'}cc);">${(u.name||'U')[0].toUpperCase()}</div>
       <div class="user-card-name">${u.name}</div>
-      <div class="user-card-handle" style="cursor:pointer;color:var(--sky);">@${u.handle} · ${u.city||'—'}</div>
+      <div class="user-card-handle" style="color:var(--sky);">@${u.handle} · ${u.city||'—'}</div>
       <div class="user-card-stats">
-        <div><span class="user-card-stat-num" id="ustat_sp_${u.handle}">…</span><span class="user-card-stat-label">Espécies</span></div>
-        <div><span class="user-card-stat-num" id="ustat_obs_${u.handle}">…</span><span class="user-card-stat-label">Registros</span></div>
-        <div><span class="user-card-stat-num" id="ustat_fol_${u.handle}">…</span><span class="user-card-stat-label">Seguidores</span></div>
+        <div><span class="user-card-stat-num" id="usp_${u.handle}">…</span><span class="user-card-stat-label">Espécies</span></div>
+        <div><span class="user-card-stat-num" id="uob_${u.handle}">…</span><span class="user-card-stat-label">Registros</span></div>
+        <div><span class="user-card-stat-num" id="ufo_${u.handle}">…</span><span class="user-card-stat-label">Seguidores</span></div>
       </div>
     </div>
   `).join('');
-  // Load stats asynchronously
-  for (const u of users) {
-    loadUserCardStats(u.id, u.handle);
-  }
+  // Load real stats for each user
+  users.forEach(u => { if (u.id) loadUserStats(u.id, u.handle); });
 }
 
 function searchUsers(val) {
@@ -4780,29 +4773,23 @@ async function uploadAvatar(input) {
 
 function applyAvatar(url) {
   if (!url) return;
-  // Perfil: foto grande
+  // Profile page
   const img    = document.getElementById('profile-avatar-img');
   const letter = document.getElementById('profile-avatar-letter');
   if (img)    { img.src = url; img.style.display = 'block'; }
   if (letter) { letter.style.display = 'none'; }
-  // Sidebar: substitui inicial pela foto
-  const sidebarUser = document.querySelector('#sidebar-auth .sidebar-user');
-  if (sidebarUser) {
-    const oldAv = sidebarUser.querySelector('.avatar-sm');
-    const oldImg = sidebarUser.querySelector('img');
-    if (oldAv) {
-      const newImg = document.createElement('img');
-      newImg.src = url;
-      newImg.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;';
-      oldAv.replaceWith(newImg);
-    } else if (oldImg) {
-      oldImg.src = url;
-    }
-  }
-  // Topbar: mostra foto no botão
+  // Sidebar user card
+  const sidebarAv = document.querySelector('#sidebar-auth .avatar-sm');
+  const sidebarImg = document.querySelector('#sidebar-auth img[style*="border-radius:50%"]');
+  if (sidebarAv) {
+    const ni = document.createElement('img');
+    ni.src = url; ni.style.cssText='width:32px;height:32px;border-radius:50%;object-fit:cover;';
+    sidebarAv.replaceWith(ni);
+  } else if (sidebarImg) { sidebarImg.src = url; }
+  // Topbar button
   const topBtn = document.getElementById('topbar-auth-btn');
-  if (topBtn) {
-    topBtn.innerHTML = `<img src="${url}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">`;
+  if (topBtn && topBtn.textContent.length === 1) {
+    topBtn.innerHTML = `<img src="${url}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">`;
   }
 }
 
@@ -5655,7 +5642,7 @@ function openPhotoExpand(obs) {
   const imgEl = document.getElementById('photo-expand-img');
   imgEl.src = obs.photoUrl;
   imgEl.style.cursor = 'zoom-in';
-  imgEl.onclick = () => window.open(obs.photoUrl, '_blank');
+  imgEl.onclick = () => showFullPhoto(obs.photoUrl);
 
   document.getElementById('photo-expand-species').textContent = capitalize(obs.species || obs.sciName || '');
   document.getElementById('photo-expand-sci').textContent = obs.sciName || '';
@@ -5724,7 +5711,6 @@ const _messages = {};
 
 
 function openMessages() {
-  if (!currentUser) { showToast('🔑 Faça login para ver mensagens'); openAuthModal(); return; }
   document.getElementById('messages-modal').classList.add('open');
   renderContacts();
   document.getElementById('msg-badge').style.display = 'none';
@@ -5938,28 +5924,27 @@ let _selectedCompanions = [];
 
 async function filterCompanions(val) {
   const dd = document.getElementById('companion-dropdown');
-  const q  = val.replace(/^@/,'').toLowerCase().trim();
+  const q  = val.replace(/^@/,'').trim();
   if (!q) { dd.style.display = 'none'; return; }
   try {
     const { data } = await db.from('profiles')
       .select('id, nome, handle')
       .or(`nome.ilike.%${q}%,handle.ilike.%${q}%`)
-      .neq('id', currentUser?.id || '')
       .limit(6);
     if (!data || !data.length) { dd.style.display = 'none'; return; }
     dd.style.display = 'block';
     dd.innerHTML = data.map(u => {
-      const name = u.nome || u.handle;
-      const safeHandle = (u.handle||'').replace(/'/g,"\'");
-      const safeName   = (name||'').replace(/'/g,"\'");
-      return `<div onclick="addCompanion('${safeHandle}','${safeName}','#0ea5e9')"
+      const nm = u.nome || u.handle || '?';
+      const sh = (u.handle||'').replace(/'/g,"\'");
+      const sn = nm.replace(/'/g,"\'");
+      return `<div onclick="addCompanion('${sh}','${sn}','#0ea5e9')"
         style="padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;"
         onmouseover="this.style.background='var(--sky-light)'" onmouseout="this.style.background=''">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">${(name||'?')[0].toUpperCase()}</div>
-        <div><div style="font-weight:600;">${name}</div><div style="font-size:11px;color:var(--text-muted);">@${u.handle}</div></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">${nm[0].toUpperCase()}</div>
+        <div><div style="font-weight:600;">${nm}</div><div style="font-size:11px;color:var(--text-muted);">@${u.handle}</div></div>
       </div>`;
     }).join('');
-  } catch(e) { dd.style.display = 'none'; }
+  } catch(e) { dd.style.display = 'none'; console.warn('filterCompanions:', e); }
 }
 
 function addCompanion(handle, name, color) {
@@ -6369,15 +6354,12 @@ async function getBirdPhoto(sci) {
   try {
     const r = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&limit=1`);
     const j = await r.json();
-    const taxon = j.results?.[0];
-    const url = taxon?.default_photo?.medium_url;
+    const url = j.results?.[0]?.default_photo?.medium_url;
     if (url) {
-      // Extract real author from attribution string "(c) Author Name, ..."
-      let author = '';
-      const attr = taxon.default_photo?.attribution || '';
+      const attr = j.results[0].default_photo?.attribution || '';
       const m = attr.match(/\(c\)\s*([^,]+)/i);
-      if (m) author = m[1].trim();
-      _birdPhotoCache[sci] = { url, author: author || 'iNaturalist', source: 'inat', inatId: taxon.id };
+      const realAuthor = m ? m[1].trim() : 'iNaturalist';
+      _birdPhotoCache[sci] = { url, author: realAuthor, source: 'inat', inatId: j.results[0].id };
       return _birdPhotoCache[sci];
     }
   } catch(e) {}
@@ -6427,17 +6409,17 @@ function renderBirdsGrid(birds) {
     const atRisk = b.sc && b.sc !== 'LC';
     const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
     return `<div id="bcard_${safeId}" onclick="openSpeciesModal('${b.sci.replace(/'/g,"\\'")}','${b.pop.replace(/'/g,"\\'")}');"
-      style="position:relative;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;height:130px;background:#0d3320;transition:transform .15s,box-shadow .15s;"
+      style="position:relative;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;height:130px;background:var(--sky-light);transition:transform .15s,box-shadow .15s;"
       onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'"
       onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,#0a6040,#0e4d6b);background-size:cover;background-position:center;"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.82) 100%);"></div>
+      <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,var(--sky),var(--forest));"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,0.75));"></div>
       <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px;">
-        <div style="font-weight:700;font-size:12.5px;color:#fff;line-height:1.2;text-shadow:0 1px 6px rgba(0,0,0,1),0 0 10px rgba(0,0,0,0.8);">${capitalize(b.pop)}</div>
-        <div style="font-size:9.5px;color:rgba(255,255,255,0.85);font-style:italic;text-shadow:0 1px 4px rgba(0,0,0,0.9);">${b.sci}</div>
+        <div style="font-weight:700;font-size:12px;color:white;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,0.8);">${capitalize(b.pop)}</div>
+        <div style="font-size:9.5px;color:rgba(255,255,255,0.75);font-style:italic;">${b.sci}</div>
         <div style="display:flex;gap:3px;margin-top:3px;">
-          ${found  ? '<span style="font-size:9px;background:rgba(22,163,74,0.9);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">✓</span>' : ''}
-          ${atRisk ? '<span style="font-size:9px;background:rgba(239,68,68,0.85);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">⚠</span>' : ''}
+          ${found  ? '<span style="font-size:9px;background:var(--forest);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">✓</span>' : ''}
+          ${atRisk ? '<span style="font-size:9px;background:rgba(239,68,68,0.8);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">⚠</span>' : ''}
         </div>
       </div>
     </div>`;
@@ -6486,7 +6468,7 @@ async function openSpeciesModal(sci, pop) {
         <div style="flex:1;overflow-y:auto;padding:18px;">
           <div id="sp-tags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;"></div>
           <div style="font-weight:700;font-size:12px;color:var(--text-muted);margin-bottom:5px;">Sobre</div>
-          <div id="sp-desc" style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:16px;background:var(--card);border-radius:var(--radius-md);padding:12px;">Carregando…</div>
+          <div id="sp-desc" style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:16px;background:var(--card);padding:12px;border-radius:var(--radius-md);">Carregando…</div>
           <div style="background:var(--sky-light);border:1px solid rgba(14,165,233,0.2);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:16px;">
             <div style="font-weight:700;font-size:12px;color:var(--sky-dark);margin-bottom:8px;">🦜 No Ave à Vista</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;">
@@ -6575,67 +6557,62 @@ async function openSpeciesModal(sci, pop) {
 
 
 /* ════════════════════════════════════════
-   USER CARD STATS (Pesquisar Ornitólogos)
-════════════════════════════════════════ */
-async function loadUserCardStats(userId, handle) {
-  if (!userId) return;
-  try {
-    const [obsRes, spRes, folRes] = await Promise.all([
-      db.from('observations').select('id', { count:'exact', head:true }).eq('user_id', userId),
-      db.from('species_seen').select('id', { count:'exact', head:true }).eq('user_id', userId),
-      db.from('follows').select('id', { count:'exact', head:true }).eq('following_id', userId)
-    ]);
-    const spEl  = document.getElementById('ustat_sp_'  + handle);
-    const obsEl = document.getElementById('ustat_obs_' + handle);
-    const folEl = document.getElementById('ustat_fol_' + handle);
-    if (spEl)  spEl.textContent  = spRes.count  ?? 0;
-    if (obsEl) obsEl.textContent = obsRes.count ?? 0;
-    if (folEl) folEl.textContent = folRes.count ?? 0;
-  } catch(e) { /* silencioso */ }
-}
-
-/* ════════════════════════════════════════
-   FULL PHOTO VIEWER (zoom in-page)
-════════════════════════════════════════ */
-function showFullPhoto(url) {
-  let overlay = document.getElementById('full-photo-overlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'full-photo-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
-    overlay.onclick = () => overlay.remove();
-    document.body.appendChild(overlay);
-  }
-  overlay.innerHTML = `<img src="${url}" style="max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;">
-    <button onclick="document.getElementById('full-photo-overlay').remove()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:40px;height:40px;color:white;font-size:20px;cursor:pointer;">✕</button>`;
-  overlay.style.display = 'flex';
-}
-
-/* ════════════════════════════════════════
    REALTIME NOTIFICATIONS
 ════════════════════════════════════════ */
 let _notifChannel = null;
 
-function startNotifRealtime() {
+async function startNotifRealtime() {
   if (!currentUser?.id) return;
-  if (_notifChannel) { db.removeChannel(_notifChannel); _notifChannel = null; }
-  _notifChannel = db.channel('notif_' + currentUser.id)
+  if (_notifChannel) { try { db.removeChannel(_notifChannel); } catch(e){} _notifChannel = null; }
+  _notifChannel = db.channel('notif:' + currentUser.id)
     .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'notifications',
+      event: 'INSERT', schema: 'public', table: 'notifications',
       filter: `user_id=eq.${currentUser.id}`
-    }, payload => {
-      console.log('[notif] nova notificação:', payload.new);
+    }, () => {
       const badge = document.getElementById('notif-badge');
       if (badge) badge.style.display = 'block';
-      showToast('🔔 Nova notificação!');
     })
-    .subscribe(status => console.log('[notif realtime]', status));
+    .subscribe();
 }
 
 function stopNotifRealtime() {
-  if (_notifChannel) { db.removeChannel(_notifChannel); _notifChannel = null; }
+  if (_notifChannel) { try { db.removeChannel(_notifChannel); } catch(e){} _notifChannel = null; }
+}
+
+/* ════════════════════════════════════════
+   USER STATS FOR SEARCH PAGE
+════════════════════════════════════════ */
+async function loadUserStats(userId, handle) {
+  try {
+    const [obsR, spR, folR] = await Promise.all([
+      db.from('observations').select('id', { count:'exact', head:true }).eq('user_id', userId),
+      db.from('species_seen').select('id',  { count:'exact', head:true }).eq('user_id', userId),
+      db.from('follows').select('id',       { count:'exact', head:true }).eq('following_id', userId)
+    ]);
+    const s = document.getElementById('usp_'+handle);
+    const o = document.getElementById('uob_'+handle);
+    const f = document.getElementById('ufo_'+handle);
+    if (s) s.textContent = spR.count  ?? 0;
+    if (o) o.textContent = obsR.count ?? 0;
+    if (f) f.textContent = folR.count ?? 0;
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════
+   FULL PHOTO VIEWER (opens in page, not new tab)
+════════════════════════════════════════ */
+function showFullPhoto(url) {
+  let ov = document.getElementById('_full_photo_ov');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = '_full_photo_ov';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:16px;';
+    ov.onclick = () => ov.style.display = 'none';
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = `<img src="${url}" style="max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;">
+    <button onclick="document.getElementById('_full_photo_ov').style.display='none'" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:40px;height:40px;color:white;font-size:20px;cursor:pointer;z-index:2;">✕</button>`;
+  ov.style.display = 'flex';
 }
 
 </script>
