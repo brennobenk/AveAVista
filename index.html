@@ -3845,7 +3845,7 @@ async function loadEbirdDescription(sciName, popName) {
   try {
     // eBird/Avibase via Wikipedia (artigo em pt com resumo via API)
     // Usa nome científico como busca na Wikipedia API em português
-    const wikiName = sciName.replace(' ', '_');
+    const wikiName = sciName.replace(/ /g, '_');
     const res = await fetch(
       `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiName)}`,
       { headers: { 'User-Agent': 'AveAvista/1.0' } }
@@ -4109,9 +4109,10 @@ async function renderFeed(containerId, limit) {
   // Carrega contagens após render
   setTimeout(() => loadCardCounts(allObs), 100);
   container.innerHTML = allObs.map((obs, idx) => {
-    const userName  = obs.user?.name || obs.userName || 'Usuário';
-    const userColor = obs.user?.color || '#0ea5e9';
-    const hasPhoto  = obs.photoUrl;
+    const userName   = obs.user?.name || obs.userName || 'Usuário';
+    const userHandle = obs.user?.handle || '';
+    const userColor  = obs.user?.color || '#0ea5e9';
+    const hasPhoto   = obs.photoUrl;
     const obsId     = obs.id || idx;
     const likeCount = (window._likes && window._likes[obsId]) || 0;
     return `
@@ -4135,7 +4136,7 @@ async function renderFeed(containerId, limit) {
         <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)">
           <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}">${likeCount||''}</span>
         </button>
-        <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openObsComment('${obsId}',obs)">💬 <span id="comment-count-${obsId}"></span></button>
+        <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openPhotoExpandAndComment(${JSON.stringify(obs).replace(/"/g,'&quot;')})">💬 <span id="comment-count-${obsId}"></span></button>
         ${obs.inatId ? `<button class="obs-action-btn" onclick="window.open('https://www.inaturalist.org/observations/${obs.inatId}','_blank')">🌿 iNat</button>` : ''}
       </div>
     </div>`;
@@ -4183,17 +4184,20 @@ function removePreview() {
 }
 
 // Drag & drop
-const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) {
-    const dt = new DataTransfer(); dt.items.add(file);
-    document.getElementById('photo-input').files = dt.files;
-    previewPhoto(document.getElementById('photo-input'));
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('dropzone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const dt = new DataTransfer(); dt.items.add(file);
+      document.getElementById('photo-input').files = dt.files;
+      previewPhoto(document.getElementById('photo-input'));
+    }
+  });
 });
 
 function getLocation() {
@@ -4623,7 +4627,6 @@ async function doRegister() {
   const { data, error } = await db.auth.signUp({ email, password: pass });
   if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
   if (error) { showToast('❌ ' + error.message); return; }
-  // Salva perfil na tabela profiles
   await db.from('profiles').insert({
     id: data.user.id,
     nome: name,
@@ -5394,7 +5397,6 @@ async function confirmHandle() {
       id:    user.id,
       nome:  user.name,
       handle,
-      email: user.email,
       avatar_url: user.avatar || null
     });
 
@@ -6553,8 +6555,177 @@ async function openSpeciesModal(sci, pop) {
 
 
 /* ════════════════════════════════════════
-   REALTIME NOTIFICATIONS
+   PERFIL PÚBLICO (outros usuários)
 ════════════════════════════════════════ */
+async function openPublicProfile(handle) {
+  if (!handle) return;
+  // Se for o próprio usuário, navega para o perfil próprio
+  if (currentUser && currentUser.handle === handle) {
+    navigateTo('profile', document.querySelector('[data-page=profile]'));
+    return;
+  }
+
+  // Cria ou reutiliza modal
+  let modal = document.getElementById('public-profile-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'public-profile-modal';
+    modal.className = 'modal-overlay';
+    modal.style.cssText = 'z-index:3000;';
+    modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+    modal.innerHTML = `
+      <div class="modal-card" style="max-width:520px;max-height:88vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+        <div id="pp-cover" style="height:110px;background:linear-gradient(135deg,var(--sky),var(--forest));flex-shrink:0;position:relative;">
+          <button onclick="document.getElementById('public-profile-modal').classList.remove('open')"
+            style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.4);border:none;border-radius:50%;width:32px;height:32px;color:white;font-size:16px;cursor:pointer;z-index:2;">✕</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;">
+          <div style="padding:0 20px 20px;margin-top:-38px;position:relative;">
+            <div id="pp-avatar" style="width:76px;height:76px;border-radius:50%;border:3px solid var(--surface);background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:700;overflow:hidden;flex-shrink:0;">?</div>
+            <div style="margin-top:10px;">
+              <div id="pp-name" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);">…</div>
+              <div id="pp-handle" style="font-size:13px;color:var(--sky);margin-bottom:4px;"></div>
+              <div id="pp-city" style="font-size:12px;color:var(--text-muted);"></div>
+              <div id="pp-bio" style="font-size:13px;color:var(--text-mid);margin-top:8px;line-height:1.55;"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;text-align:center;">
+              <div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 6px;">
+                <div id="pp-obs" style="font-size:20px;font-weight:800;color:var(--sky);">—</div>
+                <div style="font-size:10px;color:var(--text-muted);">Registros</div>
+              </div>
+              <div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 6px;">
+                <div id="pp-sp" style="font-size:20px;font-weight:800;color:var(--forest);">—</div>
+                <div style="font-size:10px;color:var(--text-muted);">Espécies</div>
+              </div>
+              <div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 6px;">
+                <div id="pp-fol" style="font-size:20px;font-weight:800;color:var(--violet);">—</div>
+                <div style="font-size:10px;color:var(--text-muted);">Seguidores</div>
+              </div>
+            </div>
+            <div id="pp-follow-row" style="margin-top:14px;display:flex;gap:8px;"></div>
+            <div id="pp-photos" style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"></div>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+
+  modal.classList.add('open');
+  // Limpa estado anterior
+  document.getElementById('pp-name').textContent = 'Carregando…';
+  document.getElementById('pp-handle').textContent = '@' + handle;
+  document.getElementById('pp-city').textContent = '';
+  document.getElementById('pp-bio').textContent = '';
+  document.getElementById('pp-obs').textContent = '…';
+  document.getElementById('pp-sp').textContent = '…';
+  document.getElementById('pp-fol').textContent = '…';
+  document.getElementById('pp-photos').innerHTML = '';
+  document.getElementById('pp-follow-row').innerHTML = '';
+
+  try {
+    // Busca perfil público — sem email, sem dados privados
+    const { data: profile } = await db.from('profiles')
+      .select('id, nome, handle, cidade, bio, avatar_url')
+      .eq('handle', handle)
+      .maybeSingle();
+
+    if (!profile) {
+      document.getElementById('pp-name').textContent = 'Usuário não encontrado';
+      return;
+    }
+
+    // Avatar
+    const avatarEl = document.getElementById('pp-avatar');
+    if (profile.avatar_url) {
+      avatarEl.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      avatarEl.textContent = (profile.nome || handle)[0].toUpperCase();
+    }
+
+    document.getElementById('pp-name').textContent = profile.nome || handle;
+    document.getElementById('pp-handle').textContent = '@' + profile.handle;
+    document.getElementById('pp-city').textContent = profile.cidade ? '📍 ' + profile.cidade : '';
+    document.getElementById('pp-bio').textContent = profile.bio || '';
+
+    // Stats em paralelo
+    const [obsR, spR, folR] = await Promise.all([
+      db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
+      db.from('species_seen').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
+      db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', profile.id)
+    ]);
+    document.getElementById('pp-obs').textContent = obsR.count ?? 0;
+    document.getElementById('pp-sp').textContent  = spR.count  ?? 0;
+    document.getElementById('pp-fol').textContent = folR.count ?? 0;
+
+    // Botão seguir
+    const followRow = document.getElementById('pp-follow-row');
+    if (currentUser && currentUser.id !== profile.id) {
+      const { data: alreadyFollowing } = await db.from('follows')
+        .select('id').eq('follower_id', currentUser.id).eq('following_id', profile.id).maybeSingle();
+      const isFollowing = !!alreadyFollowing;
+      followRow.innerHTML = `
+        <button id="pp-follow-btn"
+          style="flex:1;height:38px;border-radius:var(--radius-md);border:none;cursor:pointer;font-weight:700;font-size:13px;
+            background:${isFollowing ? 'var(--bg)' : 'linear-gradient(135deg,var(--sky),var(--sky-dark))'};
+            color:${isFollowing ? 'var(--text-mid)' : 'white'};
+            border:${isFollowing ? '1.5px solid var(--border)' : 'none'};"
+          data-following="${isFollowing ? '1' : '0'}"
+          onclick="toggleFollowUser('${profile.id}','${profile.handle}',this);updatePPFollowBtn(this)">
+          ${isFollowing ? '✓ Seguindo' : '+ Seguir'}
+        </button>
+        <button onclick="openMsgTo('${profile.id}','${profile.handle}')"
+          style="height:38px;padding:0 16px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);cursor:pointer;font-size:13px;font-weight:600;">
+          💬 Msg
+        </button>`;
+    }
+
+    // Fotos públicas recentes
+    const { data: photos } = await db.from('observations')
+      .select('id, photo_url, species_pop, obs_date')
+      .eq('user_id', profile.id)
+      .not('photo_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(9);
+
+    const photosEl = document.getElementById('pp-photos');
+    if (photos && photos.length) {
+      photosEl.innerHTML = photos.map(o => {
+        const obsObj = { id: o.id, species: o.species_pop, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle } };
+        return `<div style="border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;"
+          onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
+          <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;"
+            onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'">
+        </div>`;
+      }).join('');
+    }
+
+  } catch(e) {
+    console.warn('openPublicProfile:', e);
+    document.getElementById('pp-name').textContent = 'Erro ao carregar perfil';
+  }
+}
+
+function updatePPFollowBtn(btn) {
+  const isFollowing = btn.dataset.following === '1';
+  btn.style.background = isFollowing ? 'linear-gradient(135deg,var(--sky),var(--sky-dark))' : 'var(--bg)';
+  btn.style.color       = isFollowing ? 'white' : 'var(--text-mid)';
+  btn.style.border      = isFollowing ? 'none' : '1.5px solid var(--border)';
+  btn.textContent       = isFollowing ? '+ Seguir' : '✓ Seguindo';
+  // Atualiza contador de seguidores no modal
+  const folEl = document.getElementById('pp-fol');
+  if (folEl) {
+    const cur = parseInt(folEl.textContent) || 0;
+    folEl.textContent = isFollowing ? Math.max(0, cur - 1) : cur + 1;
+  }
+}
+
+function openMsgTo(userId, handle) {
+  document.getElementById('public-profile-modal')?.classList.remove('open');
+  if (!currentUser) { showToast('🔑 Faça login para enviar mensagens'); openAuthModal(); return; }
+  navigateTo('messages', document.querySelector('[data-page=messages]'));
+  setTimeout(() => selectContact(handle, userId), 400);
+}
+
 let _notifChannel = null;
 
 async function startNotifRealtime() {
