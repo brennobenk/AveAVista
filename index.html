@@ -1640,7 +1640,7 @@ const db = createClient(
           <!-- Botões da capa -->
           <div style="position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:5;">
             <button id="btn-cover-adjust" onclick="toggleCoverAdjust()" style="display:none;background:rgba(0,0,0,0.55);border:none;border-radius:8px;color:white;font-size:12px;padding:5px 10px;cursor:pointer;backdrop-filter:blur(4px);">↕ Ajustar</button>
-            <button onclick="openEditProfileModal()" style="background:rgba(0,0,0,0.5);border:none;border-radius:8px;color:white;font-size:12px;padding:5px 12px;cursor:pointer;backdrop-filter:blur(4px);font-weight:600;">✏️ Editar perfil</button>
+            <button onclick="openEditProfileModal()" style="background:rgba(0,0,0,0.5);border:none;border-radius:8px;color:white;font-size:12px;padding:5px 12px;cursor:pointer;backdrop-filter:blur(4px);font-weight:600;">⚙️ Configurações</button>
           </div>
         </div>
 
@@ -1756,6 +1756,7 @@ const db = createClient(
       <div id="ranking-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
     </section>
 
+
     <!-- ── PÁGINA AVES ── -->
     <section class="page" id="page-birds">
       <div class="section-title"><span>🦜</span> Explorar Aves de SC</div>
@@ -1766,7 +1767,7 @@ const db = createClient(
           style="width:100%;padding:14px 18px;font-size:15px;border-radius:var(--radius-lg);">
         <div id="birds-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:0 0 var(--radius-md) var(--radius-md);box-shadow:var(--shadow-lg);max-height:260px;overflow-y:auto;"></div>
       </div>
-      <div id="birds-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;"></div>
+      <div id="birds-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;"></div>
     </section>
 
   </main>
@@ -2089,7 +2090,7 @@ const db = createClient(
 <div class="modal-overlay" id="edit-profile-modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal-box" style="max-width:460px;">
     <div class="modal-header">
-      <div class="modal-title">✏️ Editar Perfil</div>
+      <div class="modal-title">⚙️ Configurações</div>
       <button class="modal-close" onclick="document.getElementById('edit-profile-modal').classList.remove('open')">✕</button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;">
@@ -2124,6 +2125,7 @@ const db = createClient(
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="document.getElementById('edit-profile-modal').classList.remove('open')" style="flex:1;background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;font-size:14px;cursor:pointer;color:var(--text-muted);">Cancelar</button>
+        <button onclick="document.getElementById('edit-profile-modal').classList.remove('open');doLogout();" style="flex:1;background:none;border:1.5px solid var(--coral);border-radius:var(--radius-md);padding:12px;font-size:14px;cursor:pointer;color:var(--coral);font-weight:700;">🚪 Sair</button>
         <button onclick="saveProfileFromModal()" style="flex:2;background:var(--sky);border:none;border-radius:var(--radius-md);padding:12px;font-size:14px;font-weight:700;cursor:pointer;color:white;font-family:'Syne',sans-serif;">Salvar alterações</button>
       </div>
     </div>
@@ -2172,7 +2174,7 @@ const db = createClient(
 </div>
 
 <!-- MODAL FOTO EXPANDIDA -->
-<div class="modal-overlay" id="photo-expand-modal" onclick="if(event.target===this)this.classList.remove('open')">
+<div class="modal-overlay" id="photo-expand-modal" onclick="if(event.target===this)this.classList.remove('open')" style="background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);">
   <div style="max-width:700px;width:100%;position:relative;display:flex;flex-direction:column;gap:0;">
     <button onclick="document.getElementById('photo-expand-modal').classList.remove('open')"
       style="position:absolute;top:-40px;right:0;background:rgba(255,255,255,0.15);border:none;border-radius:50%;color:white;width:36px;height:36px;font-size:18px;cursor:pointer;z-index:10;">✕</button>
@@ -3667,62 +3669,53 @@ async function loadNotifBadge() {
 }
 
 db.auth.onAuthStateChange(async (event, session) => {
-  console.log('[auth event]', event, session?.user?.id ?? 'no user');
-
-  if (!session?.user) {
-    currentUser = null;
-    updateSidebarAuth();
-    return;
-  }
-
-  const u = session.user;
-
-  // Busca perfil — maybeSingle() nunca lança 400
-  let profile = null;
-  try {
-    const { data, error } = await db
+  if (session?.user) {
+    // Busca perfil na tabela profiles
+    const { data: profile } = await db
       .from('profiles')
       .select('*')
-      .eq('id', u.id)
-      .maybeSingle();
-    if (error) console.warn('[auth] erro perfil:', error.message);
-    else profile = data;
-  } catch(e) { console.warn('[auth] exceção perfil:', e); }
-
-  if (profile) {
-    // Perfil encontrado — login completo
-    currentUser = {
-      id:        u.id,
-      email:     u.email,
-      name:      profile.nome || profile.handle || u.email.split('@')[0],
-      handle:    profile.handle || '',
-      bio:       profile.bio    || '',
-      cidade:    profile.cidade || '',
-      avatar_url: profile.avatar_url || null
-    };
-    console.log('[auth] logado:', currentUser.handle);
-    updateSidebarAuth();
-    renderProfile();
-    loadUserChecklist();
-    loadNotifBadge();
-    if (window._pendingNav) {
-      const { pageId, btn } = window._pendingNav;
-      window._pendingNav = null;
-      setTimeout(() => navigateTo(pageId, btn || document.querySelector('[data-page=' + pageId + ']')), 200);
+      .eq('id', session.user.id)
+      .single();
+    if (profile) {
+      currentUser = {
+        id:     session.user.id,
+        email:  session.user.email,
+        name:   profile.nome,
+        handle: profile.handle,
+        bio:    profile.bio,
+        cidade: profile.cidade,
+        avatar_url: profile.avatar_url
+      };
+      updateSidebarAuth();
+      renderProfile();
+      loadUserChecklist();
+      loadNotifBadge();
+      // If user just logged in, navigate to pending page
+      if (window._pendingNav) {
+        const { pageId, btn } = window._pendingNav;
+        window._pendingNav = null;
+        setTimeout(() => navigateTo(pageId, btn || document.querySelector(`[data-page=${pageId}]`)), 200);
+      }
+    } else {
+      // New Google user — check if profile exists, if not ask for handle
+      const isGoogle = session.user.app_metadata?.provider === 'google';
+      if (isGoogle) {
+        const { data: existingProfile } = await db.from('profiles').select('id').eq('id', session.user.id).single();
+        if (!existingProfile) {
+          // First time Google login — need handle
+          _pendingGoogleUser = {
+            id:     session.user.id,
+            name:   session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuário',
+            email:  session.user.email,
+            avatar: session.user.user_metadata?.avatar_url || ''
+          };
+          openHandleModal(_pendingGoogleUser);
+        }
+      }
     }
   } else {
-    // Sem perfil — precisa criar (Google ou email novo sem confirmação)
-    console.log('[auth] sem perfil, event:', event);
-    _pendingGoogleUser = {
-      id:     u.id,
-      name:   u.user_metadata?.full_name || u.email?.split('@')[0] || 'Usuário',
-      email:  u.email,
-      avatar: u.user_metadata?.avatar_url || ''
-    };
-    // Abre modal de escolha de handle (para qualquer provider)
-    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-      openHandleModal(_pendingGoogleUser);
-    }
+    currentUser = null;
+    updateSidebarAuth();
   }
 });
 
@@ -3749,7 +3742,7 @@ function navigateTo(pageId, btn) {
   if (pageId === 'profile') renderProfile();
   if (pageId === 'users') renderUsers('');
   if (pageId === 'ranking') loadRanking();
-  if (pageId === 'birds')   { renderBirdsGrid(SC_BIRDS.slice(0, 60)); }
+  if (pageId === 'birds')   { renderBirdsGrid(SC_BIRDS.slice(0,60)); }
 }
 
 /* ════════════════════════════════════════
@@ -4111,10 +4104,11 @@ async function renderFeed(containerId, limit) {
     return;
   }
 
+  // Carrega contagens após render
+  setTimeout(() => loadCardCounts(allObs), 100);
   container.innerHTML = allObs.map((obs, idx) => {
-    const uIdx      = Math.abs(String(obs.id||idx).split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % MOCK_USERS.length;
-    const userName  = obs.user?.name  || obs.userName  || MOCK_USERS[uIdx].name;
-    const userColor = obs.user?.color || MOCK_USERS[uIdx].color;
+    const userName  = obs.user?.name || obs.userName || 'Usuário';
+    const userColor = obs.user?.color || '#0ea5e9';
     const hasPhoto  = obs.photoUrl;
     const obsId     = obs.id || idx;
     const likeCount = (window._likes && window._likes[obsId]) || 0;
@@ -4139,7 +4133,7 @@ async function renderFeed(containerId, limit) {
         <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)">
           <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}">${likeCount||''}</span>
         </button>
-        <button class="obs-action-btn" onclick="openObsComment('${obsId}',obs)">💬 Comentar</button>
+        <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openObsComment('${obsId}',obs)">💬 <span id="comment-count-${obsId}"></span></button>
         ${obs.inatId ? `<button class="obs-action-btn" onclick="window.open('https://www.inaturalist.org/observations/${obs.inatId}','_blank')">🌿 iNat</button>` : ''}
       </div>
     </div>`;
@@ -5616,16 +5610,43 @@ function openPhotoExpandAndComment(obs) {
 function openPhotoExpand(obs) {
   if (!obs.photoUrl) return;
   window._expandObsId = obs.id || String(obs.species||'') + obs.date;
-  document.getElementById('photo-expand-img').src = obs.photoUrl;
+  window._expandObs   = obs;
+
+  // Foto clicável para expandir
+  const imgEl = document.getElementById('photo-expand-img');
+  imgEl.src = obs.photoUrl;
+  imgEl.style.cursor = 'zoom-in';
+  imgEl.onclick = () => window.open(obs.photoUrl, '_blank');
+
   document.getElementById('photo-expand-species').textContent = capitalize(obs.species || obs.sciName || '');
   document.getElementById('photo-expand-sci').textContent = obs.sciName || '';
+
+  // Crédito do fotógrafo clicável
+  const handle  = obs.user?.handle || '';
+  const name    = obs.user?.name   || obs.userName || 'Usuário';
+  const inatId  = obs.inatId || obs.inat_id || null;
+  const isAvAvista = !!obs.id && !inatId;
+  let credit = '';
+  if (isAvAvista && handle) {
+    credit = `📸 <span onclick="openPublicProfile && openPublicProfile('${handle}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${handle}</span> · Ave à Vista`;
+  } else if (inatId) {
+    credit = `📸 <a href="https://www.inaturalist.org/observations/${inatId}" target="_blank" style="color:var(--sky);font-weight:600;">${name} · iNaturalist ↗</a>`;
+  } else if (name) {
+    credit = `📸 ${name}`;
+  }
+
   document.getElementById('photo-expand-meta').innerHTML =
-    `📅 ${formatDate(obs.date)||'—'}${obs.location?' &nbsp;📍 '+obs.location:''}${obs.notes?'<br>📝 '+obs.notes:''}`;
+    `${credit ? credit+'<br>' : ''}📅 ${formatDate(obs.date)||'—'}${obs.location?' &nbsp;📍 '+obs.location:''}${obs.notes?'<br>📝 '+obs.notes:''}`;
+
   _expandLiked = false;
   const likeBtn = document.getElementById('photo-expand-like');
   likeBtn.innerHTML = '🤍 Curtir';
   likeBtn.classList.remove('liked');
+
+  // Carrega comentários reais do banco
   document.getElementById('photo-expand-comments').innerHTML = '';
+  if (obs.id) loadExpandComments(obs.id);
+
   document.getElementById('photo-expand-comment-box').style.display = 'none';
   document.getElementById('photo-expand-modal').classList.add('open');
 }
@@ -6161,53 +6182,174 @@ async function loadBirdDayFinders(sci) {
 
 
 /* ════════════════════════════════════════
-   GLOSSÁRIO / BUSCA DE AVES
+   CARD COUNTS — curtidas e comentários
+════════════════════════════════════════ */
+async function loadCardCounts(obsList) {
+  for (const obs of obsList) {
+    const id = obs.id;
+    if (!id) continue;
+    try {
+      // Curtidas
+      const { count: lc } = await db.from('likes').select('id', { count:'exact', head:true }).eq('obs_id', id);
+      const lcEl = document.getElementById('like-count-' + id);
+      if (lcEl && lc > 0) lcEl.textContent = lc;
+
+      // Estado de curtida do usuário atual
+      if (currentUser) {
+        const { data: myLike } = await db.from('likes').select('id').eq('obs_id', id).eq('user_id', currentUser.id).maybeSingle();
+        if (myLike) {
+          const btn = document.getElementById('like-btn-' + id);
+          const icon = document.getElementById('like-icon-' + id);
+          if (btn) btn.classList.add('liked');
+          if (icon) icon.textContent = '❤️';
+        }
+      }
+
+      // Comentários
+      const { count: cc } = await db.from('comments').select('id', { count:'exact', head:true }).eq('obs_id', id);
+      const ccEl = document.getElementById('comment-count-' + id);
+      if (ccEl && cc > 0) ccEl.textContent = cc;
+    } catch(e) { /* silencioso */ }
+  }
+}
+
+/* ════════════════════════════════════════
+   COMENTÁRIOS NO MODAL DE FOTO EXPANDIDA
+════════════════════════════════════════ */
+async function loadExpandComments(obsId) {
+  const el = document.getElementById('photo-expand-comments');
+  if (!el) return;
+  try {
+    const { data } = await db.from('comments')
+      .select('id, content, created_at, user_id, profiles(nome,handle)')
+      .eq('obs_id', obsId)
+      .order('created_at', { ascending: true });
+    if (!data || !data.length) { el.innerHTML = ''; return; }
+    el.innerHTML = data.map(cm => {
+      const name   = cm.profiles?.nome || cm.profiles?.handle || 'Usuário';
+      const handle = cm.profiles?.handle || '';
+      const isOwn  = currentUser && cm.user_id === currentUser.id;
+      return `<div style="display:flex;gap:8px;align-items:flex-start;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;" onclick="openPublicProfile&&openPublicProfile('${handle}')">${(name||'?')[0].toUpperCase()}</div>
+        <div style="flex:1;background:var(--bg);border-radius:var(--radius-md);padding:7px 10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:600;font-size:11px;color:var(--sky);cursor:pointer;" onclick="openPublicProfile&&openPublicProfile('${handle}')">@${handle||name}</span>
+            ${isOwn ? `<button onclick="deleteExpandComment('${cm.id}','${obsId}')" style="background:none;border:none;color:var(--text-muted);font-size:10px;cursor:pointer;">🗑️</button>` : ''}
+          </div>
+          <div style="font-size:12px;color:var(--text);margin-top:2px;">${cm.content}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = ''; }
+}
+
+async function deleteExpandComment(commentId, obsId) {
+  if (!currentUser || !confirm('Excluir comentário?')) return;
+  await db.from('comments').delete().eq('id', commentId).eq('user_id', currentUser.id);
+  loadExpandComments(obsId);
+}
+
+async function submitExpandComment() {
+  const input = document.getElementById('photo-expand-comment-input');
+  const text  = input?.value?.trim();
+  if (!text) return;
+  if (!currentUser) { showToast('🔑 Faça login para comentar'); openAuthModal(); return; }
+  const obsId = window._expandObsId;
+  if (!obsId) return;
+  input.value = '';
+  try {
+    await db.from('comments').insert({ obs_id: obsId, user_id: currentUser.id, content: text });
+    loadExpandComments(obsId);
+    // Atualiza contagem no card
+    const { count } = await db.from('comments').select('id',{count:'exact',head:true}).eq('obs_id', obsId);
+    const ccEl = document.getElementById('comment-count-' + obsId);
+    if (ccEl) ccEl.textContent = count > 0 ? count : '';
+  } catch(e) { showToast('❌ Erro ao comentar'); }
+}
+
+/* ════════════════════════════════════════
+   GLOSSÁRIO — BUSCA DE AVES
 ════════════════════════════════════════ */
 function levenshtein(a, b) {
   const m = a.length, n = b.length;
-  const d = Array.from({length: m+1}, (_, i) => [i]);
-  for (let j = 0; j <= n; j++) d[0][j] = j;
-  for (let i = 1; i <= m; i++)
-    for (let j = 1; j <= n; j++)
-      d[i][j] = a[i-1]===b[j-1] ? d[i-1][j-1] : 1+Math.min(d[i-1][j-1], d[i-1][j], d[i][j-1]);
+  const d = Array.from({length:m+1}, (_,i)=>[i]);
+  for (let j=0;j<=n;j++) d[0][j]=j;
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    d[i][j] = a[i-1]===b[j-1] ? d[i-1][j-1] : 1+Math.min(d[i-1][j-1],d[i-1][j],d[i][j-1]);
   return d[m][n];
 }
-
 function birdScore(q, bird) {
-  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  const qn = norm(q);
-  const pop = norm(bird.pop);
-  const sci = norm(bird.sci);
-  if (pop.startsWith(qn) || sci.startsWith(qn)) return 100;
-  if (pop.includes(qn)   || sci.includes(qn))   return 80;
-  for (const w of (pop+' '+sci).split(/\s+/)) {
-    if (qn.length >= 3 && levenshtein(qn, w.slice(0,qn.length)) <= Math.floor(qn.length/4)) return 50;
-  }
+  const n = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const qn=n(q), pop=n(bird.pop), sci=n(bird.sci);
+  if (pop.startsWith(qn)||sci.startsWith(qn)) return 100;
+  if (pop.includes(qn)||sci.includes(qn)) return 80;
+  for (const w of (pop+' '+sci).split(/\s+/))
+    if (qn.length>=3 && levenshtein(qn,w.slice(0,qn.length))<=Math.floor(qn.length/4)) return 50;
   return 0;
 }
 
-let _birdSearchTimer = null;
+let _birdTimer = null;
+let _birdPhotoCache = {};
+
+// Busca foto de uma espécie via photo_index.json ou iNaturalist
+async function getBirdPhoto(sci) {
+  if (_birdPhotoCache[sci] !== undefined) return _birdPhotoCache[sci];
+  _birdPhotoCache[sci] = null; // evita requests duplicados
+  try {
+    if (!window._photoIndex) {
+      const r = await fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json');
+      if (r.ok) {
+        const raw = await r.json();
+        window._photoIndex = {};
+        for (const [photographer, info] of Object.entries(raw)) {
+          for (const foto of (info.fotos||[])) {
+            const key = (foto.cientifico||'').toLowerCase().trim();
+            if (!key) continue;
+            if (!window._photoIndex[key]) window._photoIndex[key] = [];
+            window._photoIndex[key].push({ url: foto.url, author: photographer, profileUrl: info.wikiaves||null });
+          }
+        }
+      }
+    }
+    const entries = window._photoIndex && window._photoIndex[sci.toLowerCase()];
+    if (entries && entries.length) {
+      const e = entries[Math.floor(Math.random()*entries.length)];
+      _birdPhotoCache[sci] = { url: e.url, author: e.author, source: 'aveavista' };
+      return _birdPhotoCache[sci];
+    }
+  } catch(e) {}
+  // iNaturalist fallback
+  try {
+    const r = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&limit=1`);
+    const j = await r.json();
+    const url = j.results?.[0]?.default_photo?.medium_url;
+    if (url) {
+      _birdPhotoCache[sci] = { url, author: 'iNaturalist', source: 'inat', inatId: j.results[0].id };
+      return _birdPhotoCache[sci];
+    }
+  } catch(e) {}
+  return null;
+}
+
 function searchBirds(val) {
-  clearTimeout(_birdSearchTimer);
+  clearTimeout(_birdTimer);
   const q = val.trim();
   const sug = document.getElementById('birds-suggestions');
-  if (!q) { if (sug) sug.style.display='none'; renderBirdsGrid(SC_BIRDS.slice(0,60)); return; }
-  _birdSearchTimer = setTimeout(() => {
+  if (!q) { if(sug) sug.style.display='none'; renderBirdsGrid(SC_BIRDS.slice(0,60)); return; }
+  _birdTimer = setTimeout(() => {
     const results = SC_BIRDS
-      .map(b => ({ b, s: birdScore(q, b) }))
-      .filter(r => r.s > 0)
-      .sort((a, b) => b.s - a.s)
-      .slice(0, 40).map(r => r.b);
+      .map(b=>({b,s:birdScore(q,b)})).filter(r=>r.s>0)
+      .sort((a,b)=>b.s-a.s).slice(0,40).map(r=>r.b);
     if (sug) {
       sug.style.display = results.length ? 'block' : 'none';
       sug.innerHTML = results.slice(0,6).map(b =>
-        `<div onclick="openSpeciesModal('${b.sci.replace(/'/g,"\\'")}','${b.pop.replace(/'/g,"\\'")}');document.getElementById('birds-suggestions').style.display='none';document.getElementById('birds-search-input').value='${b.pop.replace(/'/g,"\\'")}'"
+        `<div onclick="openSpeciesModal('${b.sci.replace(/'/g,"\\'")}','${b.pop.replace(/'/g,"\\'")}');document.getElementById('birds-suggestions').style.display='none'"
           style="padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);"
           onmouseover="this.style.background='var(--sky-light)'" onmouseout="this.style.background=''">
           <div style="font-weight:600;font-size:13px;">${capitalize(b.pop)}</div>
           <div style="font-size:11px;color:var(--text-muted);font-style:italic;">${b.sci}</div>
         </div>`
-      ).join('') + (results.length>6 ? `<div style="padding:8px 16px;font-size:12px;color:var(--text-muted);">+${results.length-6} resultados</div>` : '');
+      ).join('')+(results.length>6?`<div style="padding:8px 16px;font-size:12px;color:var(--text-muted);">+${results.length-6} resultados</div>`:'');
     }
     renderBirdsGrid(results);
   }, 180);
@@ -6216,32 +6358,52 @@ function searchBirds(val) {
 document.addEventListener('click', e => {
   const sug = document.getElementById('birds-suggestions');
   if (sug && !e.target.closest('#birds-search-input') && !e.target.closest('#birds-suggestions'))
-    sug.style.display = 'none';
+    sug.style.display='none';
 });
 
 function renderBirdsGrid(birds) {
   const grid = document.getElementById('birds-grid');
   if (!grid) return;
   if (!birds || !birds.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma ave encontrada.</div>';
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma ave encontrada.</div>';
     return;
   }
+  // Renderiza cards com fundo placeholder, depois substitui pela foto
   grid.innerHTML = birds.map(b => {
     const found  = foundSpecies.has(b.sci);
     const atRisk = b.sc && b.sc !== 'LC';
-    return `<div onclick="openSpeciesModal('${b.sci.replace(/'/g,"\\'")}','${b.pop.replace(/'/g,"\\'")}');"
-      style="background:var(--card);border:1.5px solid ${found?'var(--forest)':'var(--border)'};border-radius:var(--radius-md);padding:14px 10px;cursor:pointer;text-align:center;transition:transform .15s,box-shadow .15s;"
+    const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
+    return `<div id="bcard_${safeId}" onclick="openSpeciesModal('${b.sci.replace(/'/g,"\\'")}','${b.pop.replace(/'/g,"\\'")}');"
+      style="position:relative;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;height:130px;background:var(--sky-light);transition:transform .15s,box-shadow .15s;"
       onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'"
       onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div style="font-size:26px;margin-bottom:4px;">${getSpeciesEmoji(b.pop)}</div>
-      <div style="font-weight:700;font-size:12px;line-height:1.3;">${capitalize(b.pop)}</div>
-      <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-top:2px;">${b.sci}</div>
-      <div style="margin-top:4px;display:flex;justify-content:center;gap:3px;">
-        ${found  ? '<span style="font-size:9px;background:var(--forest);color:white;border-radius:10px;padding:1px 6px;font-weight:700;">✓</span>' : ''}
-        ${atRisk ? '<span style="font-size:9px;" title="Ameaçada">🔴</span>' : ''}
+      <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,var(--sky),var(--forest));"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,0.75));"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px;">
+        <div style="font-weight:700;font-size:12px;color:white;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,0.8);">${capitalize(b.pop)}</div>
+        <div style="font-size:9.5px;color:rgba(255,255,255,0.75);font-style:italic;">${b.sci}</div>
+        <div style="display:flex;gap:3px;margin-top:3px;">
+          ${found  ? '<span style="font-size:9px;background:var(--forest);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">✓</span>' : ''}
+          ${atRisk ? '<span style="font-size:9px;background:rgba(239,68,68,0.8);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">⚠</span>' : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
+
+  // Carrega fotos em background
+  birds.forEach(b => {
+    const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
+    getBirdPhoto(b.sci).then(photo => {
+      if (!photo) return;
+      const bg = document.getElementById('bcard_bg_'+safeId);
+      if (bg) {
+        bg.style.backgroundImage = `url(${photo.url})`;
+        bg.style.backgroundSize  = 'cover';
+        bg.style.backgroundPosition = 'center';
+        bg.style.background = '';
+      }
+    });
+  });
 }
 
 /* ════════════════════════════════════════
@@ -6253,18 +6415,19 @@ async function openSpeciesModal(sci, pop) {
     modal = document.createElement('div');
     modal.id = 'species-modal';
     modal.className = 'modal-overlay';
-    modal.style.zIndex = '2500';
-    modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+    modal.style.cssText = 'z-index:2500;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);';
+    modal.onclick = e => { if (e.target===modal) modal.classList.remove('open'); };
     modal.innerHTML = `
       <div class="modal-card" style="max-width:660px;max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
-        <div id="sp-hero" style="position:relative;height:220px;background:var(--bg);flex-shrink:0;">
-          <img id="sp-img" src="" style="width:100%;height:100%;object-fit:cover;display:none;">
-          <div id="sp-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;">🐦</div>
-          <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,0.55));pointer-events:none;"></div>
-          <button onclick="document.getElementById('species-modal').classList.remove('open')" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.45);border:none;border-radius:50%;width:32px;height:32px;color:white;font-size:16px;cursor:pointer;">✕</button>
-          <div style="position:absolute;bottom:12px;left:16px;">
-            <div id="sp-pop" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white;text-shadow:0 2px 8px rgba(0,0,0,0.5);"></div>
+        <div id="sp-hero" style="position:relative;height:220px;background:var(--bg);flex-shrink:0;cursor:zoom-in;">
+          <img id="sp-img" src="" style="width:100%;height:100%;object-fit:cover;display:none;" onclick="window.open(this.src,'_blank')">
+          <div id="sp-ph" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;background:linear-gradient(135deg,var(--sky),var(--forest));">🐦</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,0.6));pointer-events:none;"></div>
+          <button onclick="document.getElementById('species-modal').classList.remove('open')" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:32px;height:32px;color:white;font-size:16px;cursor:pointer;z-index:2;">✕</button>
+          <div style="position:absolute;bottom:12px;left:16px;right:50px;">
+            <div id="sp-pop" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white;text-shadow:0 2px 8px rgba(0,0,0,0.6);"></div>
             <div id="sp-sci" style="font-size:13px;color:rgba(255,255,255,0.85);font-style:italic;"></div>
+            <div id="sp-credit" style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:2px;"></div>
           </div>
         </div>
         <div style="flex:1;overflow-y:auto;padding:18px;">
@@ -6287,60 +6450,74 @@ async function openSpeciesModal(sci, pop) {
   }
 
   modal.classList.add('open');
-  document.getElementById('sp-pop').textContent  = capitalize(pop);
-  document.getElementById('sp-sci').textContent  = sci;
+  document.getElementById('sp-pop').textContent = capitalize(pop);
+  document.getElementById('sp-sci').textContent = sci;
   document.getElementById('sp-desc').textContent = 'Carregando…';
   document.getElementById('sp-total').textContent = '…';
   document.getElementById('sp-users').textContent = '…';
   document.getElementById('sp-last').textContent  = '…';
   document.getElementById('sp-gallery').innerHTML = '';
+  document.getElementById('sp-credit').textContent = '';
   document.getElementById('sp-img').style.display = 'none';
-  document.getElementById('sp-placeholder').style.display = 'flex';
+  document.getElementById('sp-ph').style.display = 'flex';
 
-  const bird = SC_BIRDS.find(b => b.sci === sci);
+  const bird = SC_BIRDS.find(b=>b.sci===sci);
   const tags = [];
-  if (bird?.sc && bird.sc !== 'LC')     tags.push(`<span style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;">SC: ${bird.sc}</span>`);
+  if (bird?.sc && bird.sc!=='LC')       tags.push(`<span style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;">SC: ${bird.sc}</span>`);
   if (bird?.icmbio && bird.icmbio!=='LC') tags.push(`<span style="background:#ffedd5;color:#9a3412;border:1px solid #fdba74;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;">ICMBio: ${bird.icmbio}</span>`);
   if (bird?.iucn && bird.iucn!=='LC')   tags.push(`<span style="background:#fef9c3;color:#854d0e;border:1px solid #fde047;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;">IUCN: ${bird.iucn}</span>`);
   if (bird?.ordem)  tags.push(`<span style="background:var(--sky-light);color:var(--sky-dark);border:1px solid rgba(14,165,233,0.25);border-radius:20px;padding:2px 9px;font-size:11px;">🪶 ${bird.ordem}</span>`);
   if (bird?.familia) tags.push(`<span style="background:var(--violet-light);color:var(--violet);border:1px solid rgba(139,92,246,0.25);border-radius:20px;padding:2px 9px;font-size:11px;">🏷️ ${bird.familia}</span>`);
   document.getElementById('sp-tags').innerHTML = tags.join('');
 
-  // Foto — iNaturalist
-  fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&limit=1`)
-    .then(r => r.json()).then(j => {
-      const url = j.results?.[0]?.default_photo?.medium_url;
-      if (url) { const img = document.getElementById('sp-img'); img.src=url; img.style.display='block'; document.getElementById('sp-placeholder').style.display='none'; }
-    }).catch(()=>{});
+  // Foto hero com crédito clicável
+  getBirdPhoto(sci).then(photo => {
+    if (!photo) return;
+    const img = document.getElementById('sp-img');
+    const ph  = document.getElementById('sp-ph');
+    const cr  = document.getElementById('sp-credit');
+    img.src = photo.url;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+    img.onclick = () => window.open(photo.url, '_blank');
+    if (photo.source === 'inat' && photo.inatId) {
+      cr.innerHTML = `📸 <a href="https://www.inaturalist.org/taxa/${photo.inatId}" target="_blank" style="color:rgba(255,255,255,0.85);text-decoration:underline;">${photo.author} · iNaturalist ↗</a>`;
+    } else if (photo.author) {
+      cr.textContent = `📸 ${photo.author} · Ave à Vista`;
+    }
+  });
 
-  // Descrição — Wikipedia PT
+  // Descrição Wikipedia
   fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(sci)}`)
-    .then(r => r.ok ? r.json() : null).then(j => {
+    .then(r=>r.ok?r.json():null).then(j=>{
       const el = document.getElementById('sp-desc');
-      if (el) el.textContent = j?.extract ? j.extract.slice(0,480)+(j.extract.length>480?'…':'') : 'Descrição não disponível.';
+      if (el) el.textContent = j?.extract ? j.extract.slice(0,500)+(j.extract.length>500?'…':'') : 'Descrição não disponível.';
     }).catch(()=>{ const el=document.getElementById('sp-desc'); if(el) el.textContent='Descrição não disponível.'; });
 
   // Stats e galeria do banco
   try {
     const { data, count } = await db.from('observations')
-      .select('obs_date, photo_url, profiles(nome,handle)', { count: 'exact' })
-      .eq('species_sci', sci).order('created_at', { ascending: false }).limit(20);
+      .select('id, obs_date, photo_url, profiles(nome,handle)', { count:'exact' })
+      .eq('species_sci', sci).order('created_at',{ascending:false}).limit(20);
     document.getElementById('sp-total').textContent = count ?? 0;
-    const uniq = new Set((data||[]).map(o => o.profiles?.handle).filter(Boolean));
+    const uniq = new Set((data||[]).map(o=>o.profiles?.handle).filter(Boolean));
     document.getElementById('sp-users').textContent = uniq.size;
     const last = data?.[0]?.obs_date;
     document.getElementById('sp-last').textContent = last ? formatDate(last) : '—';
     const gal = document.getElementById('sp-gallery');
-    const photos = (data||[]).filter(o => o.photo_url);
-    if (!photos.length) { gal.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:8px 0;">Nenhuma foto ainda.</div>'; }
-    else gal.innerHTML = photos.map(o => {
+    const photos = (data||[]).filter(o=>o.photo_url);
+    if (!photos.length) { gal.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px 0;">Nenhuma foto ainda.</div>'; return; }
+    gal.innerHTML = photos.map(o => {
       const h = o.profiles?.handle||'?';
-      const obsObj = { species: capitalize(pop), sciName: sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: o.profiles?.nome||h, handle: h } };
-      return `<div style="border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;" onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
+      const obsObj = { id: o.id, species: capitalize(pop), sciName: sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: o.profiles?.nome||h, handle: h } };
+      return `<div style="border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
         <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));padding:4px 5px;">
+          <div style="font-size:9px;color:white;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();openPublicProfile&&openPublicProfile('${h}')">@${h}</div>
+        </div>
       </div>`;
     }).join('');
-  } catch(e) { console.warn('openSpeciesModal stats:', e); }
+  } catch(e) { console.warn('openSpeciesModal:', e); }
 }
 
 </script>
