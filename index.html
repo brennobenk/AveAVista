@@ -1659,8 +1659,8 @@ const db = createClient(
           <!-- Info + stats -->
           <div style="padding-top:52px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px;">
             <div style="flex:1;min-width:200px;">
-              <div class="profile-name" id="profile-name">Brenno Alef</div>
-              <div class="profile-handle" id="profile-handle">@brenno · Florianópolis, SC</div>
+              <div class="profile-name" id="profile-name">Meu Perfil</div>
+              <div class="profile-handle" id="profile-handle"></div>
               <div id="profile-bio" class="profile-bio" style="margin:6px 0 10px;min-height:20px;color:var(--text-mid);"></div>
               <div class="badges-row" id="badges-row">
                 <!-- Preenchido dinamicamente por renderDynamicBadges() -->
@@ -3693,9 +3693,12 @@ db.auth.onAuthStateChange(async (event, session) => {
       loadUserChecklist();
       loadNotifBadge();
       startNotifRealtime();
-      // Re-render feed so user's own observations and liked state appear
+      startRealtimeSubscriptions();
+      // Re-render feed com estado de curtidas do usuário
       renderFeed('home-feed', 4);
-      if (typeof renderFeed === 'function') renderFeed('full-feed', 12);
+      if (document.getElementById('page-feed')?.classList.contains('active')) {
+        renderFeed('full-feed', 12);
+      }
       if (window._pendingNav) {
         const { pageId, btn } = window._pendingNav;
         window._pendingNav = null;
@@ -3712,9 +3715,24 @@ db.auth.onAuthStateChange(async (event, session) => {
       openHandleModal(_pendingGoogleUser);
     }
   } else {
+    // Logout ou sessão expirada — limpa TUDO
     currentUser = null;
+    foundSpecies = new Set();
+    observations = JSON.parse(localStorage.getItem('av_obs') || '[]');
     stopNotifRealtime();
+    stopRealtimeSubscriptions();
     updateSidebarAuth();
+    // Reseta perfil para estado vazio
+    const pN = document.getElementById('profile-name');
+    const pH = document.getElementById('profile-handle');
+    if (pN) pN.textContent = 'Faça login para ver seu perfil';
+    if (pH) pH.textContent = '';
+    // Re-renderiza feed público (sem likes do usuário)
+    renderFeed('home-feed', 4);
+    if (document.getElementById('page-feed')?.classList.contains('active')) {
+      renderFeed('full-feed', 12);
+    }
+    updateChecklistProgress();
   }
 });
 
@@ -3722,13 +3740,12 @@ db.auth.onAuthStateChange(async (event, session) => {
    NAVEGAÇÃO
 ════════════════════════════════════════ */
 // Pages that require login
-const AUTH_REQUIRED_PAGES = new Set(['upload', 'messages', 'notifications']); // feed e perfis são visíveis sem login
+const AUTH_REQUIRED_PAGES = new Set(['upload', 'messages', 'notifications', 'profile']);
 
 function navigateTo(pageId, btn) {
   // Gate: protect pages that need login
   if (AUTH_REQUIRED_PAGES.has(pageId) && !currentUser) {
     openAuthModal();
-    // After modal, highlight which page they wanted
     window._pendingNav = { pageId, btn };
     showToast('🔑 Faça login para acessar esta página');
     return;
@@ -3737,11 +3754,11 @@ function navigateTo(pageId, btn) {
   document.getElementById('page-' + pageId)?.classList.add('active');
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  if (pageId === 'feed') renderFeed('full-feed', 12);
+  if (pageId === 'feed')    renderFeed('full-feed', 12);
   if (pageId === 'profile') renderProfile();
-  if (pageId === 'users') renderUsers('');
+  if (pageId === 'users')   renderUsers('');
   if (pageId === 'ranking') loadRanking();
-  if (pageId === 'birds')   { renderBirdsGrid(SC_BIRDS); }
+  if (pageId === 'birds')   renderBirdsGrid(SC_BIRDS);
 }
 
 /* ════════════════════════════════════════
@@ -4064,16 +4081,18 @@ async function renderFeed(containerId, limit) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Tenta carregar do Supabase
+  // Carrega avistamentos públicos do Supabase — funciona para usuários não-logados também
+  // IMPORTANTE: a tabela 'observations' precisa ter RLS com policy "SELECT for anon" no Supabase
   let dbObs = [];
   try {
-    const { data } = await db
+    const { data, error } = await db
       .from('observations')
       .select('*, profiles(nome, handle)')
       .order('created_at', { ascending: false })
       .limit(limit);
+    if (error) console.warn('Feed DB error (verifique RLS no Supabase):', error.message);
     if (data && data.length > 0) dbObs = data;
-  } catch(e) { console.warn('Feed: usando dados locais', e); }
+  } catch(e) { console.warn('Feed: erro ao buscar do banco:', e); }
 
   // Converte avistamentos do banco para o formato de card
   const dbCards = dbObs.map(o => ({
@@ -4157,12 +4176,32 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   // Data padrão = hoje
   document.getElementById('obs-date').value = new Date().toISOString().slice(0, 10);
-  // Render inicial
+
+  // Render inicial — conteúdo público que não precisa de login
   renderBirdOfDay();
   renderFeed('home-feed', 4);
-  renderProfile();
   renderUsers('');
+  // renderProfile() NÃO é chamado aqui — é chamado pelo onAuthStateChange
+  // para evitar flash de dados errados no F5
+
+  // Verifica RLS anonimo para dar aviso ao admin se estiver bloqueado
+  checkPublicAccess();
 });
+
+async function checkPublicAccess() {
+  try {
+    const { data, error } = await db.from('observations').select('id').limit(1);
+    if (error && (error.code === 'PGRST301' || error.message?.includes('row-level security'))) {
+      console.warn(
+        '%c⚠️ SUPABASE RLS BLOQUEANDO ACESSO ANÔNIMO\n' +
+        'Vá em Supabase → Authentication → Policies → tabela observations\n' +
+        'e adicione: SELECT para role "anon" (sem filtro de user_id).\n' +
+        'Faça o mesmo para as tabelas: profiles, species_seen, follows, likes, comments.',
+        'background:#fff3cd;color:#856404;padding:8px;border-radius:4px;font-size:13px;'
+      );
+    }
+  } catch(e) {}
+}
 
 function previewPhoto(input) {
   const file = input.files[0];
@@ -4385,6 +4424,14 @@ async function submitObservation() {
    PERFIL
 ════════════════════════════════════════ */
 function renderProfile() {
+  // Sem usuário logado — não renderiza dados privados
+  if (!currentUser) {
+    const pN = document.getElementById('profile-name');
+    const pH = document.getElementById('profile-handle');
+    if (pN) pN.textContent = 'Faça login para ver seu perfil';
+    if (pH) pH.textContent = '';
+    return;
+  }
   document.getElementById('stat-species').textContent = foundSpecies.size;
   document.getElementById('stat-obs').textContent = observations.length;
   document.getElementById('stat-photos').textContent = observations.filter(o => o.photoUrl).length;
@@ -4615,25 +4662,53 @@ async function doLogin() {
 
 async function doRegister() {
   const name   = document.getElementById('reg-name').value.trim();
-  const handle = document.getElementById('reg-handle').value.trim().replace(/\s+/g, '_');
+  const handle = document.getElementById('reg-handle').value.trim().replace(/\s+/g, '_').toLowerCase().replace(/^@/, '');
   const email  = document.getElementById('reg-email').value.trim();
   const pass   = document.getElementById('reg-pass').value;
   const terms  = document.getElementById('terms-check').checked;
   if (!name || !handle || !email || !pass) { showToast('⚠️ Preencha todos os campos'); return; }
   if (!terms) { showToast('⚠️ Aceite os termos de uso'); return; }
   if (pass.length < 8) { showToast('⚠️ Senha deve ter pelo menos 8 caracteres'); return; }
+  if (!/^[a-z0-9_à-ü]{3,30}$/.test(handle)) { showToast('⚠️ @usuário inválido — use letras, números e _'); return; }
+
   const btn = document.querySelectorAll('#auth-modal .btn-auth-submit')[1];
   if (btn) { btn.disabled = true; btn.textContent = 'Criando conta…'; }
-  const { data, error } = await db.auth.signUp({ email, password: pass });
-  if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
-  if (error) { showToast('❌ ' + error.message); return; }
-  await db.from('profiles').insert({
-    id: data.user.id,
-    nome: name,
-    handle: handle.replace(/^@/, '')
-  });
-  document.getElementById('auth-modal').classList.remove('open');
-  showToast('🎉 Conta criada! Verifique seu e-mail para confirmar.');
+
+  try {
+    // Verifica se handle já existe
+    const { data: existing } = await db.from('profiles').select('id').eq('handle', handle).maybeSingle();
+    if (existing) {
+      showToast('⚠️ @' + handle + ' já está em uso. Escolha outro.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
+      return;
+    }
+
+    const { data, error } = await db.auth.signUp({ email, password: pass });
+    if (error) { showToast('❌ ' + error.message); if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; } return; }
+
+    if (!data?.user) { showToast('⚠️ Erro inesperado ao criar conta'); if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; } return; }
+
+    // Cria perfil — sem email (não é uma coluna da tabela profiles)
+    const { error: profileError } = await db.from('profiles').insert({
+      id:     data.user.id,
+      nome:   name,
+      handle: handle
+    });
+
+    if (profileError) {
+      if (profileError.code === '23505') showToast('⚠️ @' + handle + ' já está em uso.');
+      else showToast('⚠️ Erro ao criar perfil: ' + profileError.message);
+      if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
+      return;
+    }
+
+    document.getElementById('auth-modal').classList.remove('open');
+    showToast('🎉 Conta criada! Verifique seu e-mail para confirmar.');
+  } catch(e) {
+    showToast('❌ Erro inesperado: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
+  }
 }
 
 async function doForgot() {
@@ -6728,7 +6803,57 @@ function openMsgTo(userId, handle) {
 
 let _notifChannel = null;
 
-async function startNotifRealtime() {
+/* ════════════════════════════════════════
+   REALTIME — FOLLOWS / MENSAGENS / FEED
+════════════════════════════════════════ */
+let _realtimeChannels = [];
+
+function startRealtimeSubscriptions() {
+  if (!currentUser?.id) return;
+  stopRealtimeSubscriptions();
+
+  // 1. Novas mensagens recebidas
+  const msgChannel = db.channel('msgs:' + currentUser.id)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'messages',
+      filter: `to_id=eq.${currentUser.id}`
+    }, payload => {
+      const badge = document.getElementById('msg-badge');
+      if (badge) badge.style.display = 'block';
+      if (_activeContactId === payload.new.from_id) loadThread(_activeContactId);
+    })
+    .subscribe();
+  _realtimeChannels.push(msgChannel);
+
+  // 2. Novos seguidores — atualiza contador no perfil
+  const followChannel = db.channel('follows:' + currentUser.id)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'follows',
+      filter: `following_id=eq.${currentUser.id}`
+    }, async () => {
+      const { count } = await db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', currentUser.id);
+      const fEl = document.getElementById('stat-followers');
+      if (fEl) fEl.textContent = count ?? 0;
+    })
+    .subscribe();
+  _realtimeChannels.push(followChannel);
+
+  // 3. Novos avistamentos — atualiza feed em tempo real
+  const obsChannel = db.channel('obs-feed')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'observations' }, () => {
+      if (document.getElementById('page-home')?.classList.contains('active')) renderFeed('home-feed', 4);
+      if (document.getElementById('page-feed')?.classList.contains('active')) renderFeed('full-feed', 12);
+    })
+    .subscribe();
+  _realtimeChannels.push(obsChannel);
+}
+
+function stopRealtimeSubscriptions() {
+  _realtimeChannels.forEach(ch => { try { db.removeChannel(ch); } catch(e) {} });
+  _realtimeChannels = [];
+}
+
+
   if (!currentUser?.id) return;
   if (_notifChannel) { try { db.removeChannel(_notifChannel); } catch(e){} _notifChannel = null; }
   _notifChannel = db.channel('notif:' + currentUser.id)
@@ -6835,6 +6960,11 @@ async function loadFollowBtn(targetId, handle) {
 async function toggleFollowUser(targetId, handle, btn) {
   if (!currentUser) { showToast('🔑 Faça login para seguir'); openAuthModal(); return; }
   if (currentUser.id === targetId) return;
+  // Debounce — evita spam de cliques
+  if (btn._toggling) return;
+  btn._toggling = true;
+  btn.disabled = true;
+
   const isFollowing = btn.dataset.following === '1';
   try {
     if (isFollowing) {
@@ -6843,11 +6973,15 @@ async function toggleFollowUser(targetId, handle, btn) {
       btn.classList.remove('following');
       btn.dataset.following = '0';
     } else {
-      await db.from('follows').insert({ follower_id: currentUser.id, following_id: targetId });
+      // upsert evita duplicate key se clicar rápido
+      await db.from('follows').upsert(
+        { follower_id: currentUser.id, following_id: targetId },
+        { onConflict: 'follower_id,following_id', ignoreDuplicates: true }
+      );
       btn.textContent = '✓ Seguindo';
       btn.classList.add('following');
       btn.dataset.following = '1';
-      // Cria notificação para o usuário seguido
+      // Notificação para o seguido
       try {
         await db.from('notifications').insert({
           user_id: targetId, type: 'follow', actor_id: currentUser.id,
@@ -6855,13 +6989,15 @@ async function toggleFollowUser(targetId, handle, btn) {
         });
       } catch(e) {}
     }
-    // Atualiza contador de seguidores
+    // Busca contagem REAL do banco (anti-farm)
+    const { count } = await db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', targetId);
     const folEl = document.getElementById('ufo_'+handle);
-    if (folEl) {
-      const cur = parseInt(folEl.textContent) || 0;
-      folEl.textContent = isFollowing ? Math.max(0, cur-1) : cur+1;
-    }
+    if (folEl) folEl.textContent = count ?? 0;
+    // Atualiza também no modal de perfil público se estiver aberto
+    const ppFol = document.getElementById('pp-fol');
+    if (ppFol) ppFol.textContent = count ?? 0;
   } catch(e) { showToast('❌ Erro: ' + e.message); }
+  finally { btn._toggling = false; btn.disabled = false; }
 }
 
 </script>
