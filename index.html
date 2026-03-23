@@ -1351,6 +1351,17 @@ body::before {
   .sidebar { display: none; }
   .main-content { padding: 12px; }
 }
+.forgot-link {
+  background: none;
+  border: none;
+  color: var(--sky);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+}
 </style>
 
 <!-- ══ SUPABASE ══ -->
@@ -5827,18 +5838,7 @@ function openExpandComment() {
   if (box.style.display === 'flex') document.getElementById('photo-expand-comment-input').focus();
 }
 
-function submitExpandComment() {
-  const input = document.getElementById('photo-expand-comment-input');
-  const text  = input.value.trim();
-  if (!text) return;
-  const list = document.getElementById('photo-expand-comments');
-  const div  = document.createElement('div');
-  div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;';
-  div.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0;">${(currentUser?.name||'V')[0]}</div>
-    <div style="flex:1;background:var(--bg);border-radius:var(--radius-md);padding:7px 11px;font-size:13px;">${text}</div>`;
-  list.appendChild(div);
-  input.value = '';
-}
+// submitExpandComment legacy removed — async version below handles Supabase
 
 /* ════════════════════════════════════════
    MENSAGENS (sistema básico local)
@@ -6790,8 +6790,18 @@ async function openPublicProfile(handle) {
         .select('id').eq('follower_id', currentUser.id).eq('following_id', profile.id).maybeSingle();
       const isF = !!alreadyFollowing;
       actionRow.innerHTML =
-        '<button id="pub-follow-btn" data-uid="' + profile.id + '" data-handle="' + profile.handle + '" data-following="' + (isF ? '1' : '0') + '" onclick="pubToggleFollow(this)" style="height:38px;padding:0 20px;border-radius:var(--radius-md);border:' + (isF ? '1.5px solid var(--border)' : 'none') + ';cursor:pointer;font-weight:700;font-size:13px;background:' + (isF ? 'var(--bg)' : 'linear-gradient(135deg,var(--sky),var(--sky-dark))') + ';color:' + (isF ? 'var(--text-mid)' : 'white') + ';">' + (isF ? '✓ Seguindo' : '+ Seguir') + '</button>' +
-        '<button onclick="pubOpenMsg('' + profile.id + '','' + profile.handle + '')" style="height:38px;padding:0 16px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);cursor:pointer;font-size:13px;font-weight:600;">💬 Mensagem</button>';
+        '<button id="pub-follow-btn"' +
+        ' data-uid="' + profile.id + '"' +
+        ' data-handle="' + profile.handle + '"' +
+        ' data-following="' + (isF ? '1' : '0') + '"' +
+        ' onclick="pubToggleFollow(this)"' +
+        ' style="height:38px;padding:0 20px;border-radius:var(--radius-md);cursor:pointer;font-weight:700;font-size:13px;' +
+        (isF ? 'border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);' : 'border:none;background:linear-gradient(135deg,var(--sky),var(--sky-dark));color:white;') +
+        '">' + (isF ? '✓ Seguindo' : '+ Seguir') + '</button>' +
+        '<button onclick="pubOpenMsg(this)"' +
+        ' data-uid="' + profile.id + '"' +
+        ' data-handle="' + profile.handle + '"' +
+        ' style="height:38px;padding:0 16px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);cursor:pointer;font-size:13px;font-weight:600;">💬 Mensagem</button>';
     }
 
     // Galeria
@@ -6799,7 +6809,8 @@ async function openPublicProfile(handle) {
     if (photos.length) {
       galleryEl.innerHTML = photos.map(o => {
         const obsObj = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle } };
-        return '<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;" onclick="openPhotoExpand(' + JSON.stringify(obsObj).replace(/"/g,'&quot;') + ')"><img src="' + o.photo_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'"></div>';
+        const safeJson = JSON.stringify(obsObj).replace(/"/g,'&quot;');
+        return '<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;" onclick="openPhotoExpand(' + safeJson + ')"><img src="' + o.photo_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'&#128038;\'"></div>';
       }).join('');
     } else {
       galleryEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.</div>';
@@ -6949,7 +6960,7 @@ function stopRealtimeSubscriptions() {
   _realtimeChannels = [];
 }
 
-
+async function startNotifRealtime() {
   if (!currentUser?.id) return;
   if (_notifChannel) { try { db.removeChannel(_notifChannel); } catch(e){} _notifChannel = null; }
   _notifChannel = db.channel('notif:' + currentUser.id)
