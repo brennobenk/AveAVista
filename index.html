@@ -3693,6 +3693,9 @@ db.auth.onAuthStateChange(async (event, session) => {
       loadUserChecklist();
       loadNotifBadge();
       startNotifRealtime();
+      // Re-render feed so user's own observations and liked state appear
+      renderFeed('home-feed', 4);
+      if (typeof renderFeed === 'function') renderFeed('full-feed', 12);
       if (window._pendingNav) {
         const { pageId, btn } = window._pendingNav;
         window._pendingNav = null;
@@ -4505,10 +4508,11 @@ async function renderUsers(filter) {
         <div><span class="user-card-stat-num" id="uob_${u.handle}">…</span><span class="user-card-stat-label">Registros</span></div>
         <div><span class="user-card-stat-num" id="ufo_${u.handle}">…</span><span class="user-card-stat-label">Seguidores</span></div>
       </div>
+      <button id="fbtn_${u.handle}" class="btn-follow" onclick="event.stopPropagation();toggleFollowUser('${u.id}','${u.handle}',this)">+ Seguir</button>
     </div>
   `).join('');
-  // Load real stats for each user
-  users.forEach(u => { if (u.id) loadUserStats(u.id, u.handle); });
+  // Load real stats and follow status for each user
+  users.forEach(u => { if (u.id) { loadUserStats(u.id, u.handle); loadFollowBtn(u.id, u.handle); } });
 }
 
 function searchUsers(val) {
@@ -4674,10 +4678,12 @@ function updateSidebarAuth() {
 
   const pN = document.getElementById('profile-name');
   const pH = document.getElementById('profile-handle');
-  const pA = document.getElementById('profile-avatar');
+  const pL = document.getElementById('profile-avatar-letter'); // só o span da letra
   if (pN) pN.textContent = dn;
   if (pH) pH.textContent = '@'+currentUser.handle;
-  if (pA) pA.textContent = ini;
+  if (pL) pL.textContent = ini; // nunca usar pA.textContent (destrói o img filho)
+  // Re-aplica avatar se existir
+  if (currentUser.avatar_url) setTimeout(() => applyAvatar(currentUser.avatar_url), 0);
 
   if (typeof checkAdminArea === 'function') checkAdminArea();
   if (typeof updateProfilePageAuth === 'function') updateProfilePageAuth();
@@ -6630,6 +6636,59 @@ function showFullPhotoZoom(url) {
   ov.style.display = 'flex';
   // Reset zoom
   document.getElementById('_zoom_img').style.transform = 'scale(1)';
+}
+
+
+/* ════════════════════════════════════════
+   SEGUIR / DEIXAR DE SEGUIR USUÁRIO
+════════════════════════════════════════ */
+async function loadFollowBtn(targetId, handle) {
+  if (!currentUser || currentUser.id === targetId) {
+    const btn = document.getElementById('fbtn_'+handle);
+    if (btn && currentUser?.id === targetId) btn.style.display = 'none'; // não mostra pra si mesmo
+    return;
+  }
+  const btn = document.getElementById('fbtn_'+handle);
+  if (!btn) return;
+  try {
+    const { data } = await db.from('follows')
+      .select('id').eq('follower_id', currentUser.id).eq('following_id', targetId).maybeSingle();
+    if (data) {
+      btn.textContent = '✓ Seguindo';
+      btn.classList.add('following');
+      btn.dataset.following = '1';
+    }
+  } catch(e) {}
+}
+
+async function toggleFollowUser(targetId, handle, btn) {
+  if (!currentUser) { showToast('🔑 Faça login para seguir'); openAuthModal(); return; }
+  if (currentUser.id === targetId) return;
+  const isFollowing = btn.dataset.following === '1';
+  try {
+    if (isFollowing) {
+      await db.from('follows').delete().eq('follower_id', currentUser.id).eq('following_id', targetId);
+      btn.textContent = '+ Seguir';
+      btn.classList.remove('following');
+      btn.dataset.following = '0';
+    } else {
+      await db.from('follows').insert({ follower_id: currentUser.id, following_id: targetId });
+      btn.textContent = '✓ Seguindo';
+      btn.classList.add('following');
+      btn.dataset.following = '1';
+      // Cria notificação para o usuário seguido
+      await db.from('notifications').insert({
+        user_id: targetId, type: 'follow', actor_id: currentUser.id,
+        data: { actor_handle: currentUser.handle, actor_name: currentUser.name }
+      }).catch(() => {});
+    }
+    // Atualiza contador de seguidores
+    const folEl = document.getElementById('ufo_'+handle);
+    if (folEl) {
+      const cur = parseInt(folEl.textContent) || 0;
+      folEl.textContent = isFollowing ? Math.max(0, cur-1) : cur+1;
+    }
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
 }
 
 </script>
