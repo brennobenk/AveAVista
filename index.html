@@ -1650,7 +1650,7 @@ const db = createClient(
           <!-- Avatar (sai da capa) -->
           <div style="position:absolute;top:-44px;left:28px;z-index:10;">
             <div class="profile-avatar" id="profile-avatar" style="position:relative;overflow:hidden;">
-              <span id="profile-avatar-letter">B</span>
+              <span id="profile-avatar-letter">?</span>
               <img id="profile-avatar-img" src="" alt=""
                 style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">
             </div>
@@ -1726,6 +1726,50 @@ const db = createClient(
       </div>
       <div id="profile-amizades" style="display:none;" id="profile-amizades-panel">
         <div id="amizades-grid" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;"></div>
+      </div>
+    </section>
+
+
+    <!-- ── PÁGINA PERFIL PÚBLICO ── -->
+    <section class="page" id="page-public-profile">
+      <div style="position:relative;height:180px;background:linear-gradient(135deg,#0369a1 0%,#065f46 50%,#92400e 100%);border-radius:var(--radius-xl) var(--radius-xl) 0 0;overflow:hidden;" id="pub-cover-el">
+        <div style="position:absolute;inset:0;opacity:0.15;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.15) 0,rgba(255,255,255,0.15) 1px,transparent 0,transparent 50%);background-size:12px 12px;pointer-events:none;"></div>
+        <img id="pub-cover-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;">
+        <button onclick="closePubProfile()" style="position:absolute;top:12px;left:14px;background:rgba(0,0,0,0.5);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;padding:6px 14px;cursor:pointer;backdrop-filter:blur(4px);">&#8592; Voltar</button>
+      </div>
+      <div style="position:relative;padding:0 28px 24px;background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-xl) var(--radius-xl);margin-bottom:20px;">
+        <div style="position:absolute;top:-44px;left:28px;z-index:10;">
+          <div id="pub-avatar" style="width:88px;height:88px;border-radius:50%;border:3px solid var(--card);background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:32px;color:white;font-weight:700;overflow:hidden;box-shadow:var(--shadow-md);">?</div>
+        </div>
+        <div style="padding-top:14px;display:flex;justify-content:flex-end;gap:8px;" id="pub-action-row"></div>
+        <div style="padding-top:10px;">
+          <div id="pub-name" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);">Carregando...</div>
+          <div id="pub-handle" style="font-size:13px;color:var(--sky);margin-bottom:3px;"></div>
+          <div id="pub-city" style="font-size:12px;color:var(--text-muted);margin-bottom:6px;"></div>
+          <div id="pub-bio" style="font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:14px;"></div>
+          <div class="profile-stats" style="border-top:1px solid var(--border);padding-top:16px;">
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-followers">—</div><div class="profile-stat-label">Seguidores</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-following">—</div><div class="profile-stat-label">Seguindo</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-species">—</div><div class="profile-stat-label">Espécies</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-obs">—</div><div class="profile-stat-label">Avistamentos</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-photos">—</div><div class="profile-stat-label">Fotos</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-days">—</div><div class="profile-stat-label">Dias em campo</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;">
+        <button id="pub-tab-gallery" onclick="switchPubTab('gallery',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid var(--sky);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--sky);cursor:pointer;margin-bottom:-2px;">&#128247; Galeria</button>
+        <button id="pub-tab-checklist" onclick="switchPubTab('checklist',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">&#10003; Checklist</button>
+      </div>
+      <div id="pub-panel-gallery">
+        <div id="pub-gallery-grid" class="profile-gallery"><div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Carregando...</div></div>
+      </div>
+      <div id="pub-panel-checklist" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <span id="pub-checklist-status" style="font-size:14px;color:var(--text-mid);">0 espécies encontradas</span>
+          <input type="text" placeholder="Filtrar..." id="pub-checklist-filter" style="height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);font-size:13px;color:var(--text);outline:none;width:180px;" oninput="filterPubChecklist(this.value)">
+        </div>
+        <div class="species-checklist-grid" id="pub-checklist-grid"></div>
       </div>
     </section>
 
@@ -3678,6 +3722,22 @@ db.auth.onAuthStateChange(async (event, session) => {
       profile = data;
     } catch(e) { console.warn('[auth] profile fetch error:', e); }
 
+    // Se há perfil pendente (criado antes da confirmação de email), tenta inserir agora
+    if (!profile) {
+      const pending = localStorage.getItem('av_pending_profile');
+      if (pending) {
+        try {
+          const pd = JSON.parse(pending);
+          if (pd.id === u.id) {
+            await db.from('profiles').insert({ id: pd.id, nome: pd.nome, handle: pd.handle });
+            localStorage.removeItem('av_pending_profile');
+            const { data: refetched } = await db.from('profiles').select('*').eq('id', u.id).maybeSingle();
+            if (refetched) profile = refetched;
+          }
+        } catch(e) { localStorage.removeItem('av_pending_profile'); }
+      }
+    }
+
     if (profile) {
       currentUser = {
         id:        u.id,
@@ -3705,14 +3765,15 @@ db.auth.onAuthStateChange(async (event, session) => {
         setTimeout(() => navigateTo(pageId, btn || document.querySelector('[data-page='+pageId+']')), 200);
       }
     } else if (event === 'SIGNED_IN') {
-      // Novo usuário — precisa escolher handle
-      _pendingGoogleUser = {
-        id:     u.id,
-        name:   u.user_metadata?.full_name || u.email?.split('@')[0] || 'Usuário',
-        email:  u.email,
-        avatar: u.user_metadata?.avatar_url || ''
-      };
-      openHandleModal(_pendingGoogleUser);
+      // Novo usuário sem perfil — diferencia Google de email/senha
+      const provider = u.app_metadata?.provider || '';
+      const isGoogle = provider === 'google' || (u.identities||[]).some(i=>i.provider==='google');
+      if (isGoogle) {
+        _pendingGoogleUser = { id:u.id, name:u.user_metadata?.full_name||u.email?.split('@')[0]||'Usuário', email:u.email, avatar:u.user_metadata?.avatar_url||'' };
+        openHandleModal(_pendingGoogleUser);
+      }
+      // Email/senha: perfil já deve ter sido criado em doRegister.
+      // Se não foi (e-mail não confirmado), deixa o usuário tentar logar depois.
     }
   } else {
     // Logout ou sessão expirada — limpa TUDO
@@ -3750,6 +3811,8 @@ function navigateTo(pageId, btn) {
     showToast('🔑 Faça login para acessar esta página');
     return;
   }
+  // Perfil público tem navegação própria via openPublicProfile()
+  if (pageId === 'public-profile') return;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pageId)?.classList.add('active');
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -4069,13 +4132,7 @@ function updateChecklistProgress() {
 /* ════════════════════════════════════════
    FEED
 ════════════════════════════════════════ */
-const MOCK_USERS = [
-  { name: "Brenno Alef", handle: "brenno", color: "#0ea5e9" },
-  { name: "Ana Ornitóloga", handle: "ana_aves", color: "#16a34a" },
-  { name: "Carlos Campo", handle: "carlos_sc", color: "#f59e0b" },
-  { name: "Lucia Pássaro", handle: "lucia_birds", color: "#8b5cf6" },
-  { name: "Pedro Natureza", handle: "pedro_nat", color: "#f43f5e" },
-];
+// MOCK_USERS removed — only real DB data used
 
 async function renderFeed(containerId, limit) {
   const container = document.getElementById(containerId);
@@ -4550,7 +4607,7 @@ async function renderUsers(filter) {
   }
 
   grid.innerHTML = users.map(u => `
-    <div class="user-card" style="cursor:pointer;" onclick="openPublicProfile && openPublicProfile('${u.handle}')">
+    <div class="user-card" style="cursor:pointer;" onclick="openPublicProfile('${u.handle}')">
       <div class="user-card-avatar" style="background:linear-gradient(135deg,${u.color||'#0ea5e9'},${u.color||'#0ea5e9'}cc);">${(u.name||'U')[0].toUpperCase()}</div>
       <div class="user-card-name">${u.name}</div>
       <div class="user-card-handle" style="color:var(--sky);">@${u.handle} · ${u.city||'—'}</div>
@@ -4651,13 +4708,23 @@ async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   if (!email || !pass) { showToast('⚠️ Preencha e-mail e senha'); return; }
-  const btn = document.querySelector('#auth-modal .btn-auth-submit');
+  // Seletor específico para o botão do painel de login
+  const btn = document.querySelector('#auth-login .btn-auth-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Entrando…'; }
-  const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-  if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
-  if (error) { showToast('❌ ' + error.message); return; }
-  document.getElementById('auth-modal').classList.remove('open');
-  showToast('✅ Bem-vindo de volta!');
+  try {
+    const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      const msg = error.message.includes('Invalid login') ? 'E-mail ou senha incorretos' :
+                  error.message.includes('Email not confirmed') ? 'Confirme seu e-mail antes de entrar' :
+                  error.message;
+      showToast('❌ ' + msg);
+      return;
+    }
+    document.getElementById('auth-modal').classList.remove('open');
+    showToast('✅ Bem-vindo de volta!');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
+  }
 }
 
 async function doRegister() {
@@ -4669,41 +4736,35 @@ async function doRegister() {
   if (!name || !handle || !email || !pass) { showToast('⚠️ Preencha todos os campos'); return; }
   if (!terms) { showToast('⚠️ Aceite os termos de uso'); return; }
   if (pass.length < 8) { showToast('⚠️ Senha deve ter pelo menos 8 caracteres'); return; }
-  if (!/^[a-z0-9_à-ü]{3,30}$/.test(handle)) { showToast('⚠️ @usuário inválido — use letras, números e _'); return; }
+  if (!/^[a-z0-9_]{3,30}$/.test(handle)) { showToast('⚠️ @usuário inválido — use só letras, números e _'); return; }
 
-  const btn = document.querySelectorAll('#auth-modal .btn-auth-submit')[1];
+  const btn = document.querySelector('#auth-register .btn-auth-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Criando conta…'; }
 
   try {
-    // Verifica se handle já existe
+    // Verifica handle duplicado antes de criar auth
     const { data: existing } = await db.from('profiles').select('id').eq('handle', handle).maybeSingle();
-    if (existing) {
-      showToast('⚠️ @' + handle + ' já está em uso. Escolha outro.');
-      if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
-      return;
-    }
+    if (existing) { showToast('⚠️ @' + handle + ' já está em uso. Escolha outro.'); return; }
 
-    const { data, error } = await db.auth.signUp({ email, password: pass });
-    if (error) { showToast('❌ ' + error.message); if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; } return; }
-
-    if (!data?.user) { showToast('⚠️ Erro inesperado ao criar conta'); if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; } return; }
-
-    // Cria perfil — sem email (não é uma coluna da tabela profiles)
-    const { error: profileError } = await db.from('profiles').insert({
-      id:     data.user.id,
-      nome:   name,
-      handle: handle
+    const { data, error } = await db.auth.signUp({
+      email, password: pass,
+      options: { data: { nome: name, handle } }
     });
+    if (error) { showToast('❌ ' + error.message); return; }
+    if (!data?.user) { showToast('⚠️ Erro inesperado ao criar conta'); return; }
 
-    if (profileError) {
-      if (profileError.code === '23505') showToast('⚠️ @' + handle + ' já está em uso.');
-      else showToast('⚠️ Erro ao criar perfil: ' + profileError.message);
-      if (btn) { btn.disabled = false; btn.textContent = 'Criar Conta'; }
-      return;
+    // Tenta criar perfil agora (funciona se Supabase não exige confirmação de email)
+    // Se exigir, o perfil será criado via trigger ou na próxima tentativa de login
+    const { error: profileError } = await db.from('profiles').insert({ id: data.user.id, nome: name, handle });
+    if (profileError && profileError.code !== '23505') {
+      // Erro que não é duplicata — provavelmente email ainda não confirmado
+      // Armazena dados localmente para criar o perfil após confirmação
+      localStorage.setItem('av_pending_profile', JSON.stringify({ id: data.user.id, nome: name, handle }));
     }
 
     document.getElementById('auth-modal').classList.remove('open');
-    showToast('🎉 Conta criada! Verifique seu e-mail para confirmar.');
+    showToast('🎉 Conta criada! Verifique seu e-mail e clique no link de confirmação.');
+
   } catch(e) {
     showToast('❌ Erro inesperado: ' + (e.message || e));
   } finally {
@@ -5730,7 +5791,7 @@ function openPhotoExpand(obs) {
   const isAvAvista = !!obs.id && !inatId;
   let credit = '';
   if (isAvAvista && handle) {
-    credit = `📸 <span onclick="openPublicProfile && openPublicProfile('${handle}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${handle}</span> · Ave à Vista`;
+    credit = `📸 <span onclick="openPublicProfile('${handle}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${handle}</span> · Ave à Vista`;
   } else if (inatId) {
     credit = `📸 <a href="https://www.inaturalist.org/observations/${inatId}" target="_blank" style="color:var(--sky);font-weight:600;">${name} · iNaturalist ↗</a>`;
   } else if (name) {
@@ -6338,10 +6399,10 @@ async function loadExpandComments(obsId) {
       const handle = cm.profiles?.handle || '';
       const isOwn  = currentUser && cm.user_id === currentUser.id;
       return `<div style="display:flex;gap:8px;align-items:flex-start;">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;" onclick="openPublicProfile&&openPublicProfile('${handle}')">${(name||'?')[0].toUpperCase()}</div>
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;" onclick="openPublicProfile('${handle}')">${(name||'?')[0].toUpperCase()}</div>
         <div style="flex:1;background:var(--bg);border-radius:var(--radius-md);padding:7px 10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-weight:600;font-size:11px;color:var(--sky);cursor:pointer;" onclick="openPublicProfile&&openPublicProfile('${handle}')">@${handle||name}</span>
+            <span style="font-weight:600;font-size:11px;color:var(--sky);cursor:pointer;" onclick="openPublicProfile('${handle}')">@${handle||name}</span>
             ${isOwn ? `<button onclick="deleteExpandComment('${cm.id}','${obsId}')" style="background:none;border:none;color:var(--text-muted);font-size:10px;cursor:pointer;">🗑️</button>` : ''}
           </div>
           <div style="font-size:12px;color:var(--text);margin-top:2px;">${cm.content}</div>
@@ -6621,7 +6682,7 @@ async function openSpeciesModal(sci, pop) {
       return `<div style="border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
         <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'">
         <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));padding:4px 5px;">
-          <div style="font-size:9px;color:white;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();openPublicProfile&&openPublicProfile('${h}')">@${h}</div>
+          <div style="font-size:9px;color:white;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();openPublicProfile('${h}')">@${h}</div>
         </div>
       </div>`;
     }).join('');
@@ -6630,175 +6691,210 @@ async function openSpeciesModal(sci, pop) {
 
 
 /* ════════════════════════════════════════
-   PERFIL PÚBLICO (outros usuários)
+   PERFIL PÚBLICO (página completa)
 ════════════════════════════════════════ */
+let _pubProfileHandle = null; // handle do perfil público atual
+let _pubPrevPage = 'home';    // página anterior para o botão "Voltar"
+let _pubSpeciesSeen = [];     // checklist do usuário sendo visualizado
+
 async function openPublicProfile(handle) {
   if (!handle) return;
-  // Se for o próprio usuário, navega para o perfil próprio
   if (currentUser && currentUser.handle === handle) {
     navigateTo('profile', document.querySelector('[data-page=profile]'));
     return;
   }
 
-  // Cria ou reutiliza modal
-  let modal = document.getElementById('public-profile-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'public-profile-modal';
-    modal.className = 'modal-overlay';
-    modal.style.cssText = 'z-index:3000;';
-    modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
-    modal.innerHTML = `
-      <div class="modal-card" style="max-width:520px;max-height:88vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
-        <div id="pp-cover" style="height:110px;background:linear-gradient(135deg,var(--sky),var(--forest));flex-shrink:0;position:relative;">
-          <button onclick="document.getElementById('public-profile-modal').classList.remove('open')"
-            style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.4);border:none;border-radius:50%;width:32px;height:32px;color:white;font-size:16px;cursor:pointer;z-index:2;">✕</button>
-        </div>
-        <div style="flex:1;overflow-y:auto;">
-          <div style="padding:0 20px 20px;margin-top:-38px;position:relative;">
-            <div id="pp-avatar" style="width:76px;height:76px;border-radius:50%;border:3px solid var(--surface);background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:700;overflow:hidden;flex-shrink:0;">?</div>
-            <div style="margin-top:10px;">
-              <div id="pp-name" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);">…</div>
-              <div id="pp-handle" style="font-size:13px;color:var(--sky);margin-bottom:4px;"></div>
-              <div id="pp-city" style="font-size:12px;color:var(--text-muted);"></div>
-              <div id="pp-bio" style="font-size:13px;color:var(--text-mid);margin-top:8px;line-height:1.55;"></div>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;text-align:center;">
-              <div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 6px;">
-                <div id="pp-obs" style="font-size:20px;font-weight:800;color:var(--sky);">—</div>
-                <div style="font-size:10px;color:var(--text-muted);">Registros</div>
-              </div>
-              <div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 6px;">
-                <div id="pp-sp" style="font-size:20px;font-weight:800;color:var(--forest);">—</div>
-                <div style="font-size:10px;color:var(--text-muted);">Espécies</div>
-              </div>
-              <div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 6px;">
-                <div id="pp-fol" style="font-size:20px;font-weight:800;color:var(--violet);">—</div>
-                <div style="font-size:10px;color:var(--text-muted);">Seguidores</div>
-              </div>
-            </div>
-            <div id="pp-follow-row" style="margin-top:14px;display:flex;gap:8px;"></div>
-            <div id="pp-photos" style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"></div>
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
+  // Guarda qual página estava antes para o "Voltar"
+  const activePage = document.querySelector('.page.active');
+  _pubPrevPage = activePage?.id?.replace('page-', '') || 'home';
+  _pubProfileHandle = handle;
 
-  modal.classList.add('open');
-  // Limpa estado anterior
-  document.getElementById('pp-name').textContent = 'Carregando…';
-  document.getElementById('pp-handle').textContent = '@' + handle;
-  document.getElementById('pp-city').textContent = '';
-  document.getElementById('pp-bio').textContent = '';
-  document.getElementById('pp-obs').textContent = '…';
-  document.getElementById('pp-sp').textContent = '…';
-  document.getElementById('pp-fol').textContent = '…';
-  document.getElementById('pp-photos').innerHTML = '';
-  document.getElementById('pp-follow-row').innerHTML = '';
+  // Navega para a página pública
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-public-profile')?.classList.add('active');
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+
+  // Reseta a página para estado de loading
+  document.getElementById('pub-name').textContent = 'Carregando...';
+  document.getElementById('pub-handle').textContent = '@' + handle;
+  document.getElementById('pub-city').textContent = '';
+  document.getElementById('pub-bio').textContent = '';
+  document.getElementById('pub-stat-followers').textContent = '—';
+  document.getElementById('pub-stat-following').textContent = '—';
+  document.getElementById('pub-stat-species').textContent = '—';
+  document.getElementById('pub-stat-obs').textContent = '—';
+  document.getElementById('pub-stat-photos').textContent = '—';
+  document.getElementById('pub-stat-days').textContent = '—';
+  document.getElementById('pub-action-row').innerHTML = '';
+  document.getElementById('pub-gallery-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Carregando...</div>';
+  document.getElementById('pub-checklist-grid').innerHTML = '';
+  document.getElementById('pub-cover-img').style.display = 'none';
+  const avatarEl = document.getElementById('pub-avatar');
+  avatarEl.innerHTML = '?';
+  avatarEl.style.background = 'linear-gradient(135deg,var(--sky),var(--forest))';
+
+  // Ativa aba galeria por padrão
+  switchPubTab('gallery', document.getElementById('pub-tab-gallery'));
 
   try {
-    // Busca perfil público — sem email, sem dados privados
     const { data: profile } = await db.from('profiles')
       .select('id, nome, handle, cidade, bio, avatar_url')
       .eq('handle', handle)
       .maybeSingle();
 
     if (!profile) {
-      document.getElementById('pp-name').textContent = 'Usuário não encontrado';
+      document.getElementById('pub-name').textContent = 'Usuário não encontrado';
       return;
     }
 
     // Avatar
-    const avatarEl = document.getElementById('pp-avatar');
     if (profile.avatar_url) {
-      avatarEl.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`;
+      avatarEl.innerHTML = '<img src="' + profile.avatar_url + '" style="width:100%;height:100%;object-fit:cover;">';
     } else {
       avatarEl.textContent = (profile.nome || handle)[0].toUpperCase();
     }
 
-    document.getElementById('pp-name').textContent = profile.nome || handle;
-    document.getElementById('pp-handle').textContent = '@' + profile.handle;
-    document.getElementById('pp-city').textContent = profile.cidade ? '📍 ' + profile.cidade : '';
-    document.getElementById('pp-bio').textContent = profile.bio || '';
+    document.getElementById('pub-name').textContent = profile.nome || handle;
+    document.getElementById('pub-handle').textContent = '@' + profile.handle;
+    document.getElementById('pub-city').textContent = profile.cidade ? '📍 ' + profile.cidade : '';
+    document.getElementById('pub-bio').textContent = profile.bio || '';
 
     // Stats em paralelo
-    const [obsR, spR, folR] = await Promise.all([
+    const [obsR, spR, folR, folwR, daysR] = await Promise.all([
       db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
       db.from('species_seen').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
-      db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', profile.id)
+      db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', profile.id),
+      db.from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', profile.id),
+      db.from('observations').select('obs_date').eq('user_id', profile.id).not('obs_date','is',null)
     ]);
-    document.getElementById('pp-obs').textContent = obsR.count ?? 0;
-    document.getElementById('pp-sp').textContent  = spR.count  ?? 0;
-    document.getElementById('pp-fol').textContent = folR.count ?? 0;
+    document.getElementById('pub-stat-followers').textContent = folR.count ?? 0;
+    document.getElementById('pub-stat-following').textContent = folwR.count ?? 0;
+    document.getElementById('pub-stat-species').textContent = spR.count ?? 0;
+    document.getElementById('pub-stat-obs').textContent = obsR.count ?? 0;
 
-    // Botão seguir
-    const followRow = document.getElementById('pp-follow-row');
+    // Fotos e dias em campo
+    const { data: photosData } = await db.from('observations')
+      .select('id, obs_date, photo_url, species_pop, species_sci')
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(60);
+    const photos = (photosData || []).filter(o => o.photo_url);
+    const uniqueDays = new Set((photosData || []).map(o => o.obs_date).filter(Boolean)).size;
+    document.getElementById('pub-stat-photos').textContent = photos.length;
+    document.getElementById('pub-stat-days').textContent = uniqueDays;
+
+    // Botões de ação
+    const actionRow = document.getElementById('pub-action-row');
     if (currentUser && currentUser.id !== profile.id) {
       const { data: alreadyFollowing } = await db.from('follows')
         .select('id').eq('follower_id', currentUser.id).eq('following_id', profile.id).maybeSingle();
-      const isFollowing = !!alreadyFollowing;
-      followRow.innerHTML = `
-        <button id="pp-follow-btn"
-          style="flex:1;height:38px;border-radius:var(--radius-md);border:none;cursor:pointer;font-weight:700;font-size:13px;
-            background:${isFollowing ? 'var(--bg)' : 'linear-gradient(135deg,var(--sky),var(--sky-dark))'};
-            color:${isFollowing ? 'var(--text-mid)' : 'white'};
-            border:${isFollowing ? '1.5px solid var(--border)' : 'none'};"
-          data-following="${isFollowing ? '1' : '0'}"
-          onclick="toggleFollowUser('${profile.id}','${profile.handle}',this);updatePPFollowBtn(this)">
-          ${isFollowing ? '✓ Seguindo' : '+ Seguir'}
-        </button>
-        <button onclick="openMsgTo('${profile.id}','${profile.handle}')"
-          style="height:38px;padding:0 16px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);cursor:pointer;font-size:13px;font-weight:600;">
-          💬 Msg
-        </button>`;
+      const isF = !!alreadyFollowing;
+      actionRow.innerHTML =
+        '<button id="pub-follow-btn" data-uid="' + profile.id + '" data-handle="' + profile.handle + '" data-following="' + (isF ? '1' : '0') + '" onclick="pubToggleFollow(this)" style="height:38px;padding:0 20px;border-radius:var(--radius-md);border:' + (isF ? '1.5px solid var(--border)' : 'none') + ';cursor:pointer;font-weight:700;font-size:13px;background:' + (isF ? 'var(--bg)' : 'linear-gradient(135deg,var(--sky),var(--sky-dark))') + ';color:' + (isF ? 'var(--text-mid)' : 'white') + ';">' + (isF ? '✓ Seguindo' : '+ Seguir') + '</button>' +
+        '<button onclick="pubOpenMsg('' + profile.id + '','' + profile.handle + '')" style="height:38px;padding:0 16px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);cursor:pointer;font-size:13px;font-weight:600;">💬 Mensagem</button>';
     }
 
-    // Fotos públicas recentes
-    const { data: photos } = await db.from('observations')
-      .select('id, photo_url, species_pop, obs_date')
-      .eq('user_id', profile.id)
-      .not('photo_url', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(9);
-
-    const photosEl = document.getElementById('pp-photos');
-    if (photos && photos.length) {
-      photosEl.innerHTML = photos.map(o => {
-        const obsObj = { id: o.id, species: o.species_pop, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle } };
-        return `<div style="border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;"
-          onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
-          <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;"
-            onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'">
-        </div>`;
+    // Galeria
+    const galleryEl = document.getElementById('pub-gallery-grid');
+    if (photos.length) {
+      galleryEl.innerHTML = photos.map(o => {
+        const obsObj = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle } };
+        return '<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;" onclick="openPhotoExpand(' + JSON.stringify(obsObj).replace(/"/g,'&quot;') + ')"><img src="' + o.photo_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'"></div>';
       }).join('');
+    } else {
+      galleryEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.</div>';
     }
+
+    // Checklist (espécies vistas)
+    const { data: spSeen } = await db.from('species_seen').select('species_sci').eq('user_id', profile.id);
+    _pubSpeciesSeen = (spSeen || []).map(r => r.species_sci);
+    document.getElementById('pub-checklist-status').textContent = _pubSpeciesSeen.length + ' espécies encontradas';
+    renderPubChecklist('');
 
   } catch(e) {
     console.warn('openPublicProfile:', e);
-    document.getElementById('pp-name').textContent = 'Erro ao carregar perfil';
+    document.getElementById('pub-name').textContent = 'Erro ao carregar perfil';
   }
 }
 
-function updatePPFollowBtn(btn) {
-  const isFollowing = btn.dataset.following === '1';
-  btn.style.background = isFollowing ? 'linear-gradient(135deg,var(--sky),var(--sky-dark))' : 'var(--bg)';
-  btn.style.color       = isFollowing ? 'white' : 'var(--text-mid)';
-  btn.style.border      = isFollowing ? 'none' : '1.5px solid var(--border)';
-  btn.textContent       = isFollowing ? '+ Seguir' : '✓ Seguindo';
-  // Atualiza contador de seguidores no modal
-  const folEl = document.getElementById('pp-fol');
-  if (folEl) {
-    const cur = parseInt(folEl.textContent) || 0;
-    folEl.textContent = isFollowing ? Math.max(0, cur - 1) : cur + 1;
+function closePubProfile() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const prev = _pubPrevPage || 'home';
+  document.getElementById('page-' + prev)?.classList.add('active');
+  const prevBtn = document.querySelector('[data-page=' + prev + ']');
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+  if (prevBtn) prevBtn.classList.add('active');
+}
+
+function switchPubTab(tab, btn) {
+  document.getElementById('pub-panel-gallery').style.display = tab === 'gallery' ? 'block' : 'none';
+  document.getElementById('pub-panel-checklist').style.display = tab === 'checklist' ? 'block' : 'none';
+  document.querySelectorAll('[id^="pub-tab-"]').forEach(b => {
+    b.style.borderBottomColor = 'transparent';
+    b.style.color = 'var(--text-muted)';
+    b.style.fontFamily = "'DM Sans', sans-serif";
+    b.style.fontWeight = '500';
+  });
+  if (btn) {
+    btn.style.borderBottomColor = 'var(--sky)';
+    btn.style.color = 'var(--sky)';
+    btn.style.fontFamily = "'Syne', sans-serif";
+    btn.style.fontWeight = '700';
   }
 }
 
-function openMsgTo(userId, handle) {
-  document.getElementById('public-profile-modal')?.classList.remove('open');
+function renderPubChecklist(filter) {
+  const grid = document.getElementById('pub-checklist-grid');
+  const birds = SC_BIRDS.filter(b => _pubSpeciesSeen.includes(b.sci) &&
+    (!filter || b.pop.toLowerCase().includes(filter) || b.sci.toLowerCase().includes(filter)));
+  if (!birds.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">' + (filter ? 'Nenhuma espécie encontrada com esse filtro.' : 'Nenhuma espécie registrada ainda.') + '</div>';
+    return;
+  }
+  grid.innerHTML = birds.map(b => {
+    const pts = INDICADORAS[b.sci];
+    return '<div class="species-check-item found" style="flex-wrap:wrap;gap:4px;"><div class="species-check-icon">✓</div><div style="flex:1;min-width:0;"><div class="species-check-name">' + capitalize(b.pop) + '</div><div class="species-check-sci">' + b.sci + '</div></div>' + (pts ? '<span style="background:var(--sun-light);color:#92400e;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;">⭐ ' + pts + 'pts</span>' : '') + '</div>';
+  }).join('');
+}
+
+function filterPubChecklist(val) { renderPubChecklist(val.toLowerCase()); }
+
+async function pubToggleFollow(btn) {
+  if (!currentUser) { showToast('🔑 Faça login para seguir'); openAuthModal(); return; }
+  if (btn._toggling) return;
+  btn._toggling = true;
+  btn.disabled = true;
+  const targetId = btn.dataset.uid;
+  const handle   = btn.dataset.handle;
+  const isF = btn.dataset.following === '1';
+  try {
+    if (isF) {
+      await db.from('follows').delete().eq('follower_id', currentUser.id).eq('following_id', targetId);
+      btn.dataset.following = '0';
+      btn.textContent = '+ Seguir';
+      btn.style.background = 'linear-gradient(135deg,var(--sky),var(--sky-dark))';
+      btn.style.color = 'white';
+      btn.style.border = 'none';
+    } else {
+      await db.from('follows').upsert({ follower_id: currentUser.id, following_id: targetId }, { onConflict: 'follower_id,following_id', ignoreDuplicates: true });
+      btn.dataset.following = '1';
+      btn.textContent = '✓ Seguindo';
+      btn.style.background = 'var(--bg)';
+      btn.style.color = 'var(--text-mid)';
+      btn.style.border = '1.5px solid var(--border)';
+      try { await db.from('notifications').insert({ user_id: targetId, type: 'follow', actor_id: currentUser.id, data: { actor_handle: currentUser.handle, actor_name: currentUser.name } }); } catch(e) {}
+    }
+    const { count } = await db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', targetId);
+    const el = document.getElementById('pub-stat-followers');
+    if (el) el.textContent = count ?? 0;
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+  finally { btn._toggling = false; btn.disabled = false; }
+}
+
+function pubOpenMsg(userId, handle) {
   if (!currentUser) { showToast('🔑 Faça login para enviar mensagens'); openAuthModal(); return; }
-  navigateTo('messages', document.querySelector('[data-page=messages]'));
-  setTimeout(() => selectContact(handle, userId), 400);
+  closePubProfile();
+  setTimeout(() => { navigateTo('messages', document.querySelector('[data-page=messages]')); setTimeout(() => selectContact(handle, userId), 300); }, 100);
 }
 
 let _notifChannel = null;
