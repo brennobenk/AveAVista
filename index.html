@@ -1041,9 +1041,23 @@ body::before {
   overflow: hidden;
   cursor: pointer;
   transition: opacity var(--transition);
+  position: relative;
 }
 .gallery-item:hover { opacity: 0.85; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-item-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65));
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 14px 6px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  pointer-events: none;
+}
 
 /* Badges/conquistas */
 .badges-row {
@@ -4491,8 +4505,9 @@ async function renderProfile() {
     if (userObs && userObs.length) {
       gallery.innerHTML = userObs.map(o => {
         const obsForExpand = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, location: o.location_label, notes: '', user: { name: currentUser.name, handle: currentUser.handle } };
-        return `<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
-          <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="${o.species_pop||''}">
+        return `<div class="gallery-item" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
+          <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="${escHtml(o.species_pop||'')}">
+          <div class="gallery-item-label">${escHtml(capitalize(o.species_pop || o.species_sci || ''))}</div>
         </div>`;
       }).join('');
     } else {
@@ -5738,13 +5753,17 @@ async function submitComment() {
   const input = document.getElementById('comment-input');
   const text  = input.value.trim();
   if (!text || !_currentCommentObs || !currentUser) return;
-  await db.from('comments').insert({ obs_id: _currentCommentObs, user_id: currentUser.id, content: text });
-  input.value = '';
-  renderCommentList(_currentCommentObs);
-  // Atualizar contagem no card
-  const { count } = await db.from('comments').select('id', { count: 'exact', head: true }).eq('obs_id', _currentCommentObs);
-  const countSpan = document.getElementById('comment-count-' + _currentCommentObs);
-  if (countSpan) countSpan.textContent = count > 0 ? count : '';
+  try {
+    await db.from('comments').insert({ obs_id: _currentCommentObs, user_id: currentUser.id, content: text });
+    input.value = '';
+    renderCommentList(_currentCommentObs);
+    // Atualiza contagem no card do feed
+    const { count } = await db.from('comments').select('id', { count: 'exact', head: true }).eq('obs_id', _currentCommentObs);
+    const countSpan = document.getElementById('comment-count-' + _currentCommentObs);
+    if (countSpan) countSpan.textContent = count > 0 ? count : '';
+    // Se o photo-expand estiver aberto para o mesmo obs, recarrega comentários lá também
+    if (window._expandObsId === _currentCommentObs) loadExpandComments(_currentCommentObs);
+  } catch(e) { showToast('❌ Erro ao comentar'); }
 }
 
 function openPhotoExpandAndComment(obs) {
@@ -5752,9 +5771,9 @@ function openPhotoExpandAndComment(obs) {
   setTimeout(() => openExpandComment(), 350);
 }
 
-function openPhotoExpand(obs) {
+async function openPhotoExpand(obs) {
   if (!obs.photoUrl) return;
-  window._expandObsId = obs.id || String(obs.species||'') + obs.date;
+  window._expandObsId = obs.id;
   window._expandObs   = obs;
 
   const imgEl = document.getElementById('photo-expand-img');
@@ -5771,32 +5790,63 @@ function openPhotoExpand(obs) {
   const isAvAvista = !!obs.id && !inatId;
   let credit = '';
   if (isAvAvista && handle) {
-    credit = `📸 <span onclick="openPublicProfile('${handle}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${handle}</span> · Ave à Vista`;
+    credit = `📸 <span onclick="openPublicProfile('${escHtml(handle)}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${escHtml(handle)}</span> · Ave à Vista`;
   } else if (inatId) {
-    credit = `📸 <a href="https://www.inaturalist.org/observations/${inatId}" target="_blank" style="color:var(--sky);font-weight:600;">${name} · iNaturalist ↗</a>`;
+    credit = `📸 <a href="https://www.inaturalist.org/observations/${inatId}" target="_blank" style="color:var(--sky);font-weight:600;">${escHtml(name)} · iNaturalist ↗</a>`;
   } else if (name) {
-    credit = `📸 ${name}`;
+    credit = `📸 ${escHtml(name)}`;
   }
 
   document.getElementById('photo-expand-meta').innerHTML =
-    `${credit ? credit+'<br>' : ''}📅 ${formatDate(obs.date)||'—'}${obs.location?' &nbsp;📍 '+obs.location:''}${obs.notes?'<br>📝 '+obs.notes:''}`;
+    `${credit ? credit+'<br>' : ''}📅 ${formatDate(obs.date)||'—'}${obs.location?' &nbsp;📍 '+escHtml(obs.location):''}${obs.notes?'<br>📝 '+escHtml(obs.notes):''}`;
 
+  // Carrega estado real do like do banco
   _expandLiked = false;
   const likeBtn = document.getElementById('photo-expand-like');
   likeBtn.innerHTML = '🤍 Curtir';
   likeBtn.classList.remove('liked');
-
-  loadExpandComments(obs.id);
+  likeBtn._toggling = false;
+  if (currentUser && obs.id) {
+    db.from('likes').select('id').eq('obs_id', obs.id).eq('user_id', currentUser.id).maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          _expandLiked = true;
+          likeBtn.innerHTML = '❤️ Curtido';
+          likeBtn.classList.add('liked');
+        }
+      }).catch(() => {});
+  }
 
   document.getElementById('photo-expand-comment-box').style.display = 'none';
   document.getElementById('photo-expand-modal').classList.add('open');
+  loadExpandComments(obs.id);
 }
 
-function toggleExpandLike() {
-  _expandLiked = !_expandLiked;
+async function toggleExpandLike() {
+  if (!currentUser) { showToast('🔑 Faça login para curtir'); openAuthModal(); return; }
+  const obsId = window._expandObsId;
+  if (!obsId) return;
   const btn = document.getElementById('photo-expand-like');
-  btn.innerHTML = _expandLiked ? '❤️ Curtido' : '🤍 Curtir';
-  btn.classList.toggle('liked', _expandLiked);
+  if (btn._toggling) return;
+  btn._toggling = true;
+  try {
+    if (_expandLiked) {
+      await db.from('likes').delete().eq('obs_id', obsId).eq('user_id', currentUser.id);
+      _expandLiked = false;
+    } else {
+      await db.from('likes').insert({ obs_id: obsId, user_id: currentUser.id });
+      _expandLiked = true;
+    }
+    btn.innerHTML = _expandLiked ? '❤️ Curtido' : '🤍 Curtir';
+    btn.classList.toggle('liked', _expandLiked);
+    // Atualiza contagem no card do feed se estiver visível
+    const { count } = await db.from('likes').select('id', { count: 'exact', head: true }).eq('obs_id', obsId);
+    const likeCountSpan = document.getElementById('like-count-' + obsId);
+    const likeIcon = document.getElementById('like-icon-' + obsId);
+    if (likeCountSpan) likeCountSpan.textContent = count > 0 ? count : '';
+    if (likeIcon) likeIcon.textContent = _expandLiked ? '❤️' : '🤍';
+  } catch(e) { showToast('❌ Erro ao curtir'); }
+  finally { btn._toggling = false; }
 }
 
 function openExpandComment() {
@@ -6718,7 +6768,10 @@ async function openPublicProfile(handle) {
       galleryEl.innerHTML = photos.map(o => {
         const obsObj = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle } };
         const safeJson = JSON.stringify(obsObj).replace(/"/g,'&quot;');
-        return '<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;" onclick="openPhotoExpand(' + safeJson + ')"><img src="' + o.photo_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'&#128038;\'"></div>';
+        return '<div class="gallery-item" onclick="openPhotoExpand(' + safeJson + ')">'
+          + '<img src="' + escHtml(o.photo_url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'&#128038;\'">'
+          + '<div class="gallery-item-label">' + escHtml(capitalize(o.species_pop || o.species_sci || '')) + '</div>'
+          + '</div>';
       }).join('');
     } else {
       galleryEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.</div>';
