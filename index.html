@@ -6677,10 +6677,12 @@ async function toggleFollowUser(targetId, handle, btn) {
       btn.classList.add('following');
       btn.dataset.following = '1';
       // Cria notificação para o usuário seguido
-      await db.from('notifications').insert({
-        user_id: targetId, type: 'follow', actor_id: currentUser.id,
-        data: { actor_handle: currentUser.handle, actor_name: currentUser.name }
-      }).catch(() => {});
+      try {
+        await db.from('notifications').insert({
+          user_id: targetId, type: 'follow', actor_id: currentUser.id,
+          data: { actor_handle: currentUser.handle, actor_name: currentUser.name }
+        });
+      } catch(e) {}
     }
     // Atualiza contador de seguidores
     const folEl = document.getElementById('ufo_'+handle);
