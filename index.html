@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
-   AVE À VISTA — Design System
+   AVE À VISTA — Design System (sem alterações)
 ═══════════════════════════════════════════ */
 :root {
   --sky:        #0ea5e9;
@@ -3757,7 +3757,9 @@ db.auth.onAuthStateChange(async (event, session) => {
         handle:    profile.handle,
         bio:       profile.bio    || '',
         cidade:    profile.cidade || '',
-        avatar_url: profile.avatar_url || null
+        avatar_url: profile.avatar_url || null,
+        cover_url: profile.cover_url || null,
+        cover_pos: profile.cover_pos || 50
       };
       updateSidebarAuth();
       renderProfile();
@@ -3790,9 +3792,6 @@ db.auth.onAuthStateChange(async (event, session) => {
     // Logout ou sessão expirada — limpa TUDO
     currentUser = null;
     foundSpecies = new Set();
-    observations = JSON.parse(localStorage.getItem('av_obs') || '[]');
-    stopNotifRealtime();
-    stopRealtimeSubscriptions();
     updateSidebarAuth();
     // Reseta perfil para estado vazio
     const pN = document.getElementById('profile-name');
@@ -3846,7 +3845,7 @@ document.getElementById('sidebar-toggle').addEventListener('click', () => {
 });
 
 /* ════════════════════════════════════════
-   TEMA
+   TEMA (mantido localmente por preferência UI)
 ════════════════════════════════════════ */
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -3865,17 +3864,15 @@ if (savedTheme === 'dark') {
 }
 
 /* ════════════════════════════════════════
-   AVE DO DIA
+   AVE DO DIA (cache local apenas para não mudar no dia)
 ════════════════════════════════════════ */
 function getTodayBird() {
-  // Mesma ave durante o dia inteiro — seed pela data
   const today = new Date().toISOString().slice(0, 10);
   const saved = localStorage.getItem('av_bird_day');
   if (saved) {
     const parsed = JSON.parse(saved);
     if (parsed.date === today) return parsed.bird;
   }
-  // Seed determinístico pelo dia
   const seed = today.replace(/-/g, '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const bird = SC_BIRDS[seed % SC_BIRDS.length];
   localStorage.setItem('av_bird_day', JSON.stringify({ date: today, bird }));
@@ -3890,7 +3887,6 @@ function renderBirdOfDay() {
   document.getElementById('bird-sci-name').textContent = bird.sci;
   document.getElementById('bird-ordem-tag').textContent = bird.ordem;
 
-  // Chips de info
   const factsEl = document.getElementById('bird-facts');
   factsEl.innerHTML = `
     <span class="bird-fact-chip">🏠 ${bird.familia}</span>
@@ -3898,25 +3894,18 @@ function renderBirdOfDay() {
     <span class="bird-fact-chip status-chip status-${bird.iucn}">IUCN: ${bird.iucn}</span>
   `;
 
-  // Estado do botão — reset primeiro, depois verifica banco
   const btn = document.getElementById('btn-found');
   btn.classList.remove('already-found');
   btn.textContent = '✅ Encontrei esta ave!';
-  // Verifica no banco se já registrou (só se logado)
   checkBirdOfDayFound(bird.sci);
 
-  // Busca foto: primeiro no photo_index.json, depois iNaturalist como fallback
   loadBirdPhoto(bird.sci, bird.pop);
-  // Busca descrição do eBird
   loadEbirdDescription(bird.sci, bird.pop);
 
-  // Checklist progress
   updateChecklistProgress();
-  // Load finders after a brief delay (non-blocking)
   setTimeout(() => loadBirdDayFinders(bird.sci), 800);
 }
 
-// Índice em cache: { "turdus rufiventris": [{ url, photographer, profileUrl }, ...] }
 let _photoIndex = null;
 
 async function loadEbirdDescription(sciName, popName) {
@@ -3925,7 +3914,6 @@ async function loadEbirdDescription(sciName, popName) {
   el.style.display = 'none';
   el.textContent = '';
 
-  // Cache em memória para evitar re-fetch
   if (!loadEbirdDescription._cache) loadEbirdDescription._cache = {};
   const key = sciName.toLowerCase();
   if (loadEbirdDescription._cache[key]) {
@@ -3934,8 +3922,6 @@ async function loadEbirdDescription(sciName, popName) {
   }
 
   try {
-    // eBird/Avibase via Wikipedia (artigo em pt com resumo via API)
-    // Usa nome científico como busca na Wikipedia API em português
     const wikiName = sciName.replace(/ /g, '_');
     const res = await fetch(
       `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiName)}`,
@@ -3944,16 +3930,13 @@ async function loadEbirdDescription(sciName, popName) {
     if (!res.ok) throw new Error('not found');
     const data = await res.json();
     if (data.extract && data.extract.length > 40) {
-      // Limita a ~400 chars para não ficar grande demais
       const text = data.extract.length > 420
         ? data.extract.substring(0, 420).replace(/\s\S+$/, '') + '…'
         : data.extract;
       loadEbirdDescription._cache[key] = { text, url: data.content_urls?.desktop?.page };
       showBirdDesc(el, loadEbirdDescription._cache[key]);
     }
-  } catch(e) {
-    // Silencioso — nem toda espécie tem artigo
-  }
+  } catch(e) {}
 }
 
 function showBirdDesc(el, { text, url }) {
@@ -3967,13 +3950,11 @@ async function loadBirdPhoto(sciName, popName) {
   const loading = document.getElementById('bird-img-loading');
   const badge = document.getElementById('bird-inat-badge');
 
-  // Tenta carregar o photo_index.json do repositório
   try {
     if (!_photoIndex) {
       const res = await fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json');
       const data = await res.json();
 
-      // Monta índice: cientifico (lowercase) → array de { url, photographer, profileUrl }
       _photoIndex = {};
       for (const [photographerName, info] of Object.entries(data)) {
         const profileUrl = info.wikiaves || null;
@@ -3994,19 +3975,17 @@ async function loadBirdPhoto(sciName, popName) {
     const entries = _photoIndex[key];
 
     if (entries && entries.length > 0) {
-      // Escolhe uma entrada aleatória da espécie
       const entry = entries[Math.floor(Math.random() * entries.length)];
       img.src = entry.url;
       img.alt = popName;
 
-      // Badge com crédito do fotógrafo e link do perfil WikiAves
       badge.style.display = 'flex';
       if (entry.profileUrl) {
         badge.innerHTML = `📸 Foto por: <a href="${entry.profileUrl}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${entry.photographer}</a>`;
       } else {
         badge.innerHTML = `📸 Foto por: ${entry.photographer}`;
       }
-      badge.onclick = null; // clique vai só no link interno
+      badge.onclick = null;
       document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa?q=${encodeURIComponent(sciName)}`, '_blank');
       return;
     }
@@ -4014,7 +3993,6 @@ async function loadBirdPhoto(sciName, popName) {
     console.warn('photo_index.json não disponível, tentando iNaturalist…', e);
   }
 
-  // Fallback: busca no iNaturalist
   try {
     const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sciName)}&rank=species&per_page=1`;
     const res = await fetch(url);
@@ -4026,7 +4004,6 @@ async function loadBirdPhoto(sciName, popName) {
       img.alt = popName;
       badge.style.display = 'flex';
 
-      // Extrai nome do autor da string de atribuição: "(c) Fulano, ..."
       let authorName = '';
       let licenseText = '';
       if (photo.attribution) {
@@ -4049,7 +4026,6 @@ async function loadBirdPhoto(sciName, popName) {
     console.warn('iNaturalist também indisponível:', e);
   }
 
-  // Sem foto em nenhuma fonte — mostra emoji como fallback visual
   loading.querySelector('.bird-emoji-big').textContent = getSpeciesEmoji(popName);
   loading.querySelector('span').textContent = 'Sem foto disponível';
 }
@@ -4062,13 +4038,11 @@ function openInat() {
 
 function markBirdFound() {
   if (!todayBird) return;
-  // Exige login
   if (!currentUser) {
     showToast('🔑 Faça login para registrar avistamentos');
     openAuthModal();
     return;
   }
-  // Se já registrou, mostra parabéns
   if (foundSpecies.has(todayBird.sci)) {
     launchConfetti();
     const cel = document.getElementById('celebration');
@@ -4077,7 +4051,6 @@ function markBirdFound() {
     if (cel) { cel.classList.add('show'); setTimeout(() => cel.classList.remove('show'), 3500); }
     return;
   }
-  // Abre modal de comprovação com foto
   document.getElementById('proof-bird-name').textContent = capitalize(todayBird.pop);
   document.getElementById('proof-modal').classList.add('open');
   clearProofPhoto();
@@ -4110,10 +4083,8 @@ async function confirmBirdFound() {
   document.getElementById('proof-modal').classList.remove('open');
 
   foundSpecies.add(todayBird.sci);
-  // Salva só no Supabase (não em localStorage)
   if (currentUser) {
     await db.from('species_seen').upsert({ user_id: currentUser.id, species_sci: todayBird.sci });
-    // Upload proof photo
     const file = document.getElementById('proof-photo-input').files[0];
     if (file) {
       try {
@@ -4141,135 +4112,101 @@ function updateChecklistProgress() {
 }
 
 /* ════════════════════════════════════════
-   FEED
+   FEED — AGORA APENAS DO BANCO (sem localStorage)
 ════════════════════════════════════════ */
-// MOCK_USERS removed — only real DB data used
-
 async function renderFeed(containerId, limit) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Carrega avistamentos públicos do Supabase — funciona para usuários não-logados também
-  // IMPORTANTE: a tabela 'observations' precisa ter RLS com policy "SELECT for anon" no Supabase
-  let dbObs = [];
   try {
     const { data, error } = await db
       .from('observations')
-      .select('*, profiles(nome, handle)')
+      .select('*, profiles(nome, handle, avatar_url)')
       .order('created_at', { ascending: false })
       .limit(limit);
-    if (error) console.warn('Feed DB error (verifique RLS no Supabase):', error.message);
-    if (data && data.length > 0) dbObs = data;
-  } catch(e) { console.warn('Feed: erro ao buscar do banco:', e); }
+    if (error) {
+      console.warn('Feed DB error (verifique RLS no Supabase):', error.message);
+      container.innerHTML = '<div style="text-align:center;padding:40px;">Erro ao carregar avistamentos.</div>';
+      return;
+    }
+    if (!data || data.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-emoji">🔭</div>
+        <div class="empty-title">Nenhum avistamento ainda</div>
+        <div class="empty-sub">Seja o primeiro a registrar uma ave!<br>Clique em ➕ para começar.</div>
+      </div>`;
+      return;
+    }
 
-  // Converte avistamentos do banco para o formato de card
-  const dbCards = dbObs.map(o => ({
-    id: o.id,
-    species: o.species_pop || o.species_sci,
-    sciName: o.species_sci,
-    date: o.obs_date,
-    location: o.location_label || '',
-    notes: o.notes || '',
-    photoUrl: o.photo_url || null,
-    user: { 
-      name: o.profiles?.nome || o.profiles?.handle || 'Usuário', 
-      handle: o.profiles?.handle || '' 
-    },
-    fromDB: true
-  }));
+    // Mapeia para o formato esperado pelos cards
+    const allObs = data.map(o => ({
+      id: o.id,
+      species: o.species_pop || o.species_sci,
+      sciName: o.species_sci,
+      date: o.obs_date,
+      location: o.location_label || '',
+      notes: o.notes || '',
+      photoUrl: o.photo_url || null,
+      user: { 
+        name: o.profiles?.nome || o.profiles?.handle || 'Usuário', 
+        handle: o.profiles?.handle || '' 
+      }
+    }));
 
-  // Combina: DB + locais do usuário + mockados
-  const localCards = observations.map(o => ({ ...o, fromDB: false }));
-  const allObs = [...dbCards, ...localCards]
-    .filter((o, i, arr) => arr.findIndex(x => String(x.id) === String(o.id)) === i)
-    .slice(0, limit);
-
-  if (!allObs.length) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-      <div class="empty-emoji">🔭</div>
-      <div class="empty-title">Nenhum avistamento ainda</div>
-      <div class="empty-sub">Seja o primeiro a registrar uma ave!<br>Clique em ➕ para começar.</div>
-    </div>`;
-    return;
-  }
-
-  // Carrega contagens após render
-  setTimeout(() => loadCardCounts(allObs), 100);
-  container.innerHTML = allObs.map((obs, idx) => {
-    const userName   = obs.user?.name || obs.userName || 'Usuário';
-    const userHandle = obs.user?.handle || '';
-    const userColor  = obs.user?.color || '#0ea5e9';
-    const hasPhoto   = obs.photoUrl;
-    const obsId     = obs.id || idx;
-    const likeCount = (window._likes && window._likes[obsId]) || 0;
-    return `
-    <div class="obs-card">
-      <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${JSON.stringify(obs).replace(/"/g,'&quot;')})`:''}">
-        ${hasPhoto ? `<img src="${obs.photoUrl}" alt="${obs.species||''}" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
-        ${hasPhoto ? `<div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.3));border-radius:inherit;pointer-events:none;"></div>` : ''}
-      </div>
-      <div class="obs-card-body">
-        <div class="obs-card-user">
-          <div class="obs-avatar" style="background:${userColor};${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+userHandle+'\')':''}">${(userName||'?')[0].toUpperCase()}</div>
-          <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+userHandle+'\')':''}">${userName||'Usuário'}</span>
-          <span class="obs-date">${formatDate(obs.date||'')}</span>
+    // Carrega contagens após render
+    setTimeout(() => loadCardCounts(allObs), 100);
+    container.innerHTML = allObs.map((obs) => {
+      const userName   = obs.user?.name || 'Usuário';
+      const userHandle = obs.user?.handle || '';
+      const userColor  = '#0ea5e9';
+      const hasPhoto   = obs.photoUrl;
+      const obsId      = obs.id;
+      return `
+      <div class="obs-card">
+        <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${JSON.stringify(obs).replace(/"/g,'&quot;')})`:''}">
+          ${hasPhoto ? `<img src="${obs.photoUrl}" alt="${obs.species||''}" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
+          ${hasPhoto ? `<div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.3));border-radius:inherit;pointer-events:none;"></div>` : ''}
         </div>
-        <div class="obs-species" style="${obs.unspecified?'color:var(--coral);font-style:italic;':''}">${obs.unspecified ? '<span style="opacity:0.8">❓ sem espécie</span>' : capitalize(obs.species||obs.sciName||'')}</div>
-        ${obs.unspecified ? '<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,0.1);border:1px solid var(--coral);border-radius:12px;padding:1px 8px;font-size:11px;color:var(--coral);font-weight:700;margin-bottom:4px;">−1 pt · aguardando espécie</div>' : ''}
-        <div class="obs-sci">${obs.sciName||''}</div>
-        ${obs.location ? `<div class="obs-location">📍 ${obs.location}</div>` : ''}
-      </div>
-      <div class="obs-card-footer">
-        <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)">
-          <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}">${likeCount||''}</span>
-        </button>
-        <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openPhotoExpandAndComment(${JSON.stringify(obs).replace(/"/g,'&quot;')})">💬 <span id="comment-count-${obsId}"></span></button>
-        ${obs.inatId ? `<button class="obs-action-btn" onclick="window.open('https://www.inaturalist.org/observations/${obs.inatId}','_blank')">🌿 iNat</button>` : ''}
-      </div>
-    </div>`;
-  }).join('');
+        <div class="obs-card-body">
+          <div class="obs-card-user">
+            <div class="obs-avatar" style="background:${userColor};${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+userHandle+'\')':''}">${(userName||'?')[0].toUpperCase()}</div>
+            <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+userHandle+'\')':''}">${userName||'Usuário'}</span>
+            <span class="obs-date">${formatDate(obs.date||'')}</span>
+          </div>
+          <div class="obs-species">${capitalize(obs.species||obs.sciName||'')}</div>
+          <div class="obs-sci">${obs.sciName||''}</div>
+          ${obs.location ? `<div class="obs-location">📍 ${obs.location}</div>` : ''}
+        </div>
+        <div class="obs-card-footer">
+          <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)">
+            <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}"></span>
+          </button>
+          <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openCommentModal('${obsId}', '${capitalize(obs.species||obs.sciName||'')}')">💬 <span id="comment-count-${obsId}"></span></button>
+          ${obs.inatId ? `<button class="obs-action-btn" onclick="window.open('https://www.inaturalist.org/observations/${obs.inatId}','_blank')">🌿 iNat</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.warn('Feed: erro ao buscar do banco:', e);
+    container.innerHTML = '<div style="text-align:center;padding:40px;">Erro ao carregar avistamentos.</div>';
+  }
 }
 
-// getMockObservations removed
-
 /* ════════════════════════════════════════
-   UPLOAD / ENVIO
+   UPLOAD / ENVIO — APENAS SUPABASE
 ════════════════════════════════════════ */
-// Preenche datalist com espécies
 window.addEventListener('DOMContentLoaded', () => {
   const dl = document.getElementById('species-datalist');
   SC_BIRDS.forEach(b => {
     const opt1 = document.createElement('option'); opt1.value = b.sci; dl.appendChild(opt1);
     const opt2 = document.createElement('option'); opt2.value = capitalize(b.pop); dl.appendChild(opt2);
   });
-  // Data padrão = hoje
   document.getElementById('obs-date').value = new Date().toISOString().slice(0, 10);
 
-  // Render inicial — conteúdo público que não precisa de login
   renderBirdOfDay();
   renderFeed('home-feed', 4);
   renderUsers('');
-  // renderProfile() NÃO é chamado aqui — é chamado pelo onAuthStateChange
-  // para evitar flash de dados errados no F5
-
-  // Verifica RLS anonimo para dar aviso ao admin se estiver bloqueado
-  checkPublicAccess();
 });
-
-async function checkPublicAccess() {
-  try {
-    const { data, error } = await db.from('observations').select('id').limit(1);
-    if (error && (error.code === 'PGRST301' || error.message?.includes('row-level security'))) {
-      console.warn(
-        '%c⚠️ SUPABASE RLS BLOQUEANDO ACESSO ANÔNIMO\n' +
-        'Vá em Supabase → Authentication → Policies → tabela observations\n' +
-        'e adicione: SELECT para role "anon" (sem filtro de user_id).\n' +
-        'Faça o mesmo para as tabelas: profiles, species_seen, follows, likes, comments.',
-        'background:#fff3cd;color:#856404;padding:8px;border-radius:4px;font-size:13px;'
-      );
-    }
-  } catch(e) {}
-}
 
 function previewPhoto(input) {
   const file = input.files[0];
@@ -4290,7 +4227,6 @@ function removePreview() {
   document.getElementById('preview-img').src = '';
 }
 
-// Drag & drop
 window.addEventListener('DOMContentLoaded', () => {
   const dz = document.getElementById('dropzone');
   if (!dz) return;
@@ -4307,50 +4243,9 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function getLocation() {
-  if (!navigator.geolocation) { showToast('⚠️ Geolocalização não suportada'); return; }
-  const btn = document.getElementById('btn-gps');
-  btn.textContent = '⏳ Buscando…';
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const lat = pos.coords.latitude, lng = pos.coords.longitude;
-    currentLocation = { lat, lng };
-    const display = document.getElementById('location-display');
-    display.textContent = `📍 ${lat.toFixed(5)}, ${lng.toFixed(5)} — buscando endereço…`;
-    display.classList.add('has-location');
-    btn.textContent = '✅ GPS obtido';
-    btn.style.cssText = 'background:#d1fae5;border-color:#6ee7b7;color:#065f46;';
-
-    // Geocoding reverso
-    try {
-      const r = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt`,
-        { headers: { 'User-Agent': 'AveAvista/1.0' } }
-      );
-      const geo = await r.json();
-      const addr = geo.address || {};
-      const municipio = addr.city || addr.town || addr.village || addr.municipality || '';
-      const bairro    = addr.suburb || addr.neighbourhood || addr.hamlet || '';
-      const parts     = [bairro, municipio, 'SC'].filter(Boolean);
-      const label     = parts.join(', ');
-      currentLocation.label    = label;
-      currentLocation.municipio = municipio;
-      currentLocation.bairro    = bairro;
-      display.textContent = `📍 ${label || lat.toFixed(5)+', '+lng.toFixed(5)} (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
-    } catch(e) {
-      display.textContent = `📍 ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-    }
-  }, () => {
-    showToast('❌ Não foi possível obter localização');
-    const btn = document.getElementById('btn-gps');
-    btn.textContent = '📍 GPS';
-  });
-}
-
-// ── Upload de foto para o Supabase Storage ──
 async function uploadPhoto(file) {
   if (!file || !currentUser) return null;
   try {
-    btn_submit_label('⏳ Enviando foto…');
     const ext  = file.name.split('.').pop() || 'jpg';
     const path = `${currentUser.id}/${Date.now()}.${ext}`;
     const { error } = await db.storage
@@ -4373,18 +4268,27 @@ function btn_submit_label(text) {
 }
 
 async function submitObservation() {
+  if (!currentUser) {
+    showToast('🔑 Faça login para registrar avistamentos');
+    openAuthModal();
+    return;
+  }
+
   const noSpecies = document.getElementById('no-species-check')?.checked;
   const species = noSpecies ? '' : document.getElementById('species-input').value.trim();
   const date = document.getElementById('obs-date').value;
   if (!noSpecies && !species) { showToast('⚠️ Informe a espécie ou marque "Não especificar"'); return; }
   if (!date) { showToast('⚠️ Informe a data'); return; }
 
-  // ── Daily limit check ──
+  // Verifica limite diário (consultando banco)
   const todayStr = new Date().toISOString().slice(0,10);
-  const todayObs = observations.filter(o => (o.date||o.obs_date||'').startsWith(todayStr));
-  const rankLevel = Math.floor(observations.length / 100); // 0-9
+  const { count: todayCount } = await db.from('observations')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', currentUser.id)
+    .gte('obs_date', todayStr);
+  const rankLevel = Math.floor(foundSpecies.size / 100); // 0-9
   const dailyLimit = 25 + rankLevel * 5;
-  if (todayObs.length >= dailyLimit) {
+  if (todayCount >= dailyLimit) {
     showToast(`⚠️ Limite diário de ${dailyLimit} registros atingido! Sobe de nível para mais.`);
     return;
   }
@@ -4393,74 +4297,66 @@ async function submitObservation() {
   btn.disabled = true;
   btn.innerHTML = '⏳ Enviando…';
 
-  // Encontra nome científico
   const match = SC_BIRDS.find(b =>
     b.sci.toLowerCase() === species.toLowerCase() ||
     b.pop.toLowerCase() === species.toLowerCase()
   );
 
-  // Faz upload da foto se houver arquivo selecionado
   const photoFile = document.getElementById('photo-input').files[0] || null;
   let photoUrl = null;
-  if (photoFile && currentUser) {
+  if (photoFile) {
     photoUrl = await uploadPhoto(photoFile);
     btn.innerHTML = '⏳ Salvando…';
   }
 
   const obs = {
-    id: Date.now(),
     species: noSpecies ? '(espécie não especificada)' : (match ? capitalize(match.pop) : species),
     sciName: noSpecies ? '' : (match ? match.sci : ''),
     unspecified: !!noSpecies,
-    points: noSpecies ? -1 : 1,
     date,
     time: document.getElementById('obs-time').value,
     location: currentLocation
       ? (currentLocation.label || (currentLocation.lat != null ? `${currentLocation.lat.toFixed(4)}, ${currentLocation.lng.toFixed(4)}` : ''))
       : '',
     notes: document.getElementById('obs-notes').value,
-    photoUrl: photoUrl || (document.getElementById('preview-img')?.src?.startsWith('data') ? document.getElementById('preview-img').src : null),
+    photoUrl,
     publishInat: document.getElementById('inat-publish').checked,
-    inatId: null,
   };
 
   // Marca como encontrada no checklist
-  if (match) {
+  if (match && !noSpecies) {
     foundSpecies.add(match.sci);
     updateChecklistProgress();
-    if (currentUser) {
-      await db.from('species_seen').upsert({
-        user_id: currentUser.id,
-        species_sci: match.sci
-      });
-    }
-  }
-
-  // Salva no Supabase se logado, senão só no localStorage
-  if (currentUser) {
-    const { error } = await db.from('observations').insert({
-      user_id:        currentUser.id,
-      species_sci:    match ? match.sci : species,
-      species_pop:    match ? capitalize(match.pop) : species,
-      obs_date:       date,
-      obs_time:       document.getElementById('obs-time').value || null,
-      lat:            currentLocation?.lat ?? null,
-      lng:            currentLocation?.lng ?? null,
-      location_label: currentLocation
-        ? (currentLocation.label || (currentLocation.lat != null ? `${currentLocation.lat.toFixed(5)}, ${currentLocation.lng.toFixed(5)}` : null))
-        : null,
-      notes:          obs.notes || null,
-      photo_url:      photoUrl,
-      published_inat: obs.publishInat
+    await db.from('species_seen').upsert({
+      user_id: currentUser.id,
+      species_sci: match.sci
     });
-    if (error) {
-      console.error('Erro ao salvar avistamento:', error);
-      showToast('⚠️ Erro ao salvar no banco. Guardado localmente.');
-    }
   }
 
-  observations.unshift(obs);
-  localStorage.setItem('av_obs', JSON.stringify(observations.slice(0, 200)));
+  // Insere no banco
+  const { error } = await db.from('observations').insert({
+    user_id:        currentUser.id,
+    species_sci:    match ? match.sci : (noSpecies ? null : species),
+    species_pop:    match ? capitalize(match.pop) : (noSpecies ? null : species),
+    obs_date:       date,
+    obs_time:       document.getElementById('obs-time').value || null,
+    lat:            currentLocation?.lat ?? null,
+    lng:            currentLocation?.lng ?? null,
+    location_label: currentLocation
+      ? (currentLocation.label || (currentLocation.lat != null ? `${currentLocation.lat.toFixed(5)}, ${currentLocation.lng.toFixed(5)}` : null))
+      : null,
+    notes:          obs.notes || null,
+    photo_url:      photoUrl,
+    published_inat: obs.publishInat
+  });
+
+  if (error) {
+    console.error('Erro ao salvar avistamento:', error);
+    showToast('⚠️ Erro ao salvar no banco. Tente novamente.');
+    btn.disabled = false;
+    btn.innerHTML = '📤 Enviar Avistamento';
+    return;
+  }
 
   btn.disabled = false;
   btn.innerHTML = '📤 Enviar Avistamento';
@@ -4477,7 +4373,6 @@ async function submitObservation() {
   currentLocation = null;
   document.getElementById('location-display').textContent = 'Nenhuma localização selecionada';
   document.getElementById('location-display').classList.remove('has-location');
-  // Limpa município e GPS
   const msearch = document.getElementById('municipio-search');
   if (msearch) msearch.value = '';
   document.getElementById('municipio-input-wrap').style.display = 'none';
@@ -4489,10 +4384,9 @@ async function submitObservation() {
 }
 
 /* ════════════════════════════════════════
-   PERFIL
+   PERFIL — AGORA CONSULTA BANCO PARA ESTATÍSTICAS E GALERIA
 ════════════════════════════════════════ */
-function renderProfile() {
-  // Sem usuário logado — não renderiza dados privados
+async function renderProfile() {
   if (!currentUser) {
     const pN = document.getElementById('profile-name');
     const pH = document.getElementById('profile-handle');
@@ -4500,35 +4394,58 @@ function renderProfile() {
     if (pH) pH.textContent = '';
     return;
   }
+
+  // Carrega estatísticas do banco
+  const [obsCount, photoCount, daysCount, pts] = await Promise.all([
+    db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', currentUser.id),
+    db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', currentUser.id).not('photo_url', 'is', null),
+    db.from('observations').select('obs_date').eq('user_id', currentUser.id).not('obs_date', 'is', null),
+    calcIndicadorasPoints(foundSpecies)
+  ]);
+
   document.getElementById('stat-species').textContent = foundSpecies.size;
-  document.getElementById('stat-obs').textContent = observations.length;
-  document.getElementById('stat-photos').textContent = observations.filter(o => o.photoUrl).length;
-  document.getElementById('stat-days').textContent = new Set(observations.map(o => o.date)).size;
-  document.getElementById('checklist-status-text').textContent = `${foundSpecies.size} espécies encontradas`;
-  const pts = calcIndicadorasPoints(foundSpecies);
-  const ptEl = document.getElementById('stat-points');
-  if (ptEl) ptEl.textContent = pts;
+  document.getElementById('stat-obs').textContent = obsCount.count || 0;
+  document.getElementById('stat-photos').textContent = photoCount.count || 0;
+  document.getElementById('stat-days').textContent = daysCount.data ? new Set(daysCount.data.map(d => d.obs_date)).size : 0;
+  document.getElementById('stat-points').textContent = pts;
 
-  // Avatar
-  if (currentUser?.avatar_url) applyAvatar(currentUser.avatar_url);
-
-  // Bio do Supabase ou localStorage
-  const bio = currentUser?.bio || localStorage.getItem('av_bio') || '';
+  // Bio do perfil
+  const bio = currentUser.bio || '';
   const bioEl = document.getElementById('profile-bio');
   if (bioEl) bioEl.textContent = bio || 'Clique para adicionar uma descrição…';
 
-  // Galeria com fotos reais
+  // Avatar e capa
+  if (currentUser.avatar_url) applyAvatar(currentUser.avatar_url);
+  if (currentUser.cover_url) {
+    const coverImg = document.getElementById('profile-cover-img');
+    if (coverImg) {
+      coverImg.src = currentUser.cover_url;
+      coverImg.style.objectPosition = `50% ${currentUser.cover_pos || 50}%`;
+      coverImg.style.display = 'block';
+      document.getElementById('profile-cover-pattern').style.display = 'none';
+      document.getElementById('btn-cover-adjust').style.display = 'block';
+    }
+  }
+
+  // Galeria (fotos das observações do usuário)
+  const { data: userObs } = await db.from('observations')
+    .select('id, photo_url, species_pop, species_sci, obs_date, location_label')
+    .eq('user_id', currentUser.id)
+    .not('photo_url', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(60);
   const gallery = document.getElementById('gallery-grid');
-  const withPhoto = observations.filter(o => o.photoUrl);
   if (gallery) {
-    gallery.innerHTML = withPhoto.length
-      ? withPhoto.map(o => {
-          const obsForExpand = { id: o.id, species: o.species, sciName: o.sciName, photoUrl: o.photoUrl, date: o.date, location: o.location, notes: o.notes, user: { name: currentUser?.name||'', handle: currentUser?.handle||'' } };
-          return `<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
-            <img src="${o.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${o.species||''}">
-          </div>`;
-        }).join('')
-      : `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.<br>Registre um avistamento com foto! 📸</div>`;
+    if (userObs && userObs.length) {
+      gallery.innerHTML = userObs.map(o => {
+        const obsForExpand = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, location: o.location_label, notes: '', user: { name: currentUser.name, handle: currentUser.handle } };
+        return `<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
+          <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="${o.species_pop||''}">
+        </div>`;
+      }).join('');
+    } else {
+      gallery.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.<br>Registre um avistamento com foto! 📸</div>`;
+    }
   }
 
   renderChecklistGrid('');
@@ -4549,14 +4466,11 @@ function renderChecklistGrid(filter) {
   }
   grid.innerHTML = birds.map(b => {
     const pts = INDICADORAS[b.sci];
-    const myObs = observations.filter(o => o.sciName === b.sci && o.location);
-    const hasMap = myObs.length > 0;
     return `<div class="species-check-item found" style="flex-wrap:wrap;gap:4px;">
       <div class="species-check-icon">✓</div>
       <div style="flex:1;min-width:0;">
         <div class="species-check-name">${capitalize(b.pop)}</div>
         <div class="species-check-sci">${b.sci}</div>
-        ${hasMap ? `<div style="font-size:11px;color:var(--sky);cursor:pointer;margin-top:2px;" onclick="openSpeciesMap('${b.sci.replace(/'/g,"\\'")}','${capitalize(b.pop).replace(/'/g,"\\'")}')">🗺️ Ver no mapa (${myObs.length})</div>` : ''}
       </div>
       ${pts ? `<span style="background:var(--sun-light);color:#92400e;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;">⭐ ${pts}pts</span>` : ''}
     </div>`;
@@ -4590,8 +4504,6 @@ function switchProfileTab(tab, btn) {
 /* ════════════════════════════════════════
    PESQUISA DE USUÁRIOS
 ════════════════════════════════════════ */
-
-
 async function renderUsers(filter) {
   const grid = document.getElementById('users-grid');
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-muted)">🔍 Buscando…</div>`;
@@ -4630,7 +4542,6 @@ async function renderUsers(filter) {
       <button id="fbtn_${u.handle}" class="btn-follow" onclick="event.stopPropagation();toggleFollowUser('${u.id}','${u.handle}',this)">+ Seguir</button>
     </div>
   `).join('');
-  // Load real stats and follow status for each user
   users.forEach(u => { if (u.id) { loadUserStats(u.id, u.handle); loadFollowBtn(u.id, u.handle); } });
 }
 
@@ -4647,7 +4558,6 @@ function openAuthModal(tab) {
   if (tab) switchAuthTab(tab);
 }
 
-// ── Login com Google ──
 async function doGoogleLogin() {
   document.getElementById('auth-modal').classList.remove('open');
   const { error } = await db.auth.signInWithOAuth({
@@ -4660,29 +4570,24 @@ async function doGoogleLogin() {
 let _pendingGoogleUser = null;
 
 function openHandleModal(googleUser) {
-  // Preenche dados do Google no modal
   const avatarEl = document.getElementById('google-avatar');
   const nameEl   = document.getElementById('google-name');
   const emailEl  = document.getElementById('google-email');
   if (avatarEl) avatarEl.textContent = (googleUser.name || 'U')[0].toUpperCase();
   if (nameEl)   nameEl.textContent   = googleUser.name  || '—';
   if (emailEl)  emailEl.textContent  = googleUser.email || '—';
-  // Limpa campo e feedback
   const inp = document.getElementById('handle-input');
   if (inp) { inp.value = ''; }
   document.getElementById('handle-feedback').textContent = '';
   const btn = document.getElementById('handle-confirm-btn');
   if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
-  // Abre modal bloqueante
   document.getElementById('handle-modal').classList.add('open');
 }
 
 function validateHandle(val) {
   const feedback = document.getElementById('handle-feedback');
   const btn      = document.getElementById('handle-confirm-btn');
-  // Convert spaces to underscores, allow letters (including accented), numbers, _ and space
   const clean = val.trim().toLowerCase().replace(/\s+/g, '_');
-  // Auto-fill the input with underscores replacing spaces
   const inp = document.getElementById('handle-input');
   if (inp && val !== clean && val.includes(' ')) inp.value = clean;
   const valid = /^[a-z0-9_à-ü]{3,30}$/.test(clean);
@@ -4707,7 +4612,6 @@ function validateHandle(val) {
   btn.style.cursor   = ok ? 'pointer'      : 'not-allowed';
 }
 
-
 function switchAuthTab(tab, btn) {
   document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
@@ -4719,7 +4623,6 @@ async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   if (!email || !pass) { showToast('⚠️ Preencha e-mail e senha'); return; }
-  // Seletor específico para o botão do painel de login
   const btn = document.querySelector('#auth-login .btn-auth-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Entrando…'; }
   try {
@@ -4753,7 +4656,6 @@ async function doRegister() {
   if (btn) { btn.disabled = true; btn.textContent = 'Criando conta…'; }
 
   try {
-    // Verifica handle duplicado antes de criar auth
     const { data: existing } = await db.from('profiles').select('id').eq('handle', handle).maybeSingle();
     if (existing) { showToast('⚠️ @' + handle + ' já está em uso. Escolha outro.'); return; }
 
@@ -4764,12 +4666,8 @@ async function doRegister() {
     if (error) { showToast('❌ ' + error.message); return; }
     if (!data?.user) { showToast('⚠️ Erro inesperado ao criar conta'); return; }
 
-    // Tenta criar perfil agora (funciona se Supabase não exige confirmação de email)
-    // Se exigir, o perfil será criado via trigger ou na próxima tentativa de login
     const { error: profileError } = await db.from('profiles').insert({ id: data.user.id, nome: name, handle });
     if (profileError && profileError.code !== '23505') {
-      // Erro que não é duplicata — provavelmente email ainda não confirmado
-      // Armazena dados localmente para criar o perfil após confirmação
       localStorage.setItem('av_pending_profile', JSON.stringify({ id: data.user.id, nome: name, handle }));
     }
 
@@ -4828,15 +4726,11 @@ function updateSidebarAuth() {
 
   const pN = document.getElementById('profile-name');
   const pH = document.getElementById('profile-handle');
-  const pL = document.getElementById('profile-avatar-letter'); // só o span da letra
+  const pL = document.getElementById('profile-avatar-letter');
   if (pN) pN.textContent = dn;
   if (pH) pH.textContent = '@'+currentUser.handle;
-  if (pL) pL.textContent = ini; // nunca usar pA.textContent (destrói o img filho)
-  // Re-aplica avatar se existir
+  if (pL) pL.textContent = ini;
   if (currentUser.avatar_url) setTimeout(() => applyAvatar(currentUser.avatar_url), 0);
-
-  if (typeof checkAdminArea === 'function') checkAdminArea();
-  if (typeof updateProfilePageAuth === 'function') updateProfilePageAuth();
 }
 
 async function doLogout() {
@@ -4856,13 +4750,11 @@ async function loadUserChecklist() {
       data.forEach(row => foundSpecies.add(row.species_sci));
       updateChecklistProgress();
       renderChecklistGrid('');
-      // Re-verifica ave do dia após carregar checklist
       if (todayBird) checkBirdOfDayFound(todayBird.sci);
     }
   } catch(e) { console.warn('Checklist: erro ao carregar', e); }
 }
 
-// Verifica no banco se o usuário já tem a ave do dia registrada
 async function checkBirdOfDayFound(sci) {
   const btn = document.getElementById('btn-found');
   if (!btn) return;
@@ -4871,13 +4763,11 @@ async function checkBirdOfDayFound(sci) {
     btn.textContent = '✅ Encontrei esta ave!';
     return;
   }
-  // Verifica em foundSpecies (já carregado do banco via loadUserChecklist)
   if (foundSpecies.has(sci)) {
     btn.classList.add('already-found');
     btn.textContent = '✅ Já registrada!';
     return;
   }
-  // Checagem direta no banco como garantia extra
   try {
     const { data } = await db
       .from('species_seen')
@@ -4894,7 +4784,6 @@ async function checkBirdOfDayFound(sci) {
       btn.textContent = '✅ Encontrei esta ave!';
     }
   } catch(e) {
-    // single() lança erro se não encontrar — normal, significa que não tem
     btn.classList.remove('already-found');
     btn.textContent = '✅ Encontrei esta ave!';
   }
@@ -4922,12 +4811,10 @@ async function uploadAvatar(input) {
 
 function applyAvatar(url) {
   if (!url) return;
-  // Profile page
   const img    = document.getElementById('profile-avatar-img');
   const letter = document.getElementById('profile-avatar-letter');
   if (img)    { img.src = url; img.style.display = 'block'; }
   if (letter) { letter.style.display = 'none'; }
-  // Sidebar user card
   const sidebarAv = document.querySelector('#sidebar-auth .avatar-sm');
   const sidebarImg = document.querySelector('#sidebar-auth img[style*="border-radius:50%"]');
   if (sidebarAv) {
@@ -4935,7 +4822,6 @@ function applyAvatar(url) {
     ni.src = url; ni.style.cssText='width:32px;height:32px;border-radius:50%;object-fit:cover;';
     sidebarAv.replaceWith(ni);
   } else if (sidebarImg) { sidebarImg.src = url; }
-  // Topbar button
   const topBtn = document.getElementById('topbar-auth-btn');
   if (topBtn && topBtn.textContent.length === 1) {
     topBtn.innerHTML = `<img src="${url}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">`;
@@ -4943,17 +4829,16 @@ function applyAvatar(url) {
 }
 
 /* ════════════════════════════════════════
-   BIO EDITÁVEL (máx 1000 chars)
+   BIO EDITÁVEL (agora persiste no banco)
 ════════════════════════════════════════ */
 function startEditBio() {
   if (!currentUser) { showToast('⚠️ Faça login para editar a bio'); return; }
-  const current = localStorage.getItem('av_bio') || '';
   document.getElementById('profile-bio').style.display = 'none';
   const editor = document.getElementById('profile-bio-editor');
   editor.style.display = 'block';
   const ta = document.getElementById('profile-bio-input');
-  ta.value = current;
-  updateBioCount(current);
+  ta.value = currentUser.bio || '';
+  updateBioCount(ta.value);
   ta.focus();
 }
 
@@ -4973,13 +4858,15 @@ async function saveBio() {
   bioEl.textContent = val || 'Clique para adicionar uma descrição…';
   bioEl.style.display = 'block';
   document.getElementById('profile-bio-editor').style.display = 'none';
-  localStorage.setItem('av_bio', val);
-  if (currentUser) await db.from('profiles').update({ bio: val }).eq('id', currentUser.id);
+  if (currentUser) {
+    await db.from('profiles').update({ bio: val }).eq('id', currentUser.id);
+    currentUser.bio = val;
+  }
   showToast('✅ Bio atualizada!');
 }
 
 /* ════════════════════════════════════════
-   FOTO DE CAPA + AJUSTE DE POSIÇÃO
+   FOTO DE CAPA + AJUSTE DE POSIÇÃO (agora no banco)
 ════════════════════════════════════════ */
 let _coverAdjustOpen = false;
 
@@ -4987,11 +4874,8 @@ function toggleCoverAdjust() {
   _coverAdjustOpen = !_coverAdjustOpen;
   const bar = document.getElementById('cover-adjust-bar');
   if (bar) bar.style.display = _coverAdjustOpen ? 'flex' : 'none';
-  if (_coverAdjustOpen) {
-    const img = document.getElementById('profile-cover-img');
-    const pos = img.style.objectPosition || '50% 50%';
-    const match = pos.match(/\d+%\s+(\d+)%/);
-    if (match) document.getElementById('cover-pos-slider').value = match[1];
+  if (_coverAdjustOpen && currentUser?.cover_pos) {
+    document.getElementById('cover-pos-slider').value = currentUser.cover_pos;
   }
 }
 
@@ -4999,60 +4883,55 @@ function adjustCoverPosition(val) {
   document.getElementById('profile-cover-img').style.objectPosition = `50% ${val}%`;
 }
 
-function saveCoverPosition() {
+async function saveCoverPosition() {
   const val = document.getElementById('cover-pos-slider').value;
-  localStorage.setItem('av_cover_pos', val);
+  if (currentUser) {
+    await db.from('profiles').update({ cover_pos: parseInt(val) }).eq('id', currentUser.id);
+    currentUser.cover_pos = parseInt(val);
+  }
   toggleCoverAdjust();
   showToast('✅ Posição salva!');
 }
 
 function openCoverPicker() {
-  const withPhoto = observations.filter(o => o.photoUrl);
-  const grid = document.getElementById('cover-gallery-grid');
-  grid.innerHTML = !withPhoto.length
-    ? '<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:24px;">Nenhuma foto ainda.<br>Registre avistamentos com foto primeiro! 📸</p>'
-    : withPhoto.map(o => `
-        <div onclick="setCoverPhoto('${(o.photoUrl||'').replace(/'/g,"\\'")}')"
-          style="cursor:pointer;border-radius:8px;overflow:hidden;aspect-ratio:1;border:2px solid transparent;transition:border-color .2s;"
-          onmouseover="this.style.borderColor='var(--sky)'" onmouseout="this.style.borderColor='transparent'">
-          <img src="${o.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${o.species||''}">
-        </div>`).join('');
+  const withPhoto = [];
+  db.from('observations')
+    .select('id, photo_url, species_pop')
+    .eq('user_id', currentUser.id)
+    .not('photo_url', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(30)
+    .then(({ data }) => {
+      const grid = document.getElementById('cover-gallery-grid');
+      if (!data || data.length === 0) {
+        grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;grid-column:1/-1;padding:24px;">Nenhuma foto ainda.<br>Registre avistamentos com foto primeiro! 📸</p>';
+      } else {
+        grid.innerHTML = data.map(o => `
+          <div onclick="setCoverPhoto('${(o.photo_url||'').replace(/'/g,"\\'")}')"
+            style="cursor:pointer;border-radius:8px;overflow:hidden;aspect-ratio:1;border:2px solid transparent;transition:border-color .2s;"
+            onmouseover="this.style.borderColor='var(--sky)'" onmouseout="this.style.borderColor='transparent'">
+            <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="${o.species_pop||''}">
+          </div>`).join('');
+      }
+    });
   document.getElementById('cover-modal').classList.add('open');
 }
 
-function setCoverPhoto(url) {
+async function setCoverPhoto(url) {
   document.getElementById('cover-modal').classList.remove('open');
   const img     = document.getElementById('profile-cover-img');
   const pattern = document.getElementById('profile-cover-pattern');
-  const savedPos = localStorage.getItem('av_cover_pos') || '50';
+  const savedPos = currentUser?.cover_pos || 50;
   img.src = url;
   img.style.objectPosition = `50% ${savedPos}%`;
   img.style.display = 'block';
   if (pattern) pattern.style.display = 'none';
   const adjBtn = document.getElementById('btn-cover-adjust');
   if (adjBtn) adjBtn.style.display = 'block';
-  localStorage.setItem('av_cover', url);
+  await db.from('profiles').update({ cover_url: url }).eq('id', currentUser.id);
+  if (currentUser) currentUser.cover_url = url;
   showToast('✅ Capa atualizada! Use "↕ Ajustar" para reposicionar.');
 }
-
-// Restaura dados do perfil do localStorage
-(function restoreProfileData() {
-  const savedCover = localStorage.getItem('av_cover');
-  const savedPos   = localStorage.getItem('av_cover_pos') || '50';
-  if (savedCover) {
-    const img = document.getElementById('profile-cover-img');
-    if (img) { img.src = savedCover; img.style.objectPosition = `50% ${savedPos}%`; img.style.display = 'block'; }
-    const p = document.getElementById('profile-cover-pattern');
-    if (p) p.style.display = 'none';
-    const btn = document.getElementById('btn-cover-adjust');
-    if (btn) btn.style.display = 'block';
-  }
-  const savedBio = localStorage.getItem('av_bio');
-  if (savedBio) {
-    const el = document.getElementById('profile-bio');
-    if (el) el.textContent = savedBio;
-  }
-})();
 
 function openTerms() {
   window.open('termos.txt', '_blank');
@@ -5194,13 +5073,11 @@ async function reverseGeocode(lat, lng) {
     const coordStr = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     const labelEl = document.getElementById('map-coords-label');
     if (labelEl) labelEl.textContent = `📍 ${label || coordStr} (${coordStr})`;
-    // Also fill municipio-search if that tab is open
     const munSearch = document.getElementById('municipio-search');
     if (munSearch && document.getElementById('municipio-input-wrap')?.style.display !== 'none' && municipio) {
       munSearch.value = municipio;
       filterMunicipios(municipio);
     }
-    // Update location display if GPS was used
     const dispEl = document.getElementById('location-display');
     if (dispEl && currentLocation && currentLocation.fromGPS) {
       currentLocation.label = label;
@@ -5366,13 +5243,11 @@ async function loadRanking() {
   grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">⏳ Carregando ranking…</div>';
   try {
     if (_rankTab === 'total') {
-      // Ranking por total de espécies únicas
       const { data, error } = await db
         .from('species_seen')
         .select('user_id, profiles(nome, handle, avatar_url)')
         .order('user_id');
       if (error) throw error;
-      // Agrupar por user_id
       const byUser = {};
       (data || []).forEach(row => {
         if (!byUser[row.user_id]) byUser[row.user_id] = { profile: row.profiles, count: 0 };
@@ -5405,7 +5280,6 @@ async function loadRanking() {
         </div>`;
       }).join('');
     } else {
-      // Ranking por pontos de indicadoras
       const { data, error } = await db
         .from('species_seen')
         .select('user_id, species_sci, profiles(nome, handle, avatar_url)');
@@ -5460,7 +5334,7 @@ function openStatModal(type) {
   const title = document.getElementById('stat-modal-title');
   const body = document.getElementById('stat-modal-body');
   if (!modal) return;
-  const obs = observations || [];
+  const obs = []; // não usamos mais localObservations
   const found = [...foundSpecies];
   if (type === 'followers') {
     title.textContent = '👥 Seguidores';
@@ -5489,42 +5363,72 @@ function openStatModal(type) {
       : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhuma espécie encontrada ainda.</p>';
   } else if (type === 'obs') {
     title.textContent = '📋 Avistamentos';
-    body.innerHTML = obs.length
-      ? obs.slice().reverse().map(o => `
-          <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-            <div style="font-weight:600;font-size:14px;">${capitalize(o.species_pop || o.speciesPop || o.species || '')}</div>
-            <div style="font-size:12px;color:var(--text-muted);font-style:italic;">${o.species_sci || o.speciesSci || ''}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
-              ${o.obs_date || o.date || ''} ${o.location_label || o.location || ''}
-            </div>
-          </div>`).join('')
-      : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum avistamento registrado.</p>';
+    // Buscar avistamentos do usuário
+    db.from('observations')
+      .select('id, species_pop, species_sci, obs_date, location_label')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data && data.length) {
+          body.innerHTML = data.map(o => `
+            <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+              <div style="font-weight:600;font-size:14px;">${capitalize(o.species_pop || '')}</div>
+              <div style="font-size:12px;color:var(--text-muted);font-style:italic;">${o.species_sci || ''}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                ${o.obs_date || ''} ${o.location_label || ''}
+              </div>
+            </div>`).join('');
+        } else {
+          body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum avistamento registrado.</p>';
+        }
+      });
+    return;
   } else if (type === 'photos') {
     title.textContent = '📷 Fotos';
-    const withPhoto = obs.filter(o => o.photo_url || o.photoUrl);
-    body.innerHTML = withPhoto.length
-      ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          ${withPhoto.map(o => `
-            <div style="border-radius:8px;overflow:hidden;aspect-ratio:1;position:relative;">
-              <img src="${o.photo_url || o.photoUrl}" style="width:100%;height:100%;object-fit:cover;">
-              <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:4px 6px;">
-                <div style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${capitalize(o.species_pop || o.speciesPop || '')}</div>
-              </div>
-            </div>`).join('')}
-        </div>`
-      : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhuma foto registrada.</p>';
+    db.from('observations')
+      .select('id, photo_url, species_pop')
+      .eq('user_id', currentUser.id)
+      .not('photo_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(30)
+      .then(({ data }) => {
+        if (data && data.length) {
+          body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            ${data.map(o => `
+              <div style="border-radius:8px;overflow:hidden;aspect-ratio:1;position:relative;">
+                <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;">
+                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:4px 6px;">
+                  <div style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${capitalize(o.species_pop || '')}</div>
+                </div>
+              </div>`).join('')}
+          </div>`;
+        } else {
+          body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhuma foto registrada.</p>';
+        }
+      });
+    return;
   } else if (type === 'days') {
     title.textContent = '📅 Dias em Campo';
-    const days = [...new Set(obs.map(o => o.obs_date || o.date).filter(Boolean))].sort().reverse();
-    body.innerHTML = days.length
-      ? days.map(d => {
-          const dayObs = obs.filter(o => (o.obs_date || o.date) === d);
-          return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
-            <div style="font-weight:700;color:var(--sky);">${formatDate(d)}</div>
-            <div style="font-size:13px;color:var(--text-muted);">${dayObs.length} avistamento${dayObs.length !== 1 ? 's' : ''}</div>
-          </div>`;
-        }).join('')
-      : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum dia em campo registrado.</p>';
+    db.from('observations')
+      .select('obs_date')
+      .eq('user_id', currentUser.id)
+      .not('obs_date', 'is', null)
+      .order('obs_date', { ascending: false })
+      .then(({ data }) => {
+        const days = [...new Set((data || []).map(d => d.obs_date))];
+        if (days.length) {
+          body.innerHTML = days.map(d => {
+            const count = (data || []).filter(o => o.obs_date === d).length;
+            return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+              <div style="font-weight:700;color:var(--sky);">${formatDate(d)}</div>
+              <div style="font-size:13px;color:var(--text-muted);">${count} avistamento${count !== 1 ? 's' : ''}</div>
+            </div>`;
+          }).join('');
+        } else {
+          body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum dia em campo registrado.</p>';
+        }
+      });
+    return;
   }
   modal.classList.add('open');
 }
@@ -5539,7 +5443,6 @@ async function confirmHandle() {
     const user = _pendingGoogleUser;
     if (!user) { showToast('⚠️ Sessão expirada. Tente novamente.'); return; }
 
-    // Insert profile
     const { error } = await db.from('profiles').insert({
       id:    user.id,
       nome:  user.name,
@@ -5554,7 +5457,6 @@ async function confirmHandle() {
       return;
     }
 
-    // Set currentUser from Google session
     currentUser = {
       id:     user.id,
       email:  user.email,
@@ -5600,36 +5502,42 @@ let _speciesMap = null;
 function openSpeciesMap(sci, pop) {
   document.getElementById('species-map-title').textContent = `🗺️ ${pop}`;
   document.getElementById('species-map-modal').classList.add('open');
-  const pts = observations.filter(o => o.sciName === sci && o.location);
-  document.getElementById('species-map-legend').textContent =
-    `${pts.length} avistamento${pts.length!==1?'s':''} registrado${pts.length!==1?'s':''}`;
+  // Buscar avistamentos do usuário logado para esta espécie
+  if (currentUser) {
+    db.from('observations')
+      .select('location_label, lat, lng, obs_date')
+      .eq('user_id', currentUser.id)
+      .eq('species_sci', sci)
+      .not('location_label', 'is', null)
+      .then(({ data: pts }) => {
+        document.getElementById('species-map-legend').textContent =
+          `${pts.length} avistamento${pts.length!==1?'s':''} registrado${pts.length!==1?'s':''}`;
 
-  setTimeout(() => {
-    if (!window.maplibregl) return;
-    if (_speciesMap) { _speciesMap.remove(); _speciesMap = null; }
-    _speciesMap = new maplibregl.Map({
-      container: 'species-maplibre',
-      style: { version:8, sources:{ osm:{ type:'raster', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256 } }, layers:[{ id:'osm', type:'raster', source:'osm' }] },
-      center: [-49.5, -27.5], zoom: 7, attributionControl: false
-    });
-    _speciesMap.on('load', () => {
-      pts.forEach(o => {
-        if (!o.location) return;
-        // tenta extrair coords
-        const match = o.location.match(/(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
-        if (!match) return;
-        const lng = parseFloat(match[2]), lat = parseFloat(match[1]);
-        new maplibregl.Marker({ color: '#0ea5e9' })
-          .setLngLat([lng, lat])
-          .setPopup(new maplibregl.Popup().setHTML(`<b>${pop}</b><br>${formatDate(o.date)}`))
-          .addTo(_speciesMap);
+        setTimeout(() => {
+          if (!window.maplibregl) return;
+          if (_speciesMap) { _speciesMap.remove(); _speciesMap = null; }
+          _speciesMap = new maplibregl.Map({
+            container: 'species-maplibre',
+            style: { version:8, sources:{ osm:{ type:'raster', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256 } }, layers:[{ id:'osm', type:'raster', source:'osm' }] },
+            center: [-49.5, -27.5], zoom: 7, attributionControl: false
+          });
+          _speciesMap.on('load', () => {
+            pts.forEach(o => {
+              if (!o.lat || !o.lng) return;
+              new maplibregl.Marker({ color: '#0ea5e9' })
+                .setLngLat([o.lng, o.lat])
+                .setPopup(new maplibregl.Popup().setHTML(`<b>${pop}</b><br>${formatDate(o.obs_date)}`))
+                .addTo(_speciesMap);
+            });
+            if (pts.length && pts[0].lat && pts[0].lng) {
+              _speciesMap.flyTo({ center: [pts[0].lng, pts[0].lat], zoom: 10 });
+            }
+          });
+        }, 200);
       });
-      if (pts.length) {
-        const first = pts[0].location.match(/(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
-        if (first) _speciesMap.flyTo({ center: [parseFloat(first[2]), parseFloat(first[1])], zoom: 10 });
-      }
-    });
-  }, 200);
+  } else {
+    document.getElementById('species-map-legend').textContent = 'Faça login para ver seus avistamentos.';
+  }
 }
 
 /* ════════════════════════════════════════
@@ -5666,9 +5574,6 @@ const FRIEND_LEVELS = [
   { lvl:5, min:500, max:500, label:'Parceiros do Céu', cls:'f-lvl-5' },
 ];
 
-// Dados temporários de amizade para demonstração
-
-
 function getFriendLevel(sharedObs) {
   for (let i = FRIEND_LEVELS.length - 1; i >= 0; i--)
     if (sharedObs >= FRIEND_LEVELS[i].min) return FRIEND_LEVELS[i];
@@ -5678,7 +5583,6 @@ function getFriendLevel(sharedObs) {
 async function renderAmizades() {
   const grid = document.getElementById('amizades-grid');
   if (!grid) return;
-  // Load from Supabase
   let friends = [];
   if (currentUser?.id) {
     try {
@@ -5725,59 +5629,70 @@ window._comments = {};
 let _currentCommentObs = null;
 let _expandLiked = false;
 
-function toggleLike(obsId, btn) {
-  window._likes = window._likes || {};
-  const liked = btn.classList.toggle('liked');
-  const icon  = document.getElementById('like-icon-' + obsId);
-  const cnt   = document.getElementById('like-count-' + obsId);
-  if (icon) icon.textContent = liked ? '❤️' : '🤍';
-  window._likes[obsId] = (window._likes[obsId] || 0) + (liked ? 1 : -1);
-  if (cnt) cnt.textContent = window._likes[obsId] > 0 ? window._likes[obsId] : '';
+async function toggleLike(obsId, btn) {
+  if (!currentUser) { openAuthModal(); return; }
+  const liked = btn.classList.contains('liked');
+  if (liked) {
+    await db.from('likes').delete().eq('obs_id', obsId).eq('user_id', currentUser.id);
+  } else {
+    await db.from('likes').insert({ obs_id: obsId, user_id: currentUser.id });
+  }
+  // Atualizar contagem
+  const { count } = await db.from('likes').select('id', { count: 'exact', head: true }).eq('obs_id', obsId);
+  const likeCountSpan = document.getElementById('like-count-' + obsId);
+  if (likeCountSpan) likeCountSpan.textContent = count > 0 ? count : '';
+  btn.classList.toggle('liked', !liked);
+  const icon = document.getElementById('like-icon-' + obsId);
+  if (icon) icon.textContent = liked ? '🤍' : '❤️';
 }
 
 function openCommentModal(obsId, speciesName) {
   _currentCommentObs = obsId;
-  window._comments = window._comments || {};
-  window._comments[obsId] = window._comments[obsId] || [];
   document.getElementById('comment-modal').classList.add('open');
   renderCommentList(obsId);
   document.getElementById('comment-input').value = '';
   document.getElementById('comment-input').focus();
 }
 
-function renderCommentList(obsId) {
+async function renderCommentList(obsId) {
   const list = document.getElementById('comment-list');
-  const comments = (window._comments && window._comments[obsId]) || [];
-  if (!comments.length) {
-    list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:16px;font-size:13px;">Nenhum comentário ainda.</p>';
-    return;
+  try {
+    const { data } = await db.from('comments')
+      .select('id, content, created_at, user_id, profiles(nome,handle)')
+      .eq('obs_id', obsId)
+      .order('created_at', { ascending: true });
+    if (!data || !data.length) {
+      list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:16px;font-size:13px;">Nenhum comentário ainda.</p>';
+      return;
+    }
+    list.innerHTML = data.map(c => `
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <div style="width:30px;height:30px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;" onclick="openPublicProfile('${c.profiles?.handle||''}')">${(c.profiles?.nome||'?')[0]}</div>
+        <div style="flex:1;background:var(--bg);border-radius:var(--radius-md);padding:8px 12px;">
+          <div style="font-weight:600;font-size:12px;color:var(--sky);cursor:pointer;" onclick="openPublicProfile('${c.profiles?.handle||''}')">${c.profiles?.nome||'Usuário'}</div>
+          <div style="font-size:13px;color:var(--text);">${c.content}</div>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = '<p style="color:var(--coral);text-align:center;padding:16px;">Erro ao carregar comentários.</p>';
   }
-  list.innerHTML = comments.map(c => `
-    <div style="display:flex;gap:8px;align-items:flex-start;">
-      <div style="width:30px;height:30px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;">${(c.user||'?')[0]}</div>
-      <div style="flex:1;background:var(--bg);border-radius:var(--radius-md);padding:8px 12px;">
-        <div style="font-weight:600;font-size:12px;color:var(--sky);">${c.user}</div>
-        <div style="font-size:13px;color:var(--text);">${c.text}</div>
-      </div>
-    </div>`).join('');
 }
 
-function submitComment() {
+async function submitComment() {
   const input = document.getElementById('comment-input');
   const text  = input.value.trim();
-  if (!text || !_currentCommentObs) return;
-  window._comments = window._comments || {};
-  window._comments[_currentCommentObs] = window._comments[_currentCommentObs] || [];
-  window._comments[_currentCommentObs].push({
-    user: currentUser?.name || 'Você', text
-  });
+  if (!text || !_currentCommentObs || !currentUser) return;
+  await db.from('comments').insert({ obs_id: _currentCommentObs, user_id: currentUser.id, content: text });
   input.value = '';
   renderCommentList(_currentCommentObs);
+  // Atualizar contagem no card
+  const { count } = await db.from('comments').select('id', { count: 'exact', head: true }).eq('obs_id', _currentCommentObs);
+  const countSpan = document.getElementById('comment-count-' + _currentCommentObs);
+  if (countSpan) countSpan.textContent = count > 0 ? count : '';
 }
 
 function openPhotoExpandAndComment(obs) {
   openPhotoExpand(obs);
-  // Auto-open comment box after a small delay
   setTimeout(() => openExpandComment(), 350);
 }
 
@@ -5786,7 +5701,6 @@ function openPhotoExpand(obs) {
   window._expandObsId = obs.id || String(obs.species||'') + obs.date;
   window._expandObs   = obs;
 
-  // Foto clicável para expandir
   const imgEl = document.getElementById('photo-expand-img');
   imgEl.src = obs.photoUrl;
   imgEl.style.cursor = 'zoom-in';
@@ -5795,7 +5709,6 @@ function openPhotoExpand(obs) {
   document.getElementById('photo-expand-species').textContent = capitalize(obs.species || obs.sciName || '');
   document.getElementById('photo-expand-sci').textContent = obs.sciName || '';
 
-  // Crédito do fotógrafo clicável
   const handle  = obs.user?.handle || '';
   const name    = obs.user?.name   || obs.userName || 'Usuário';
   const inatId  = obs.inatId || obs.inat_id || null;
@@ -5817,9 +5730,7 @@ function openPhotoExpand(obs) {
   likeBtn.innerHTML = '🤍 Curtir';
   likeBtn.classList.remove('liked');
 
-  // Carrega comentários reais do banco
-  document.getElementById('photo-expand-comments').innerHTML = '';
-  if (obs.id) loadExpandComments(obs.id);
+  loadExpandComments(obs.id);
 
   document.getElementById('photo-expand-comment-box').style.display = 'none';
   document.getElementById('photo-expand-modal').classList.add('open');
@@ -5838,16 +5749,14 @@ function openExpandComment() {
   if (box.style.display === 'flex') document.getElementById('photo-expand-comment-input').focus();
 }
 
-// submitExpandComment legacy removed — async version below handles Supabase
-
 /* ════════════════════════════════════════
-   MENSAGENS (sistema básico local)
+   MENSAGENS (sistema básico)
 ════════════════════════════════════════ */
 let _activeContact = null;
-const _messages = {};
+let _activeContactId = null;
 
-
-function openMessages() {
+async function openMessages() {
+  if (!currentUser) { openAuthModal(); return; }
   document.getElementById('messages-modal').classList.add('open');
   renderContacts();
   document.getElementById('msg-badge').style.display = 'none';
@@ -5856,10 +5765,7 @@ function openMessages() {
 async function renderContacts() {
   const list = document.getElementById('msg-contacts');
   list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Carregando…</div>';
-  if (!currentUser?.id) {
-    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Faça login para ver mensagens.</div>';
-    return;
-  }
+  if (!currentUser?.id) return;
   try {
     const { data } = await db.from('messages')
       .select('from_id, to_id, created_at, from_profile:profiles!messages_from_id_fkey(nome,handle,avatar_url), to_profile:profiles!messages_to_id_fkey(nome,handle,avatar_url)')
@@ -5897,7 +5803,6 @@ async function renderContacts() {
   } catch(e) { list.innerHTML = '<div style="padding:16px;color:var(--coral);font-size:13px;">Erro ao carregar.</div>'; }
 }
 
-let _activeContactId = null;
 function selectContact(handle, userId) {
   _activeContact = handle;
   _activeContactId = userId;
@@ -5928,8 +5833,6 @@ async function loadThread(toId) {
   } catch(e) { thread.innerHTML = '<p style="color:var(--coral);font-size:13px;padding:16px;">Erro ao carregar.</p>'; }
 }
 
-function renderThread() {} // legacy compat
-
 async function sendMessage() {
   if (!_activeContactId) { showToast('⚠️ Selecione um contato'); return; }
   if (!currentUser?.id)  { showToast('🔑 Faça login'); return; }
@@ -5946,17 +5849,12 @@ async function sendMessage() {
 /* ════════════════════════════════════════
    NOTIFICAÇÕES
 ════════════════════════════════════════ */
-
-
 async function openNotifications() {
+  if (!currentUser) { openAuthModal(); return; }
   document.getElementById('notif-modal').classList.add('open');
   document.getElementById('notif-badge').style.display = 'none';
   const list = document.getElementById('notif-list');
   list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Carregando…</div>';
-  if (!currentUser?.id) {
-    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">Faça login para ver notificações.</div>';
-    return;
-  }
   try {
     const { data } = await db.from('notifications')
       .select('*, actor:profiles!notifications_actor_id_fkey(nome,handle)')
@@ -5988,7 +5886,6 @@ async function openNotifications() {
         + '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + time + '</div>'
         + '</div></div>';
     }).join('');
-    // Mark all as read
     await db.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false);
   } catch(e) {
     list.innerHTML = '<div style="padding:16px;color:var(--coral);font-size:13px;">Erro ao carregar notificações.</div>';
@@ -5999,14 +5896,14 @@ async function openNotifications() {
    EDITAR PERFIL MODAL
 ════════════════════════════════════════ */
 function openEditProfileModal() {
-  const bio = localStorage.getItem('av_bio') || '';
-  const ta  = document.getElementById('profile-bio-input');
-  if (ta) { ta.value = bio; updateBioCount(bio); }
-  // Show adjust button if cover set
-  const hasCover = !!localStorage.getItem('av_cover');
+  const ta = document.getElementById('profile-bio-input');
+  if (ta) {
+    ta.value = currentUser?.bio || '';
+    updateBioCount(ta.value);
+  }
+  const hasCover = !!currentUser?.cover_url;
   const adjBtn   = document.getElementById('btn-cover-adjust-modal');
   if (adjBtn) adjBtn.style.display = hasCover ? 'block' : 'none';
-  // Preview current avatar
   const av = document.getElementById('edit-avatar-preview');
   if (av && currentUser?.avatar_url) {
     av.innerHTML = `<img src="${currentUser.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
@@ -6028,11 +5925,13 @@ function previewAvatarEdit(input) {
 }
 
 async function saveProfileFromModal() {
-  const val   = (document.getElementById('profile-bio-input')?.value || '').trim();
+  const val = (document.getElementById('profile-bio-input')?.value || '').trim();
   const bioEl = document.getElementById('profile-bio');
   if (bioEl) bioEl.textContent = val || '';
-  localStorage.setItem('av_bio', val);
-  if (currentUser) await db.from('profiles').update({ bio: val }).eq('id', currentUser.id);
+  if (currentUser) {
+    await db.from('profiles').update({ bio: val }).eq('id', currentUser.id);
+    currentUser.bio = val;
+  }
   document.getElementById('edit-profile-modal').classList.remove('open');
   showToast('✅ Perfil atualizado!');
 }
@@ -6042,8 +5941,6 @@ async function saveProfileFromModal() {
 ════════════════════════════════════════ */
 function toggleNoSpecies(checked) {
   const speciesInput = document.getElementById('species-input');
-  const speciesLabel = document.querySelector('label[for="species-input"], .form-label');
-  // Find the label above species input
   const speciesGroup = speciesInput?.closest('.form-group');
   const lbl = speciesGroup?.querySelector('.form-label');
   if (speciesInput) {
@@ -6108,7 +6005,6 @@ function renderSelectedCompanions() {
     </div>`).join('');
 }
 
-// Close companion dropdown on outside click
 document.addEventListener('click', e => {
   if (!e.target.closest('#companion-search') && !e.target.closest('#companion-dropdown')) {
     const dd = document.getElementById('companion-dropdown');
@@ -6129,127 +6025,116 @@ function openObsComment(obsId, obs) {
 }
 
 /* ════════════════════════════════════════
-   SPECIES SUGGESTION SYSTEM
+   SPECIES SUGGESTION SYSTEM (persiste no banco)
 ════════════════════════════════════════ */
 window._suggestions = {};
 
-function submitExpandSuggest() {
+async function submitExpandSuggestion() {
   const input = document.getElementById('expand-suggest-input');
   const val   = input?.value.trim();
   if (!val) return;
   const obsId = window._expandObsId;
   if (!obsId) return;
-  submitSuggestion(obsId, val, 'expand-suggestions-list');
+  await submitSuggestion(obsId, val);
   if (input) input.value = '';
 }
 
-function submitSpeciesSuggestion() {
+async function submitSpeciesSuggestion() {
   const input = document.getElementById('suggest-species-input');
   const val   = input?.value.trim();
   if (!val) { showToast('⚠️ Digite o nome da espécie antes de sugerir'); return; }
   const obsId = _currentCommentObs || window._expandObsId || 'standalone_' + Date.now();
-  const match = SC_BIRDS.find(b => b.pop.toLowerCase()===val.toLowerCase() || b.sci.toLowerCase()===val.toLowerCase());
-  const suggested = match ? capitalize(match.pop) : val;
-  if (!window._suggestions) window._suggestions = {};
-  window._suggestions[obsId] = window._suggestions[obsId] || [];
-  const id = Date.now();
-  window._suggestions[obsId].push({ id, text: suggested, sci: match?.sci||'', accepted: null, by: currentUser?.name||'Usuário' });
+  await submitSuggestion(obsId, val);
   if (input) input.value = '';
-  renderSuggestions(obsId, 'suggestions-list');
+}
+
+async function submitSuggestion(obsId, val) {
+  if (!currentUser) { showToast('🔑 Faça login para sugerir'); openAuthModal(); return; }
+  const match = SC_BIRDS.find(b => b.pop.toLowerCase()===val.toLowerCase() || b.sci.toLowerCase()===val.toLowerCase());
+  const suggestedPop = match ? capitalize(match.pop) : val;
+  const suggestedSci = match ? match.sci : null;
+  await db.from('species_suggestions').insert({
+    obs_id: obsId,
+    user_id: currentUser.id,
+    suggested_species_pop: suggestedPop,
+    suggested_species_sci: suggestedSci,
+    accepted: false
+  });
+  renderSuggestions(obsId, (obsId === window._expandObsId) ? 'expand-suggestions-list' : 'suggestions-list');
   showToast('✅ Sugestão enviada!');
 }
 
-function renderSuggestions(obsId, listId) {
+async function renderSuggestions(obsId, listId) {
   const el = document.getElementById(listId);
   if (!el) return;
-  const suggs = window._suggestions[obsId] || [];
-  if (!suggs.length) { el.innerHTML = ''; return; }
-  el.innerHTML = suggs.map(s => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:var(--radius-md);border:1px solid var(--border);">
-      <div>
-        <div style="font-size:13px;font-weight:600;">${s.text}</div>
-        <div style="font-size:11px;color:var(--text-muted);">Sugerido por ${s.by}${s.sci?' · '+s.sci:''}</div>
-      </div>
-      ${s.accepted === null ? `
-        <div style="display:flex;gap:5px;">
-          <button onclick="acceptSuggestion('${obsId}',${s.id},'${listId}')" style="background:var(--forest);border:none;border-radius:6px;color:white;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;">✅ Aceitar</button>
-          <button onclick="rejectSuggestion('${obsId}',${s.id},'${listId}')" style="background:var(--coral);border:none;border-radius:6px;color:white;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;">✕</button>
-        </div>` : `<span style="font-size:11px;font-weight:700;color:${s.accepted?'var(--forest)':'var(--text-muted)'};">${s.accepted?'✅ Aceita':'Recusada'}</span>`}
-    </div>`).join('');
+  try {
+    const { data } = await db.from('species_suggestions')
+      .select('*, profiles(nome,handle)')
+      .eq('obs_id', obsId)
+      .order('created_at', { ascending: false });
+    if (!data || !data.length) { el.innerHTML = ''; return; }
+    el.innerHTML = data.map(s => {
+      const suggesterName = s.profiles?.nome || 'Usuário';
+      const suggesterHandle = s.profiles?.handle || '';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:var(--radius-md);border:1px solid var(--border);">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${s.suggested_species_pop}</div>
+          <div style="font-size:11px;color:var(--text-muted);">Sugerido por <span style="cursor:pointer;color:var(--sky);" onclick="openPublicProfile('${suggesterHandle}')">${suggesterName}</span>${s.suggested_species_sci ? ' · '+s.suggested_species_sci : ''}</div>
+        </div>
+        ${!s.accepted && currentUser && (currentUser.id === s.user_id) ? `
+          <div style="display:flex;gap:5px;">
+            <button onclick="deleteSuggestion('${s.id}','${obsId}','${listId}')" style="background:var(--coral);border:none;border-radius:6px;color:white;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;">✕ Remover</button>
+          </div>` : (s.accepted ? '<span style="font-size:11px;font-weight:700;color:var(--forest);">✅ Aceita</span>' : '')}
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = ''; }
 }
 
-function acceptSuggestion(obsId, sugId, listId) {
-  const suggs = window._suggestions[obsId] || [];
-  const s = suggs.find(x => x.id === sugId);
-  if (!s) return;
-  s.accepted = true;
-  // Update observation species
-  const obs = observations.find(o => String(o.id) === String(obsId));
-  if (obs) {
-    obs.species = s.text;
-    if (s.sci) obs.sciName = s.sci;
-    obs._points = (obs._points || 0) + 2; // was -1, now +2 doubled
-    localStorage.setItem('av_obs', JSON.stringify(observations.slice(0,200)));
-  }
-  renderSuggestions(obsId, listId);
-  showToast('✅ Sugestão aceita! Pontos dobrados 🎉');
-}
-
-function rejectSuggestion(obsId, sugId, listId) {
-  const suggs = window._suggestions[obsId] || [];
-  const s = suggs.find(x => x.id === sugId);
-  if (s) s.accepted = false;
+async function deleteSuggestion(sugId, obsId, listId) {
+  if (!confirm('Remover sua sugestão?')) return;
+  await db.from('species_suggestions').delete().eq('id', sugId);
   renderSuggestions(obsId, listId);
 }
 
-function submitExpandSuggestion() {
-  const input = document.getElementById('expand-suggest-input');
-  const val   = input.value.trim();
-  if (!val || !_currentCommentObs) return;
-  const match = SC_BIRDS.find(b => b.pop.toLowerCase()===val.toLowerCase() || b.sci.toLowerCase()===val.toLowerCase());
-  const suggested = match ? capitalize(match.pop) : val;
-  window._suggestions[_currentCommentObs] = window._suggestions[_currentCommentObs] || [];
-  window._suggestions[_currentCommentObs].push({ id: Date.now(), text: suggested, sci: match?.sci||'', accepted: null, by: currentUser?.name||'Usuário' });
-  input.value = '';
-  renderSuggestions(_currentCommentObs, 'expand-suggestions-list');
-  showToast('✅ Sugestão enviada!');
+async function acceptSuggestion(obsId, sugId, listId) {
+  if (!currentUser) return;
+  // Apenas o dono da observação pode aceitar? Implementar depois
+  // Por enquanto, simplesmente atualiza a observação
+  const { data: sug } = await db.from('species_suggestions').select('*').eq('id', sugId).single();
+  if (!sug) return;
+  await db.from('observations').update({
+    species_sci: sug.suggested_species_sci,
+    species_pop: sug.suggested_species_pop
+  }).eq('id', obsId);
+  await db.from('species_suggestions').update({ accepted: true }).eq('id', sugId);
+  renderSuggestions(obsId, listId);
+  showToast('✅ Espécie atualizada!');
 }
 
 /* ════════════════════════════════════════
    DYNAMIC BADGES + RANK AVATAR BORDER
 ════════════════════════════════════════ */
-function renderDynamicBadges() {
+async function renderDynamicBadges() {
   const row = document.getElementById('badges-row');
   if (!row) return;
 
   const speciesCount = foundSpecies.size;
-  const obsCount     = observations.length;
-  const photoCount   = observations.filter(o => o.photoUrl).length;
-  const obsRank      = getObsRank(obsCount);
-  const rankIdx      = OBS_RANKS.indexOf(obsRank); // 0–9
-
-  // Best friendship level
-  const bestFriend = [...(window._friendships||[])].sort((a,b) => b.sharedObs - a.sharedObs)[0];
-  const bestFriendLvl = bestFriend ? getFriendLevel(bestFriend.sharedObs) : null;
+  const obsCount = (await db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', currentUser.id)).count || 0;
+  const photoCount = (await db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', currentUser.id).not('photo_url', 'is', null)).count || 0;
+  const obsRank = getObsRank(obsCount);
+  const rankIdx = OBS_RANKS.findIndex(r => r.min === obsRank.min);
 
   const badges = [];
-
-  // Species milestone badges
   if (speciesCount >= 1)   badges.push({ cls:'badge-sky',    icon:'🐦', text:`${speciesCount} espécie${speciesCount>1?'s':''}` });
   if (speciesCount >= 50)  badges.push({ cls:'badge-gold',   icon:'🏆', text:`${speciesCount} espécies` });
   if (speciesCount >= 200) badges.push({ cls:'badge-violet', icon:'🌟', text:'200+ espécies' });
   if (speciesCount >= 500) badges.push({ cls:'',             icon:'🦅', text:'500+ espécies', style:'background:linear-gradient(135deg,#fef9c3,#fde68a);border-color:#f59e0b;color:#92400e;' });
-
-  // Observation count badges
   if (obsCount >= 100)  badges.push({ cls:'badge-green', icon:'🌿', text:'100 registros' });
   if (obsCount >= 500)  badges.push({ cls:'badge-sky',   icon:'📋', text:'500 registros' });
   if (obsCount >= 1000) badges.push({ cls:'badge-gold',  icon:'💎', text:'1000 registros' });
-
-  // Photo badges
   if (photoCount >= 10)  badges.push({ cls:'badge-sky',    icon:'📷', text:`${photoCount} fotos` });
   if (photoCount >= 100) badges.push({ cls:'badge-violet', icon:'📸', text:'100+ fotos' });
 
-  // Rank badge (always shown)
   const rankColors = [
     'background:#f1f5f9;border-color:#94a3b8;color:#64748b',
     'background:#eef2ff;border-color:#6366f1;color:#4338ca',
@@ -6264,17 +6149,10 @@ function renderDynamicBadges() {
   ];
   badges.push({ cls:'', icon: obsRank.icon, text: obsRank.label, style: rankColors[rankIdx] || rankColors[0] });
 
-  // Best friendship badge
-  if (bestFriendLvl && bestFriendLvl.lvl >= 2) {
-    const fColors = ['','','background:#d1fae5;border-color:#10b981;color:#065f46','background:#e0f2fe;border-color:#0ea5e9;color:#0369a1','background:#ede9fe;border-color:#8b5cf6;color:#5b21b6','background:linear-gradient(135deg,#fef9c3,#fde68a);border-color:#d97706;color:#92400e'];
-    badges.push({ cls:'', icon: bestFriendLvl.icon||'🤝', text: bestFriendLvl.label, style: fColors[bestFriendLvl.lvl]||'' });
-  }
-
   row.innerHTML = badges.map(b =>
     `<div class="badge ${b.cls}" style="${b.style||''}">${b.icon} ${b.text}</div>`
   ).join('');
 
-  // Update avatar border class
   const avatar = document.getElementById('profile-avatar');
   if (avatar) {
     OBS_RANKS.forEach((_, i) => avatar.classList.remove('avatar-rank-' + i));
@@ -6299,8 +6177,6 @@ async function loadFollowCounts() {
   } catch(e) { console.warn('follow counts:', e); }
 }
 
-// loadFollowCounts and renderDynamicBadges called directly inside renderProfile above
-
 /* ════════════════════════════════════════
    BIRD OF DAY — FINDERS (fotos de quem já encontrou)
 ════════════════════════════════════════ */
@@ -6310,7 +6186,6 @@ async function loadBirdDayFinders(sci) {
   if (!wrap || !list) return;
   wrap.style.display = 'none';
   try {
-    // Get users who have photo registrations of this species
     const { data } = await db.from('observations')
       .select('photo_url, profiles(id, nome, handle, avatar_url)')
       .eq('species_sci', sci)
@@ -6319,7 +6194,6 @@ async function loadBirdDayFinders(sci) {
       .limit(30);
     if (!data || !data.length) return;
 
-    // Deduplicate by user handle
     const seen = new Set();
     const unique = [];
     for (const o of data) {
@@ -6349,7 +6223,6 @@ async function loadBirdDayFinders(sci) {
   } catch(e) { console.warn('loadBirdDayFinders:', e); }
 }
 
-
 /* ════════════════════════════════════════
    CARD COUNTS — curtidas e comentários
 ════════════════════════════════════════ */
@@ -6358,12 +6231,10 @@ async function loadCardCounts(obsList) {
     const id = obs.id;
     if (!id) continue;
     try {
-      // Curtidas
       const { count: lc } = await db.from('likes').select('id', { count:'exact', head:true }).eq('obs_id', id);
       const lcEl = document.getElementById('like-count-' + id);
       if (lcEl && lc > 0) lcEl.textContent = lc;
 
-      // Estado de curtida do usuário atual
       if (currentUser) {
         const { data: myLike } = await db.from('likes').select('id').eq('obs_id', id).eq('user_id', currentUser.id).maybeSingle();
         if (myLike) {
@@ -6374,7 +6245,6 @@ async function loadCardCounts(obsList) {
         }
       }
 
-      // Comentários
       const { count: cc } = await db.from('comments').select('id', { count:'exact', head:true }).eq('obs_id', id);
       const ccEl = document.getElementById('comment-count-' + id);
       if (ccEl && cc > 0) ccEl.textContent = cc;
@@ -6429,7 +6299,6 @@ async function submitExpandComment() {
   try {
     await db.from('comments').insert({ obs_id: obsId, user_id: currentUser.id, content: text });
     loadExpandComments(obsId);
-    // Atualiza contagem no card
     const { count } = await db.from('comments').select('id',{count:'exact',head:true}).eq('obs_id', obsId);
     const ccEl = document.getElementById('comment-count-' + obsId);
     if (ccEl) ccEl.textContent = count > 0 ? count : '';
@@ -6460,10 +6329,9 @@ function birdScore(q, bird) {
 let _birdTimer = null;
 let _birdPhotoCache = {};
 
-// Busca foto de uma espécie via photo_index.json ou iNaturalist
 async function getBirdPhoto(sci) {
   if (_birdPhotoCache[sci] !== undefined) return _birdPhotoCache[sci];
-  _birdPhotoCache[sci] = null; // evita requests duplicados
+  _birdPhotoCache[sci] = null;
   try {
     if (!window._photoIndex) {
       const r = await fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json');
@@ -6487,7 +6355,6 @@ async function getBirdPhoto(sci) {
       return _birdPhotoCache[sci];
     }
   } catch(e) {}
-  // iNaturalist fallback
   try {
     const r = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&limit=1`);
     const j = await r.json();
@@ -6540,7 +6407,6 @@ function renderBirdsGrid(birds) {
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma ave encontrada.</div>';
     return;
   }
-  // Renderiza cards com fundo placeholder, depois substitui pela foto
   grid.innerHTML = birds.map(b => {
     const found  = foundSpecies.has(b.sci);
     const atRisk = b.sc && b.sc !== 'LC';
@@ -6562,7 +6428,6 @@ function renderBirdsGrid(birds) {
     </div>`;
   }).join('');
 
-  // Carrega fotos em background
   birds.forEach(b => {
     const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
     getBirdPhoto(b.sci).then(photo => {
@@ -6639,7 +6504,6 @@ async function openSpeciesModal(sci, pop) {
   if (bird?.familia) tags.push(`<span style="background:var(--violet-light);color:var(--violet);border:1px solid rgba(139,92,246,0.25);border-radius:20px;padding:2px 9px;font-size:11px;">🏷️ ${bird.familia}</span>`);
   document.getElementById('sp-tags').innerHTML = tags.join('');
 
-  // Foto hero com crédito clicável
   getBirdPhoto(sci).then(photo => {
     if (!photo) return;
     const img = document.getElementById('sp-img');
@@ -6656,14 +6520,12 @@ async function openSpeciesModal(sci, pop) {
     }
   });
 
-  // Descrição Wikipedia
   fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(sci)}`)
     .then(r=>r.ok?r.json():null).then(j=>{
       const el = document.getElementById('sp-desc');
       if (el) el.textContent = j?.extract ? j.extract.slice(0,500)+(j.extract.length>500?'…':'') : 'Descrição não disponível.';
     }).catch(()=>{ const el=document.getElementById('sp-desc'); if(el) el.textContent='Descrição não disponível.'; });
 
-  // Stats e galeria do banco
   try {
     const { data, count } = await db.from('observations')
       .select('id, obs_date, photo_url, profiles(nome,handle)', { count:'exact' })
@@ -6689,13 +6551,12 @@ async function openSpeciesModal(sci, pop) {
   } catch(e) { console.warn('openSpeciesModal:', e); }
 }
 
-
 /* ════════════════════════════════════════
    PERFIL PÚBLICO (página completa)
 ════════════════════════════════════════ */
-let _pubProfileHandle = null; // handle do perfil público atual
-let _pubPrevPage = 'home';    // página anterior para o botão "Voltar"
-let _pubSpeciesSeen = [];     // checklist do usuário sendo visualizado
+let _pubProfileHandle = null;
+let _pubPrevPage = 'home';
+let _pubSpeciesSeen = [];
 
 async function openPublicProfile(handle) {
   if (!handle) return;
@@ -6704,17 +6565,14 @@ async function openPublicProfile(handle) {
     return;
   }
 
-  // Guarda qual página estava antes para o "Voltar"
   const activePage = document.querySelector('.page.active');
   _pubPrevPage = activePage?.id?.replace('page-', '') || 'home';
   _pubProfileHandle = handle;
 
-  // Navega para a página pública
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-public-profile')?.classList.add('active');
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
 
-  // Reseta a página para estado de loading
   document.getElementById('pub-name').textContent = 'Carregando...';
   document.getElementById('pub-handle').textContent = '@' + handle;
   document.getElementById('pub-city').textContent = '';
@@ -6733,7 +6591,6 @@ async function openPublicProfile(handle) {
   avatarEl.innerHTML = '?';
   avatarEl.style.background = 'linear-gradient(135deg,var(--sky),var(--forest))';
 
-  // Ativa aba galeria por padrão
   switchPubTab('gallery', document.getElementById('pub-tab-gallery'));
 
   try {
@@ -6747,7 +6604,6 @@ async function openPublicProfile(handle) {
       return;
     }
 
-    // Avatar
     if (profile.avatar_url) {
       avatarEl.innerHTML = '<img src="' + profile.avatar_url + '" style="width:100%;height:100%;object-fit:cover;">';
     } else {
@@ -6759,7 +6615,6 @@ async function openPublicProfile(handle) {
     document.getElementById('pub-city').textContent = profile.cidade ? '📍 ' + profile.cidade : '';
     document.getElementById('pub-bio').textContent = profile.bio || '';
 
-    // Stats em paralelo
     const [obsR, spR, folR, folwR, daysR] = await Promise.all([
       db.from('observations').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
       db.from('species_seen').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
@@ -6772,7 +6627,6 @@ async function openPublicProfile(handle) {
     document.getElementById('pub-stat-species').textContent = spR.count ?? 0;
     document.getElementById('pub-stat-obs').textContent = obsR.count ?? 0;
 
-    // Fotos e dias em campo
     const { data: photosData } = await db.from('observations')
       .select('id, obs_date, photo_url, species_pop, species_sci')
       .eq('user_id', profile.id)
@@ -6783,7 +6637,6 @@ async function openPublicProfile(handle) {
     document.getElementById('pub-stat-photos').textContent = photos.length;
     document.getElementById('pub-stat-days').textContent = uniqueDays;
 
-    // Botões de ação
     const actionRow = document.getElementById('pub-action-row');
     if (currentUser && currentUser.id !== profile.id) {
       const { data: alreadyFollowing } = await db.from('follows')
@@ -6804,7 +6657,6 @@ async function openPublicProfile(handle) {
         ' style="height:38px;padding:0 16px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);cursor:pointer;font-size:13px;font-weight:600;">💬 Mensagem</button>';
     }
 
-    // Galeria
     const galleryEl = document.getElementById('pub-gallery-grid');
     if (photos.length) {
       galleryEl.innerHTML = photos.map(o => {
@@ -6816,7 +6668,6 @@ async function openPublicProfile(handle) {
       galleryEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.</div>';
     }
 
-    // Checklist (espécies vistas)
     const { data: spSeen } = await db.from('species_seen').select('species_sci').eq('user_id', profile.id);
     _pubSpeciesSeen = (spSeen || []).map(r => r.species_sci);
     document.getElementById('pub-checklist-status').textContent = _pubSpeciesSeen.length + ' espécies encontradas';
@@ -6902,8 +6753,10 @@ async function pubToggleFollow(btn) {
   finally { btn._toggling = false; btn.disabled = false; }
 }
 
-function pubOpenMsg(userId, handle) {
+function pubOpenMsg(btn) {
   if (!currentUser) { showToast('🔑 Faça login para enviar mensagens'); openAuthModal(); return; }
+  const userId = btn.dataset.uid;
+  const handle = btn.dataset.handle;
   closePubProfile();
   setTimeout(() => { navigateTo('messages', document.querySelector('[data-page=messages]')); setTimeout(() => selectContact(handle, userId), 300); }, 100);
 }
@@ -6919,7 +6772,6 @@ function startRealtimeSubscriptions() {
   if (!currentUser?.id) return;
   stopRealtimeSubscriptions();
 
-  // 1. Novas mensagens recebidas
   const msgChannel = db.channel('msgs:' + currentUser.id)
     .on('postgres_changes', {
       event: 'INSERT', schema: 'public', table: 'messages',
@@ -6932,7 +6784,6 @@ function startRealtimeSubscriptions() {
     .subscribe();
   _realtimeChannels.push(msgChannel);
 
-  // 2. Novos seguidores — atualiza contador no perfil
   const followChannel = db.channel('follows:' + currentUser.id)
     .on('postgres_changes', {
       event: '*', schema: 'public', table: 'follows',
@@ -6945,7 +6796,6 @@ function startRealtimeSubscriptions() {
     .subscribe();
   _realtimeChannels.push(followChannel);
 
-  // 3. Novos avistamentos — atualiza feed em tempo real
   const obsChannel = db.channel('obs-feed')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'observations' }, () => {
       if (document.getElementById('page-home')?.classList.contains('active')) renderFeed('home-feed', 4);
@@ -7014,10 +6864,6 @@ function showFullPhoto(url) {
   ov.style.display = 'flex';
 }
 
-
-/* ════════════════════════════════════════
-   FULL PHOTO ZOOM VIEWER (scroll to zoom)
-════════════════════════════════════════ */
 function showFullPhotoZoom(url) {
   let ov = document.getElementById('_zoom_ov');
   if (!ov) {
@@ -7037,10 +6883,8 @@ function showFullPhotoZoom(url) {
   }
   document.getElementById('_zoom_img').src = url;
   ov.style.display = 'flex';
-  // Reset zoom
   document.getElementById('_zoom_img').style.transform = 'scale(1)';
 }
-
 
 /* ════════════════════════════════════════
    SEGUIR / DEIXAR DE SEGUIR USUÁRIO
@@ -7048,7 +6892,7 @@ function showFullPhotoZoom(url) {
 async function loadFollowBtn(targetId, handle) {
   if (!currentUser || currentUser.id === targetId) {
     const btn = document.getElementById('fbtn_'+handle);
-    if (btn && currentUser?.id === targetId) btn.style.display = 'none'; // não mostra pra si mesmo
+    if (btn && currentUser?.id === targetId) btn.style.display = 'none';
     return;
   }
   const btn = document.getElementById('fbtn_'+handle);
@@ -7067,7 +6911,6 @@ async function loadFollowBtn(targetId, handle) {
 async function toggleFollowUser(targetId, handle, btn) {
   if (!currentUser) { showToast('🔑 Faça login para seguir'); openAuthModal(); return; }
   if (currentUser.id === targetId) return;
-  // Debounce — evita spam de cliques
   if (btn._toggling) return;
   btn._toggling = true;
   btn.disabled = true;
@@ -7080,7 +6923,6 @@ async function toggleFollowUser(targetId, handle, btn) {
       btn.classList.remove('following');
       btn.dataset.following = '0';
     } else {
-      // upsert evita duplicate key se clicar rápido
       await db.from('follows').upsert(
         { follower_id: currentUser.id, following_id: targetId },
         { onConflict: 'follower_id,following_id', ignoreDuplicates: true }
@@ -7088,7 +6930,6 @@ async function toggleFollowUser(targetId, handle, btn) {
       btn.textContent = '✓ Seguindo';
       btn.classList.add('following');
       btn.dataset.following = '1';
-      // Notificação para o seguido
       try {
         await db.from('notifications').insert({
           user_id: targetId, type: 'follow', actor_id: currentUser.id,
@@ -7096,17 +6937,14 @@ async function toggleFollowUser(targetId, handle, btn) {
         });
       } catch(e) {}
     }
-    // Busca contagem REAL do banco (anti-farm)
     const { count } = await db.from('follows').select('id', { count: 'exact', head: true }).eq('following_id', targetId);
     const folEl = document.getElementById('ufo_'+handle);
     if (folEl) folEl.textContent = count ?? 0;
-    // Atualiza também no modal de perfil público se estiver aberto
     const ppFol = document.getElementById('pp-fol');
     if (ppFol) ppFol.textContent = count ?? 0;
   } catch(e) { showToast('❌ Erro: ' + e.message); }
   finally { btn._toggling = false; btn.disabled = false; }
 }
-
 </script>
 </body>
 </html>
