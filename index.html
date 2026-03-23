@@ -1349,8 +1349,46 @@ body::before {
   .app-layout { grid-template-columns: 1fr; }
   .app-layout.sidebar-expanded { grid-template-columns: 1fr; }
   .sidebar { display: none; }
-  .main-content { padding: 12px; }
+  .main-content { padding: 12px 12px 80px; }
+  .bottom-nav { display: flex; }
 }
+
+/* Bottom Navigation — mobile only */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 200;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 4px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+}
+.bottom-nav-btn {
+  flex: 1;
+  height: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: color var(--transition);
+  padding: 0;
+  border-radius: var(--radius-sm);
+}
+.bottom-nav-btn .bn-icon { font-size: 20px; line-height: 1; }
+.bottom-nav-btn.active { color: var(--sky); }
+.bottom-nav-btn:hover { color: var(--sky-dark); }
 .forgot-link {
   background: none;
   border: none;
@@ -1365,7 +1403,7 @@ body::before {
 </style>
 
 <!-- ══ SUPABASE ══ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <script>
 const { createClient } = supabase;
@@ -3659,7 +3697,7 @@ const SC_BIRDS = (function() {
 ════════════════════════════════════════ */
 let currentUser = null;
 let foundSpecies = new Set(); // carregado do Supabase após login — não usa localStorage
-let observations = JSON.parse(localStorage.getItem('av_obs') || '[]');
+let _pendingGoogleUser = null;
 let currentLocation = null;
 let todayBird = null;
 
@@ -3827,6 +3865,13 @@ function navigateTo(pageId, btn) {
   document.getElementById('page-' + pageId)?.classList.add('active');
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  // Fecha sidebar em mobile ao navegar
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('sidebar');
+    const layout = document.querySelector('.app-layout');
+    if (sidebar) sidebar.classList.remove('expanded');
+    if (layout) layout.classList.remove('sidebar-expanded');
+  }
   if (pageId === 'feed')    renderFeed('full-feed', 12);
   if (pageId === 'profile') renderProfile();
   if (pageId === 'users')   renderUsers('');
@@ -4112,6 +4157,13 @@ function updateChecklistProgress() {
 }
 
 /* ════════════════════════════════════════
+   UTILITÁRIOS DE SEGURANÇA
+════════════════════════════════════════ */
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ════════════════════════════════════════
    FEED — AGORA APENAS DO BANCO (sem localStorage)
 ════════════════════════════════════════ */
 async function renderFeed(containerId, limit) {
@@ -4169,13 +4221,13 @@ async function renderFeed(containerId, limit) {
         </div>
         <div class="obs-card-body">
           <div class="obs-card-user">
-            <div class="obs-avatar" style="background:${userColor};${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+userHandle+'\')':''}">${(userName||'?')[0].toUpperCase()}</div>
-            <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+userHandle+'\')':''}">${userName||'Usuário'}</span>
+            <div class="obs-avatar" style="background:${userColor};${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml((userName||'?')[0].toUpperCase())}</div>
+            <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml(userName||'Usuário')}</span>
             <span class="obs-date">${formatDate(obs.date||'')}</span>
           </div>
-          <div class="obs-species">${capitalize(obs.species||obs.sciName||'')}</div>
-          <div class="obs-sci">${obs.sciName||''}</div>
-          ${obs.location ? `<div class="obs-location">📍 ${obs.location}</div>` : ''}
+          <div class="obs-species">${escHtml(capitalize(obs.species||obs.sciName||''))}</div>
+          <div class="obs-sci">${escHtml(obs.sciName||'')}</div>
+          ${obs.location ? `<div class="obs-location">📍 ${escHtml(obs.location)}</div>` : ''}
         </div>
         <div class="obs-card-footer">
           <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)">
@@ -4566,8 +4618,6 @@ async function doGoogleLogin() {
   });
   if (error) { showToast('⚠️ Erro ao iniciar login com Google: ' + error.message); }
 }
-
-let _pendingGoogleUser = null;
 
 function openHandleModal(googleUser) {
   const avatarEl = document.getElementById('google-avatar');
@@ -5631,19 +5681,25 @@ let _expandLiked = false;
 
 async function toggleLike(obsId, btn) {
   if (!currentUser) { openAuthModal(); return; }
+  if (btn._toggling) return;
+  btn._toggling = true;
+  btn.disabled = true;
   const liked = btn.classList.contains('liked');
-  if (liked) {
-    await db.from('likes').delete().eq('obs_id', obsId).eq('user_id', currentUser.id);
-  } else {
-    await db.from('likes').insert({ obs_id: obsId, user_id: currentUser.id });
-  }
-  // Atualizar contagem
-  const { count } = await db.from('likes').select('id', { count: 'exact', head: true }).eq('obs_id', obsId);
-  const likeCountSpan = document.getElementById('like-count-' + obsId);
-  if (likeCountSpan) likeCountSpan.textContent = count > 0 ? count : '';
-  btn.classList.toggle('liked', !liked);
-  const icon = document.getElementById('like-icon-' + obsId);
-  if (icon) icon.textContent = liked ? '🤍' : '❤️';
+  try {
+    if (liked) {
+      await db.from('likes').delete().eq('obs_id', obsId).eq('user_id', currentUser.id);
+    } else {
+      await db.from('likes').insert({ obs_id: obsId, user_id: currentUser.id });
+    }
+    // Atualizar contagem
+    const { count } = await db.from('likes').select('id', { count: 'exact', head: true }).eq('obs_id', obsId);
+    const likeCountSpan = document.getElementById('like-count-' + obsId);
+    if (likeCountSpan) likeCountSpan.textContent = count > 0 ? count : '';
+    btn.classList.toggle('liked', !liked);
+    const icon = document.getElementById('like-icon-' + obsId);
+    if (icon) icon.textContent = liked ? '🤍' : '❤️';
+  } catch(e) { console.warn('toggleLike error:', e); }
+  finally { btn._toggling = false; btn.disabled = false; }
 }
 
 function openCommentModal(obsId, speciesName) {
@@ -6810,6 +6866,11 @@ function stopRealtimeSubscriptions() {
   _realtimeChannels = [];
 }
 
+function syncBottomNav(activeBtn) {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
 async function startNotifRealtime() {
   if (!currentUser?.id) return;
   if (_notifChannel) { try { db.removeChannel(_notifChannel); } catch(e){} _notifChannel = null; }
@@ -6946,5 +7007,24 @@ async function toggleFollowUser(targetId, handle, btn) {
   finally { btn._toggling = false; btn.disabled = false; }
 }
 </script>
+<!-- BOTTOM NAV — mobile only -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-btn active" data-page="home" onclick="navigateTo('home',this);syncBottomNav(this)">
+    <span class="bn-icon">🏠</span><span>Início</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="feed" onclick="navigateTo('feed',this);syncBottomNav(this)">
+    <span class="bn-icon">📷</span><span>Avistamentos</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="upload" onclick="navigateTo('upload',this);syncBottomNav(this)">
+    <span class="bn-icon">➕</span><span>Registrar</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="users" onclick="navigateTo('users',this);syncBottomNav(this)">
+    <span class="bn-icon">🔍</span><span>Buscar</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="profile" onclick="navigateTo('profile',this);syncBottomNav(this)">
+    <span class="bn-icon">👤</span><span>Perfil</span>
+  </button>
+</nav>
+
 </body>
 </html>
