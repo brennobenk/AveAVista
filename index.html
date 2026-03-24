@@ -1659,16 +1659,15 @@ const db = createClient(
           </div>
         </label>
 
-        <!-- Adicionar amigo ao registro -->
+        <!-- Adicionar companheiro ao registro -->
         <div style="background:var(--sky-light);border:1px solid var(--sky);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:4px;">
-          <div style="font-size:13.5px;font-weight:600;color:var(--sky-dark);margin-bottom:8px;">🤝 Adicionar companheiro ao registro</div>
-          <div style="position:relative;">
-            <input class="form-input" type="text" id="companion-search" placeholder="Buscar @usuário…"
-              style="height:36px;" oninput="filterCompanions(this.value)">
-            <div id="companion-dropdown" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);z-index:300;max-height:160px;overflow-y:auto;box-shadow:var(--shadow-md);"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:13.5px;font-weight:600;color:var(--sky-dark);">🤝 Companheiro de registro</div>
+            <button type="button" onclick="openCompanionModal()" title="Adicionar companheiro"
+              style="width:30px;height:30px;border-radius:50%;background:var(--sky);border:none;color:white;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-weight:300;">+</button>
           </div>
-          <div id="companion-selected" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;"></div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">O companheiro receberá uma solicitação — se aceitar, ambos ganham pontos de amizade</div>
+          <div id="companion-selected" style="display:flex;flex-wrap:wrap;gap:6px;min-height:16px;"></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Apenas 1 companheiro por registro. O companheiro receberá uma solicitação — se aceitar, ambos ganham pontos de amizade</div>
         </div>
 
         <label class="inat-toggle" id="inat-toggle">
@@ -2181,14 +2180,14 @@ const db = createClient(
 </div>
 
 <!-- MODAL ESCOLHER CAPA -->
-<div class="modal-overlay" id="cover-modal">
+<div class="modal-overlay" id="cover-modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal-box" style="max-width:500px;">
     <div class="modal-header">
-      <div class="modal-title">📷 Escolher foto de capa</div>
+      <div class="modal-title">📷 Foto de capa</div>
       <button class="modal-close" onclick="document.getElementById('cover-modal').classList.remove('open')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">A foto de capa deve ser uma foto da sua galeria de avistamentos.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Escolha uma das suas fotos de avistamento para usar como capa do perfil.</p>
       <div id="cover-gallery-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:50vh;overflow-y:auto;"></div>
     </div>
   </div>
@@ -2344,16 +2343,53 @@ const db = createClient(
   </div>
 </div>
 
+<!-- MODAL COMPANHEIRO DE REGISTRO -->
+<div class="modal-overlay" id="companion-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-title">🤝 Adicionar companheiro</div>
+      <button class="modal-close" onclick="document.getElementById('companion-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:16px;">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Escolha 1 companheiro para este registro</p>
+      <input class="form-input" type="text" id="companion-modal-search" placeholder="🔍 Buscar por @usuário ou nome…"
+        style="height:38px;margin-bottom:10px;" oninput="filterCompanionModal(this.value)">
+      <div id="companion-modal-list" style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SEGUIDORES / SEGUINDO -->
+<div class="modal-overlay" id="follows-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title" id="follows-modal-title">Seguidores</div>
+      <button class="modal-close" onclick="document.getElementById('follows-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="follows-modal-body" class="modal-body" style="max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px;"></div>
+  </div>
+</div>
+
 <!-- MODAL MENSAGENS -->
 <div class="modal-overlay" id="messages-modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal-box" style="max-width:520px;padding:0;height:70vh;display:flex;flex-direction:column;">
-    <div class="modal-header" style="padding:16px 20px;flex-shrink:0;">
+    <div class="modal-header" style="padding:16px 20px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
       <div class="modal-title">💬 Mensagens</div>
-      <button class="modal-close" onclick="document.getElementById('messages-modal').classList.remove('open')">✕</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="openNewMessageSearch()" title="Nova conversa"
+          style="height:32px;padding:0 12px;background:var(--sky);border:none;border-radius:var(--radius-md);color:white;font-size:13px;font-weight:700;cursor:pointer;">+ Nova</button>
+        <button class="modal-close" onclick="document.getElementById('messages-modal').classList.remove('open')">✕</button>
+      </div>
+    </div>
+    <div id="msg-new-search-box" style="display:none;padding:0 12px 10px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <input class="form-input" type="text" id="msg-new-search-input" placeholder="🔍 Buscar usuário para conversar…"
+        style="height:36px;" oninput="searchNewMsgContact(this.value)">
+      <div id="msg-new-search-results" style="margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto;"></div>
     </div>
     <div style="display:flex;flex:1;overflow:hidden;">
       <div id="msg-contacts" style="width:180px;border-right:1px solid var(--border);overflow-y:auto;padding:8px 0;flex-shrink:0;"></div>
       <div style="flex:1;display:flex;flex-direction:column;">
+        <div id="msg-thread-header" style="display:none;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--sky);flex-shrink:0;"></div>
         <div id="msg-thread" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
         <div style="padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;">
           <input id="msg-input" class="form-input" type="text" placeholder="Mensagem…" style="flex:1;height:36px;"
@@ -3965,8 +4001,6 @@ function renderBirdOfDay() {
   setTimeout(() => loadBirdDayFinders(bird.sci), 800);
 }
 
-let _photoIndex = null;
-
 async function loadEbirdDescription(sciName, popName) {
   const el = document.getElementById('bird-ebird-desc');
   if (!el) return;
@@ -4005,44 +4039,23 @@ function showBirdDesc(el, { text, url }) {
 }
 
 async function loadBirdPhoto(sciName, popName) {
-  const img = document.getElementById('bird-day-img');
+  const img     = document.getElementById('bird-day-img');
   const loading = document.getElementById('bird-img-loading');
-  const badge = document.getElementById('bird-inat-badge');
+  const badge   = document.getElementById('bird-inat-badge');
 
   try {
-    if (!_photoIndex) {
-      const res = await fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json');
-      const data = await res.json();
-
-      _photoIndex = {};
-      for (const [photographerName, info] of Object.entries(data)) {
-        const profileUrl = info.wikiaves || null;
-        for (const foto of (info.fotos || [])) {
-          const key = (foto.cientifico || '').toLowerCase().trim();
-          if (!key) continue;
-          if (!_photoIndex[key]) _photoIndex[key] = [];
-          _photoIndex[key].push({
-            url: foto.url,
-            photographer: photographerName,
-            profileUrl: profileUrl
-          });
-        }
-      }
-    }
-
-    const key = sciName.toLowerCase().trim();
-    const entries = _photoIndex[key];
-
+    const idx = await ensurePhotoIndex();
+    const key     = sciName.toLowerCase().trim();
+    const entries = idx[key];
     if (entries && entries.length > 0) {
       const entry = entries[Math.floor(Math.random() * entries.length)];
       img.src = entry.url;
       img.alt = popName;
-
       badge.style.display = 'flex';
       if (entry.profileUrl) {
-        badge.innerHTML = `📸 Foto por: <a href="${entry.profileUrl}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${entry.photographer}</a>`;
+        badge.innerHTML = `📸 Foto por: <a href="${entry.profileUrl}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${entry.author}</a>`;
       } else {
-        badge.innerHTML = `📸 Foto por: ${entry.photographer}`;
+        badge.innerHTML = `📸 Foto por: ${entry.author}`;
       }
       badge.onclick = null;
       document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa?q=${encodeURIComponent(sciName)}`, '_blank');
@@ -4053,16 +4066,15 @@ async function loadBirdPhoto(sciName, popName) {
   }
 
   try {
-    const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sciName)}&rank=species&per_page=1`;
-    const res = await fetch(url);
+    const url  = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sciName)}&rank=species&per_page=1`;
+    const res  = await fetch(url);
     const data = await res.json();
     if (data.results && data.results[0] && data.results[0].default_photo) {
-      const photo   = data.results[0].default_photo;
-      const inatId  = data.results[0].id;
+      const photo  = data.results[0].default_photo;
+      const inatId = data.results[0].id;
       img.src = photo.medium_url;
       img.alt = popName;
       badge.style.display = 'flex';
-
       let authorName = '';
       let licenseText = '';
       if (photo.attribution) {
@@ -4071,11 +4083,9 @@ async function loadBirdPhoto(sciName, popName) {
         const licMatch = photo.attribution.match(/\((CC[^)]+|public domain)\)/i);
         if (licMatch) licenseText = licMatch[1];
       }
-
       const authorHtml = authorName
         ? `<a href="https://www.inaturalist.org/taxa/${inatId}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${authorName}</a>`
         : `<a href="https://www.inaturalist.org/taxa/${inatId}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">iNaturalist</a>`;
-
       badge.innerHTML = `🌿 Foto por: ${authorHtml}${licenseText ? ` <span style="opacity:.7;font-size:10px;margin-left:4px;">${licenseText}</span>` : ''}`;
       badge.onclick = null;
       document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa/${inatId}`, '_blank');
@@ -4178,11 +4188,14 @@ function escHtml(s) {
 }
 
 /* ════════════════════════════════════════
-   FEED — AGORA APENAS DO BANCO (sem localStorage)
+   FEED — apenas do banco (sem localStorage)
 ════════════════════════════════════════ */
 async function renderFeed(containerId, limit) {
   const container = document.getElementById(containerId);
   if (!container) return;
+  container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-muted);">
+    <div style="font-size:32px;margin-bottom:8px;">🔭</div><div>Carregando avistamentos…</div>
+  </div>`;
 
   try {
     const { data, error } = await db
@@ -4190,11 +4203,16 @@ async function renderFeed(containerId, limit) {
       .select('*, profiles(nome, handle, avatar_url)')
       .order('created_at', { ascending: false })
       .limit(limit);
+
     if (error) {
       console.warn('Feed DB error (verifique RLS no Supabase):', error.message);
-      container.innerHTML = '<div style="text-align:center;padding:40px;">Erro ao carregar avistamentos.</div>';
+      container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;">
+        <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
+        <div style="font-size:13px;color:var(--text-muted);">Erro ao carregar avistamentos.<br><span style="font-size:11px;">${error.message}</span></div>
+      </div>`;
       return;
     }
+
     if (!data || data.length === 0) {
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
         <div class="empty-emoji">🔭</div>
@@ -4204,27 +4222,23 @@ async function renderFeed(containerId, limit) {
       return;
     }
 
-    // Mapeia para o formato esperado pelos cards
     const allObs = data.map(o => ({
       id: o.id,
-      species: o.species_pop || o.species_sci,
-      sciName: o.species_sci,
-      date: o.obs_date,
+      species:  o.species_pop || o.species_sci,
+      sciName:  o.species_sci,
+      date:     o.obs_date,
       location: o.location_label || '',
-      notes: o.notes || '',
+      notes:    o.notes || '',
       photoUrl: o.photo_url || null,
-      user: { 
-        name: o.profiles?.nome || o.profiles?.handle || 'Usuário', 
-        handle: o.profiles?.handle || '' 
+      user: {
+        name:   o.profiles?.nome   || o.profiles?.handle || 'Usuário',
+        handle: o.profiles?.handle || ''
       }
     }));
 
-    // Carrega contagens após render
-    setTimeout(() => loadCardCounts(allObs), 100);
     container.innerHTML = allObs.map((obs) => {
-      const userName   = obs.user?.name || 'Usuário';
+      const userName   = obs.user?.name   || 'Usuário';
       const userHandle = obs.user?.handle || '';
-      const userColor  = '#0ea5e9';
       const hasPhoto   = obs.photoUrl;
       const obsId      = obs.id;
       return `
@@ -4235,7 +4249,7 @@ async function renderFeed(containerId, limit) {
         </div>
         <div class="obs-card-body">
           <div class="obs-card-user">
-            <div class="obs-avatar" style="background:${userColor};${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml((userName||'?')[0].toUpperCase())}</div>
+            <div class="obs-avatar" style="background:#0ea5e9;${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml((userName||'?')[0].toUpperCase())}</div>
             <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml(userName||'Usuário')}</span>
             <span class="obs-date">${formatDate(obs.date||'')}</span>
           </div>
@@ -4252,9 +4266,12 @@ async function renderFeed(containerId, limit) {
         </div>
       </div>`;
     }).join('');
+
+    // Carrega contagens após render (batched = rápido)
+    setTimeout(() => loadCardCounts(allObs), 50);
   } catch(e) {
-    console.warn('Feed: erro ao buscar do banco:', e);
-    container.innerHTML = '<div style="text-align:center;padding:40px;">Erro ao carregar avistamentos.</div>';
+    console.warn('Feed: erro:', e);
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Erro ao carregar avistamentos.</div>';
   }
 }
 
@@ -4799,7 +4816,20 @@ function updateSidebarAuth() {
 }
 
 async function doLogout() {
+  stopRealtimeSubscriptions();
+  stopNotifRealtime();
   await db.auth.signOut();
+  currentUser = null;
+  foundSpecies = new Set();
+  updateSidebarAuth();
+  updateChecklistProgress();
+  const pN = document.getElementById('profile-name');
+  const pH = document.getElementById('profile-handle');
+  if (pN) pN.textContent = 'Faça login para ver seu perfil';
+  if (pH) pH.textContent = '';
+  navigateTo('home', document.querySelector('[data-page=home]'));
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-page=home]')?.classList.add('active');
   showToast('👋 Até logo!');
 }
 
@@ -5394,108 +5424,75 @@ async function loadRanking() {
 /* ════════════════════════════════════════
    MODAL DE ESTATÍSTICAS DO PERFIL
 ════════════════════════════════════════ */
-function openStatModal(type) {
+async function openStatModal(type) {
   const modal = document.getElementById('stat-modal');
   const title = document.getElementById('stat-modal-title');
-  const body = document.getElementById('stat-modal-body');
+  const body  = document.getElementById('stat-modal-body');
   if (!modal) return;
-  const obs = []; // não usamos mais localObservations
-  const found = [...foundSpecies];
+
+  modal.classList.add('open');
+  body.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);">Carregando…</div>';
+
   if (type === 'followers') {
     title.textContent = '👥 Seguidores';
-    body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px;font-size:13px;">Funcionalidade de seguidores disponível em breve.<br>Cadastre-se e convide amigos! 🐦</p>';
-    return;
-  } else if (type === 'following') {
-    title.textContent = '🔭 Seguindo';
-    body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px;font-size:13px;">Pesquise ornitólogos e siga-os para ver avistamentos no feed! 🐦</p>';
+    try {
+      const { data } = await db.from('follows')
+        .select('follower_id, profiles:profiles!follows_follower_id_fkey(nome,handle,avatar_url)')
+        .eq('following_id', currentUser.id)
+        .order('created_at', { ascending: false });
+      if (!data || !data.length) { body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px;">Nenhum seguidor ainda.</p>'; return; }
+      body.innerHTML = data.map(f => {
+        const p = f.profiles; const nm = p?.nome||p?.handle||'Usuário'; const h = p?.handle||'';
+        const av = p?.avatar_url ? `<img src="${p.avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<div style="width:40px;height:40px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;">${(nm[0]||'?').toUpperCase()}</div>`;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="document.getElementById('stat-modal').classList.remove('open');openPublicProfile('${h}')">${av}<div><div style="font-weight:600;font-size:14px;">${escHtml(nm)}</div><div style="font-size:12px;color:var(--sky);">@${escHtml(h)}</div></div></div>`;
+      }).join('');
+    } catch(e) { body.innerHTML = '<p style="color:var(--coral);text-align:center;padding:16px;">Erro ao carregar.</p>'; }
     return;
   }
+
+  if (type === 'following') {
+    title.textContent = '🔭 Seguindo';
+    try {
+      const { data } = await db.from('follows')
+        .select('following_id, profiles:profiles!follows_following_id_fkey(nome,handle,avatar_url)')
+        .eq('follower_id', currentUser.id)
+        .order('created_at', { ascending: false });
+      if (!data || !data.length) { body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px;">Você não segue ninguém ainda.</p>'; return; }
+      body.innerHTML = data.map(f => {
+        const p = f.profiles; const nm = p?.nome||p?.handle||'Usuário'; const h = p?.handle||'';
+        const av = p?.avatar_url ? `<img src="${p.avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<div style="width:40px;height:40px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;">${(nm[0]||'?').toUpperCase()}</div>`;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="document.getElementById('stat-modal').classList.remove('open');openPublicProfile('${h}')">${av}<div><div style="font-weight:600;font-size:14px;">${escHtml(nm)}</div><div style="font-size:12px;color:var(--sky);">@${escHtml(h)}</div></div></div>`;
+      }).join('');
+    } catch(e) { body.innerHTML = '<p style="color:var(--coral);text-align:center;padding:16px;">Erro ao carregar.</p>'; }
+    return;
+  }
+
   if (type === 'species') {
     title.textContent = '🐦 Espécies Encontradas';
     const birds = SC_BIRDS.filter(b => foundSpecies.has(b.sci));
     body.innerHTML = birds.length
-      ? birds.map(b => {
-          const pts = INDICADORAS[b.sci];
-          return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
-            <span style="font-size:22px;">${getSpeciesEmoji(b.sci)}</span>
-            <div style="flex:1;">
-              <div style="font-weight:600;font-size:14px;">${capitalize(b.pop)}</div>
-              <div style="font-size:12px;color:var(--text-muted);font-style:italic;">${b.sci}</div>
-            </div>
-            ${pts ? `<span style="background:var(--sun-light);color:#92400e;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;">⭐ ${pts}pts</span>` : ''}
-          </div>`;
-        }).join('')
+      ? birds.map(b => { const pts = INDICADORAS[b.sci]; return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);"><span style="font-size:22px;">${getSpeciesEmoji(b.sci)}</span><div style="flex:1;"><div style="font-weight:600;font-size:14px;">${capitalize(b.pop)}</div><div style="font-size:12px;color:var(--text-muted);font-style:italic;">${b.sci}</div></div>${pts?`<span style="background:var(--sun-light);color:#92400e;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;">⭐ ${pts}pts</span>`:''}</div>`; }).join('')
       : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhuma espécie encontrada ainda.</p>';
   } else if (type === 'obs') {
     title.textContent = '📋 Avistamentos';
-    // Buscar avistamentos do usuário
-    db.from('observations')
-      .select('id, species_pop, species_sci, obs_date, location_label')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data && data.length) {
-          body.innerHTML = data.map(o => `
-            <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-              <div style="font-weight:600;font-size:14px;">${capitalize(o.species_pop || '')}</div>
-              <div style="font-size:12px;color:var(--text-muted);font-style:italic;">${o.species_sci || ''}</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
-                ${o.obs_date || ''} ${o.location_label || ''}
-              </div>
-            </div>`).join('');
-        } else {
-          body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum avistamento registrado.</p>';
-        }
-      });
-    return;
+    try {
+      const { data } = await db.from('observations').select('id, species_pop, species_sci, obs_date, location_label').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+      body.innerHTML = (data && data.length) ? data.map(o => `<div style="padding:10px 0;border-bottom:1px solid var(--border);"><div style="font-weight:600;font-size:14px;">${capitalize(o.species_pop||'')}</div><div style="font-size:12px;color:var(--text-muted);font-style:italic;">${o.species_sci||''}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${o.obs_date||''} ${o.location_label?'· '+o.location_label:''}</div></div>`).join('') : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum avistamento registrado.</p>';
+    } catch(e) { body.innerHTML = '<p style="color:var(--coral);text-align:center;padding:16px;">Erro ao carregar.</p>'; }
   } else if (type === 'photos') {
     title.textContent = '📷 Fotos';
-    db.from('observations')
-      .select('id, photo_url, species_pop')
-      .eq('user_id', currentUser.id)
-      .not('photo_url', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(30)
-      .then(({ data }) => {
-        if (data && data.length) {
-          body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-            ${data.map(o => `
-              <div style="border-radius:8px;overflow:hidden;aspect-ratio:1;position:relative;">
-                <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;">
-                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:4px 6px;">
-                  <div style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${capitalize(o.species_pop || '')}</div>
-                </div>
-              </div>`).join('')}
-          </div>`;
-        } else {
-          body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhuma foto registrada.</p>';
-        }
-      });
-    return;
+    try {
+      const { data } = await db.from('observations').select('id, photo_url, species_pop').eq('user_id', currentUser.id).not('photo_url', 'is', null).order('created_at', { ascending: false }).limit(30);
+      body.innerHTML = (data && data.length) ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${data.map(o=>`<div style="border-radius:8px;overflow:hidden;aspect-ratio:1;position:relative;"><img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:4px 6px;"><div style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${capitalize(o.species_pop||'')}</div></div></div>`).join('')}</div>` : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhuma foto registrada.</p>';
+    } catch(e) { body.innerHTML = '<p style="color:var(--coral);text-align:center;padding:16px;">Erro ao carregar.</p>'; }
   } else if (type === 'days') {
     title.textContent = '📅 Dias em Campo';
-    db.from('observations')
-      .select('obs_date')
-      .eq('user_id', currentUser.id)
-      .not('obs_date', 'is', null)
-      .order('obs_date', { ascending: false })
-      .then(({ data }) => {
-        const days = [...new Set((data || []).map(d => d.obs_date))];
-        if (days.length) {
-          body.innerHTML = days.map(d => {
-            const count = (data || []).filter(o => o.obs_date === d).length;
-            return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
-              <div style="font-weight:700;color:var(--sky);">${formatDate(d)}</div>
-              <div style="font-size:13px;color:var(--text-muted);">${count} avistamento${count !== 1 ? 's' : ''}</div>
-            </div>`;
-          }).join('');
-        } else {
-          body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum dia em campo registrado.</p>';
-        }
-      });
-    return;
+    try {
+      const { data } = await db.from('observations').select('obs_date').eq('user_id', currentUser.id).not('obs_date', 'is', null).order('obs_date', { ascending: false });
+      const days = [...new Set((data||[]).map(d=>d.obs_date))];
+      body.innerHTML = days.length ? days.map(d => { const cnt = (data||[]).filter(o=>o.obs_date===d).length; return `<div style="padding:10px 0;border-bottom:1px solid var(--border);"><div style="font-weight:700;color:var(--sky);">${formatDate(d)}</div><div style="font-size:13px;color:var(--text-muted);">${cnt} avistamento${cnt!==1?'s':''}</div></div>`; }).join('') : '<p style="color:var(--text-muted);text-align:center;padding:30px;">Nenhum dia em campo registrado.</p>';
+    } catch(e) { body.innerHTML = '<p style="color:var(--coral);text-align:center;padding:16px;">Erro ao carregar.</p>'; }
   }
-  modal.classList.add('open');
 }
 
 async function confirmHandle() {
@@ -5912,7 +5909,12 @@ async function renderContacts() {
 function selectContact(handle, userId) {
   _activeContact = handle;
   _activeContactId = userId;
+  const hdr = document.getElementById('msg-thread-header');
+  if (hdr) { hdr.textContent = '@' + handle; hdr.style.display = 'block'; }
   loadThread(userId);
+  // Fechar busca nova mensagem se aberta
+  const ns = document.getElementById('msg-new-search-box');
+  if (ns) ns.style.display = 'none';
 }
 
 async function loadThread(toId) {
@@ -6060,38 +6062,66 @@ function toggleNoSpecies(checked) {
   if (lbl) { lbl.style.color = checked ? 'var(--coral)' : ''; }
 }
 
-let _selectedCompanions = [];
+/* ════════════════════════════════════════
+   COMPANION MODAL — Adicionar companheiro
+════════════════════════════════════════ */
+async function openCompanionModal() {
+  if (!currentUser) { showToast('🔑 Faça login para adicionar companheiro'); openAuthModal(); return; }
+  if (_selectedCompanions.length >= 1) { showToast('⚠️ Apenas 1 companheiro por registro. Remova o atual para trocar.'); return; }
+  document.getElementById('companion-modal').classList.add('open');
+  document.getElementById('companion-modal-search').value = '';
+  await loadCompanionList('');
+}
 
-async function filterCompanions(val) {
-  const dd = document.getElementById('companion-dropdown');
-  const q  = val.replace(/^@/,'').trim();
-  if (!q) { dd.style.display = 'none'; return; }
+async function loadCompanionList(q) {
+  const list = document.getElementById('companion-modal-list');
+  list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">Carregando…</div>';
   try {
-    const { data } = await db.from('profiles')
-      .select('id, nome, handle')
-      .or(`nome.ilike.%${q}%,handle.ilike.%${q}%`)
-      .limit(6);
-    if (!data || !data.length) { dd.style.display = 'none'; return; }
-    dd.style.display = 'block';
-    dd.innerHTML = data.map(u => {
+    // Busca primeiro quem o usuário segue, depois todos se não tiver seguidores
+    let query = db.from('profiles').select('id, nome, handle, avatar_url').neq('id', currentUser.id);
+    if (q) query = query.or(`nome.ilike.%${q}%,handle.ilike.%${q.replace(/^@/,'')}%`);
+    const { data } = await query.order('nome').limit(30);
+    if (!data || !data.length) {
+      list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">Nenhum usuário encontrado.</div>';
+      return;
+    }
+    list.innerHTML = data.map(u => {
       const nm = u.nome || u.handle || '?';
-      const sh = (u.handle||'').replace(/'/g,"\'");
-      const sn = nm.replace(/'/g,"\'");
-      return `<div onclick="addCompanion('${sh}','${sn}','#0ea5e9')"
-        style="padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;"
-        onmouseover="this.style.background='var(--sky-light)'" onmouseout="this.style.background=''">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">${nm[0].toUpperCase()}</div>
-        <div><div style="font-weight:600;">${nm}</div><div style="font-size:11px;color:var(--text-muted);">@${u.handle}</div></div>
+      const already = _selectedCompanions.find(c => c.handle === u.handle);
+      const av = u.avatar_url
+        ? `<img src="${u.avatar_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
+        : `<div style="width:36px;height:36px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;">${(nm[0]||'?').toUpperCase()}</div>`;
+      return `<div onclick="${already ? '' : `pickCompanion('${u.handle.replace(/'/g,"\\'")}','${nm.replace(/'/g,"\\'")}','${u.id}')`}"
+        style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:${already?'default':'pointer'};border-radius:var(--radius-md);opacity:${already?'.45':'1'};transition:background .15s;"
+        onmouseover="this.style.background='${already?'':'var(--sky-light)'}'" onmouseout="this.style.background=''">
+        ${av}
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:13px;">${escHtml(nm)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">@${escHtml(u.handle)}</div>
+        </div>
+        ${already ? '<span style="font-size:11px;color:var(--text-muted);">já adicionado</span>' : '<span style="color:var(--sky);font-size:18px;">+</span>'}
       </div>`;
     }).join('');
-  } catch(e) { dd.style.display = 'none'; console.warn('filterCompanions:', e); }
+  } catch(e) { list.innerHTML = '<div style="color:var(--coral);text-align:center;padding:16px;font-size:13px;">Erro ao carregar usuários.</div>'; }
 }
+
+async function filterCompanionModal(val) {
+  await loadCompanionList(val.trim());
+}
+
+function pickCompanion(handle, name, id) {
+  _selectedCompanions = [{ handle, name, color: '#0ea5e9', id }];
+  document.getElementById('companion-modal').classList.remove('open');
+  renderSelectedCompanions();
+  showToast(`✅ @${handle} adicionado como companheiro`);
+}
+
+let _selectedCompanions = [];
 
 function addCompanion(handle, name, color) {
   if (_selectedCompanions.find(c => c.handle === handle)) return;
-  _selectedCompanions.push({ handle, name, color });
-  document.getElementById('companion-dropdown').style.display = 'none';
-  document.getElementById('companion-search').value = '';
+  _selectedCompanions = [{ handle, name, color }]; // máx 1
+  document.getElementById('companion-modal').classList.remove('open');
   renderSelectedCompanions();
 }
 
@@ -6111,12 +6141,46 @@ function renderSelectedCompanions() {
     </div>`).join('');
 }
 
-document.addEventListener('click', e => {
-  if (!e.target.closest('#companion-search') && !e.target.closest('#companion-dropdown')) {
-    const dd = document.getElementById('companion-dropdown');
-    if (dd) dd.style.display = 'none';
+/* ════════════════════════════════════════
+   NOVA MENSAGEM — busca de usuário
+════════════════════════════════════════ */
+function openNewMessageSearch() {
+  const box = document.getElementById('msg-new-search-box');
+  if (!box) return;
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    document.getElementById('msg-new-search-input').value = '';
+    document.getElementById('msg-new-search-results').innerHTML = '';
+    document.getElementById('msg-new-search-input').focus();
   }
-});
+}
+
+async function searchNewMsgContact(val) {
+  const res = document.getElementById('msg-new-search-results');
+  const q = val.trim().replace(/^@/, '');
+  if (!q) { res.innerHTML = ''; return; }
+  try {
+    const { data } = await db.from('profiles').select('id, nome, handle, avatar_url')
+      .or(`nome.ilike.%${q}%,handle.ilike.%${q}%`).neq('id', currentUser.id).limit(8);
+    if (!data || !data.length) { res.innerHTML = '<div style="padding:8px 12px;font-size:13px;color:var(--text-muted);">Nenhum usuário encontrado</div>'; return; }
+    res.innerHTML = data.map(u => {
+      const nm = u.nome || u.handle || '?';
+      const av = u.avatar_url
+        ? `<img src="${u.avatar_url}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">`
+        : `<div style="width:28px;height:28px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;flex-shrink:0;">${(nm[0]||'?').toUpperCase()}</div>`;
+      return `<div onclick="selectContact('${u.handle}','${u.id}');document.getElementById('msg-new-search-input').value=''"
+        style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-radius:var(--radius-sm);"
+        onmouseover="this.style.background='var(--sky-light)'" onmouseout="this.style.background=''">
+        ${av}
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;">${escHtml(nm)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">@${escHtml(u.handle)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { res.innerHTML = ''; }
+}
 
 /* ════════════════════════════════════════
    OPEN OBS COMMENT — opens photo if exists
@@ -6330,32 +6394,38 @@ async function loadBirdDayFinders(sci) {
 }
 
 /* ════════════════════════════════════════
-   CARD COUNTS — curtidas e comentários
+   CARD COUNTS — curtidas e comentários (batched)
 ════════════════════════════════════════ */
 async function loadCardCounts(obsList) {
-  for (const obs of obsList) {
-    const id = obs.id;
-    if (!id) continue;
-    try {
-      const { count: lc } = await db.from('likes').select('id', { count:'exact', head:true }).eq('obs_id', id);
+  if (!obsList || !obsList.length) return;
+  const ids = obsList.map(o => o.id).filter(Boolean);
+  if (!ids.length) return;
+  try {
+    // Batch: busca todas as curtidas e comentários de uma vez
+    const [likesR, commentsR] = await Promise.all([
+      db.from('likes').select('obs_id, user_id').in('obs_id', ids),
+      db.from('comments').select('obs_id').in('obs_id', ids)
+    ]);
+    const likesData    = likesR.data  || [];
+    const commentsData = commentsR.data || [];
+    for (const id of ids) {
+      const lc   = likesData.filter(l => l.obs_id === id).length;
+      const cc   = commentsData.filter(c => c.obs_id === id).length;
       const lcEl = document.getElementById('like-count-' + id);
-      if (lcEl && lc > 0) lcEl.textContent = lc;
-
+      const ccEl = document.getElementById('comment-count-' + id);
+      if (lcEl) lcEl.textContent = lc > 0 ? lc : '';
+      if (ccEl) ccEl.textContent = cc > 0 ? cc : '';
       if (currentUser) {
-        const { data: myLike } = await db.from('likes').select('id').eq('obs_id', id).eq('user_id', currentUser.id).maybeSingle();
+        const myLike = likesData.find(l => l.obs_id === id && l.user_id === currentUser.id);
         if (myLike) {
-          const btn = document.getElementById('like-btn-' + id);
+          const btn  = document.getElementById('like-btn-' + id);
           const icon = document.getElementById('like-icon-' + id);
-          if (btn) btn.classList.add('liked');
+          if (btn)  btn.classList.add('liked');
           if (icon) icon.textContent = '❤️';
         }
       }
-
-      const { count: cc } = await db.from('comments').select('id', { count:'exact', head:true }).eq('obs_id', id);
-      const ccEl = document.getElementById('comment-count-' + id);
-      if (ccEl && cc > 0) ccEl.textContent = cc;
-    } catch(e) { /* silencioso */ }
-  }
+    }
+  } catch(e) { /* silencioso */ }
 }
 
 /* ════════════════════════════════════════
@@ -6434,29 +6504,36 @@ function birdScore(q, bird) {
 
 let _birdTimer = null;
 let _birdPhotoCache = {};
+let _photoIndexPromise = null; // garante que o índice seja carregado apenas uma vez
+
+function ensurePhotoIndex() {
+  if (_photoIndexPromise) return _photoIndexPromise;
+  _photoIndexPromise = fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json')
+    .then(r => { if (!r.ok) throw new Error('network'); return r.json(); })
+    .then(raw => {
+      window._photoIndex = {};
+      for (const [photographer, info] of Object.entries(raw)) {
+        for (const foto of (info.fotos || [])) {
+          const key = (foto.cientifico || '').toLowerCase().trim();
+          if (!key) continue;
+          if (!window._photoIndex[key]) window._photoIndex[key] = [];
+          window._photoIndex[key].push({ url: foto.url, author: photographer, profileUrl: info.wikiaves || null });
+        }
+      }
+      return window._photoIndex;
+    })
+    .catch(() => { _photoIndexPromise = null; return {}; });
+  return _photoIndexPromise;
+}
 
 async function getBirdPhoto(sci) {
   if (_birdPhotoCache[sci] !== undefined) return _birdPhotoCache[sci];
-  _birdPhotoCache[sci] = null;
+  _birdPhotoCache[sci] = null; // marca em progresso
   try {
-    if (!window._photoIndex) {
-      const r = await fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json');
-      if (r.ok) {
-        const raw = await r.json();
-        window._photoIndex = {};
-        for (const [photographer, info] of Object.entries(raw)) {
-          for (const foto of (info.fotos||[])) {
-            const key = (foto.cientifico||'').toLowerCase().trim();
-            if (!key) continue;
-            if (!window._photoIndex[key]) window._photoIndex[key] = [];
-            window._photoIndex[key].push({ url: foto.url, author: photographer, profileUrl: info.wikiaves||null });
-          }
-        }
-      }
-    }
-    const entries = window._photoIndex && window._photoIndex[sci.toLowerCase()];
+    const idx = await ensurePhotoIndex();
+    const entries = idx[(sci || '').toLowerCase().trim()];
     if (entries && entries.length) {
-      const e = entries[Math.floor(Math.random()*entries.length)];
+      const e = entries[Math.floor(Math.random() * entries.length)];
       _birdPhotoCache[sci] = { url: e.url, author: e.author, source: 'aveavista' };
       return _birdPhotoCache[sci];
     }
@@ -6521,7 +6598,7 @@ function renderBirdsGrid(birds) {
       style="position:relative;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;height:130px;background:var(--sky-light);transition:transform .15s,box-shadow .15s;"
       onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'"
       onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,var(--sky),var(--forest));"></div>
+      <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,var(--sky),var(--forest));" data-sci="${escHtml(b.sci)}"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,0.75));"></div>
       <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px;">
         <div style="font-weight:700;font-size:12px;color:white;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,0.8);">${capitalize(b.pop)}</div>
@@ -6534,16 +6611,36 @@ function renderBirdsGrid(birds) {
     </div>`;
   }).join('');
 
-  birds.forEach(b => {
-    const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
-    getBirdPhoto(b.sci).then(photo => {
-      if (!photo) return;
-      const bg = document.getElementById('bcard_bg_'+safeId);
-      if (bg) {
-        bg.style.cssText = `position:absolute;inset:0;background-image:url(${photo.url});background-size:cover;background-position:center;`;
-      }
+  // Lazy-load com IntersectionObserver para não sobrecarregar
+  const bgEls = grid.querySelectorAll('[id^="bcard_bg_"]');
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el  = entry.target;
+        const sci = el.dataset.sci;
+        if (sci && !el._loaded) {
+          el._loaded = true;
+          getBirdPhoto(sci).then(photo => {
+            if (!photo) return;
+            el.style.cssText = `position:absolute;inset:0;background-image:url(${photo.url});background-size:cover;background-position:center;`;
+          });
+        }
+        obs.unobserve(el);
+      });
+    }, { rootMargin: '100px' });
+    bgEls.forEach(el => obs.observe(el));
+  } else {
+    // Fallback sem observer
+    birds.slice(0, 20).forEach(b => {
+      const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
+      getBirdPhoto(b.sci).then(photo => {
+        if (!photo) return;
+        const bg = document.getElementById('bcard_bg_'+safeId);
+        if (bg) bg.style.cssText = `position:absolute;inset:0;background-image:url(${photo.url});background-size:cover;background-position:center;`;
+      });
     });
-  });
+  }
 }
 
 /* ════════════════════════════════════════
@@ -6867,7 +6964,10 @@ function pubOpenMsg(btn) {
   const userId = btn.dataset.uid;
   const handle = btn.dataset.handle;
   closePubProfile();
-  setTimeout(() => { navigateTo('messages', document.querySelector('[data-page=messages]')); setTimeout(() => selectContact(handle, userId), 300); }, 100);
+  setTimeout(() => {
+    openMessages();
+    setTimeout(() => selectContact(handle, userId), 400);
+  }, 150);
 }
 
 let _notifChannel = null;
