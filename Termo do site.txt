@@ -1,6 +1,6 @@
 TERMO DE USO DO SITE AVE A VISTA!
 
-Última atualização: [inserir data]
+Última atualização: 24/03/2026
 
 Ao acessar, navegar, cadastrar-se ou utilizar o site Ave A Vista!, o usuário declara que leu, compreendeu e concorda integralmente com os presentes Termos de Uso. Caso não concorde com qualquer disposição aqui prevista, o usuário não deverá utilizar a plataforma.
 
@@ -88,6 +88,28 @@ O Ave A Vista! poderá alterar este Termo de Uso a qualquer momento, mediante at
 
 Se qualquer disposição deste Termo for considerada inválida ou inexequível, as demais permanecerão em pleno vigor.
 
-O uso do site implica aceitação integral deste documento.
+12. DOS REGISTROS E PUBLICAÇÕES – CONDIÇÕES ÉTICAS E AMBIENTAIS
+
+O compromisso do Ave A Vista! com a observação responsável da avifauna silvestre é inegociável. Dessa forma, ao realizar qualquer registro ou publicação na plataforma, o usuário declara, sob sua exclusiva responsabilidade, que:
+
+a) Toda publicação deve conter, no mínimo, a indicação do município de ocorrência, sendo este dado essencial para a contabilização da espécie e para a validade do registro científico e estatístico no âmbito da plataforma;
+
+b) A ave registrada encontra-se em estado de vida livre, não estando sob nenhuma condição de cativeiro, ainda que autorizado, nem em situação de ferimento, contenção, abuso ou qualquer forma de privação de liberdade, exceto quando se tratar de registro vinculado a instituição devidamente identificada e que comprove tratar-se de coleta ou captura para fins de salvamento ou pesquisa científica, conforme procedimento descrito no item “d” abaixo;
+
+c) Nenhuma prática de caça, captura, coleta, perseguição ou qualquer ato que possa causar dano, estresse ou morte ao animal foi realizada para a obtenção do registro fotográfico ou da observação, salvo a hipótese de exceção prevista na alínea anterior;
+
+d) Registros que envolvam coleta ou captura institucional ou científica somente serão admitidos se o usuário enviar previamente um e-mail para brennobenk@hotmail.com, contendo explicação detalhada e documentos comprobatórios da autorização institucional ou científica (como licença ambiental, autorização do órgão competente, vinculação a projeto de pesquisa ou ação de salvamento). A validação do registro fica condicionada à análise e aprovação pela equipe do Ave A Vista!. Enquanto não houver essa validação prévia, o registro poderá ser removido e sujeito às medidas previstas neste Termo;
+
+e) O registro é fruto de observação ética, respeitando-se o distanciamento adequado, o bem-estar do animal e as normas ambientais vigentes.
+
+O usuário reconhece que aves silvestres não existem para serem mantidas em gaiolas ou sob confinamento, comprometendo-se a utilizar a plataforma como ferramenta para desnormalizar essa prática, promovendo a valorização da avifauna em seu ambiente natural.
+
+O descumprimento de qualquer das normas previstas neste item sujeitará o usuário às seguintes medidas, sem prejuízo de outras cabíveis:
+
+Remoção imediata da publicação ou do registro irregular;
+
+Advertência ou suspensão da conta do usuário, a critério do Ave A Vista!;
+
+Denúncia aos órgãos competentes, em especial à Polícia Militar Ambiental ou ao órgão de proteção animal local, sempre que a conduta configurar infração administrativa, civil ou penal, conforme a legislação aplicável.
 
 Ao clicar em “Concordo”, cadastrar-se ou continuar utilizando o site, o usuário declara que leu, entendeu e aceita todos os termos acima.
