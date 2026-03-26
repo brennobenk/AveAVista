@@ -1910,14 +1910,12 @@ async function renderFeed(containerId, limit) {
   if (!container) return;
   if (_renderGuards['feed_' + containerId]) return;
   _renderGuards['feed_' + containerId] = true;
-  // Release guard on scroll/outside calls after 8s max
-  const _feedGuardTimer = setTimeout(() => { _renderGuards['feed_' + containerId] = false; }, 8000);
+
   container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-muted);">
     <div style="font-size:32px;margin-bottom:8px;">🔭</div><div>Carregando avistamentos…</div>
   </div>`;
 
   try {
-    // Busca sem join de profiles para evitar ambiguidade de FK
     const { data, error } = await db
       .from('observations')
       .select('id, user_id, species_pop, species_sci, obs_date, location_label, notes, photo_url, companion_handle, published_inat')
@@ -1930,6 +1928,7 @@ async function renderFeed(containerId, limit) {
         <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
         <div style="font-size:13px;color:var(--text-muted);">Erro ao carregar avistamentos.<br><span style="font-size:11px;">${error.message}</span></div>
       </div>`;
+      _renderGuards['feed_' + containerId] = false;
       return;
     }
 
@@ -1939,10 +1938,10 @@ async function renderFeed(containerId, limit) {
         <div class="empty-title">Nenhum avistamento ainda</div>
         <div class="empty-sub">Seja o primeiro a registrar uma ave!<br>Clique em ➕ para começar.</div>
       </div>`;
+      _renderGuards['feed_' + containerId] = false;
       return;
     }
 
-    // Busca perfis dos autores em lote (sem join ambíguo)
     const userIds = [...new Set((data || []).map(o => o.user_id).filter(Boolean))];
     let profilesMap = {};
     if (userIds.length) {
@@ -1977,21 +1976,20 @@ async function renderFeed(containerId, limit) {
       const hasPhoto   = obs.photoUrl;
       const obsId      = obs.id;
       const raridade   = getRaridade(obs.sciName || '');
-      let cardBorder = '';
-      let cardClass  = 'obs-card';
-      if (raridade === 'muito-rara') { cardClass += ' obs-card-muito-rara'; }
-      else if (raridade === 'rara') { cardClass += ' obs-card-rara'; }
-      else { cardClass += ' obs-card-comum'; }
+
+      // Usa as classes corretas que têm as animações no CSS
+      const rarityClass = raridade === 'muito-rara' ? 'rarity-muito-rara'
+                        : raridade === 'rara'       ? 'rarity-rara'
+                        : 'rarity-comum';
 
       const safeObsJson = JSON.stringify(obs).replace(/"/g,'&quot;');
       return `
-      <div class="${cardClass}" style="transform-style:preserve-3d;will-change:transform;"
+      <div class="obs-card ${rarityClass}" style="transform-style:preserve-3d;will-change:transform;"
         onmousemove="obs3dTilt(this,event)"
         onmouseleave="obs3dReset(this)">
         <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${safeObsJson})`:''}">
           ${hasPhoto ? `<img src="${obs.photoUrl}" alt="${escHtml(obs.species||'')}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
           ${hasPhoto ? `<div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.3));border-radius:inherit;pointer-events:none;"></div>` : ''}
-          ${raridade !== 'comum' ? `<div class="raridade-badge raridade-${raridade}">${raridade === 'muito-rara' ? '🔴 Muito Rara' : '🟡 Rara'}</div>` : ''}
         </div>
         <div class="obs-card-body">
           <div class="obs-card-user">
@@ -2012,13 +2010,9 @@ async function renderFeed(containerId, limit) {
             <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}">0</span>
           </button>
           <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openCommentModal('${obsId}', '${capitalize(obs.species||obs.sciName||'')}')">💬 <span id="comment-count-${obsId}">0</span></button>
-          ${obs.inatId ? `<button class="obs-action-btn" onclick="window.open('https://www.inaturalist.org/observations/${obs.inatId}','_blank')">🌿 iNat</button>` : ''}
         </div>
       </div>`;
     }).join('');
-
-    // Carrega contagens após render (batched = rápido)
-    setTimeout(() => loadCardCounts(allObs), 50);
 
     // Atualiza offset para o scroll infinito continuar de onde parou
     if (containerId === 'home-feed') {
@@ -2028,9 +2022,15 @@ async function renderFeed(containerId, limit) {
       _feedOffset = allObs.length;
       if (allObs.length < limit) _feedHasMore = false;
     }
+
+    // Carrega contagens DEPOIS de liberar o guard para não bloquear re-renders
+    _renderGuards['feed_' + containerId] = false;
+    await loadCardCounts(allObs);
+
   } catch(e) {
     console.warn('Feed: erro:', e);
     container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Erro ao carregar avistamentos.</div>';
+    _renderGuards['feed_' + containerId] = false;
   }
 }
 
@@ -2160,12 +2160,11 @@ async function appendFeedPage(containerId) {
       const hasPhoto = obs.photoUrl;
       const obsId = obs.id;
       const raridade = getRaridade(obs.sciName || '');
-      let cardClass = 'obs-card';
-      if (raridade === 'muito-rara') cardClass += ' obs-card-muito-rara';
-      else if (raridade === 'rara') cardClass += ' obs-card-rara';
-      else cardClass += ' obs-card-comum';
+      const rarityClass = raridade === 'muito-rara' ? 'rarity-muito-rara'
+                        : raridade === 'rara'       ? 'rarity-rara'
+                        : 'rarity-comum';
       const safeJson = JSON.stringify(obs).replace(/"/g,'&quot;');
-      div.innerHTML = `<div class="${cardClass}" style="transform-style:preserve-3d;will-change:transform;"
+      div.innerHTML = `<div class="obs-card ${rarityClass}" style="transform-style:preserve-3d;will-change:transform;"
         onmousemove="obs3dTilt(this,event)" onmouseleave="obs3dReset(this)">
         <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${safeJson})`:''}">
           ${hasPhoto ? `<img src="${escHtml(obs.photoUrl)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
@@ -2199,7 +2198,7 @@ async function appendFeedPage(containerId) {
       container.appendChild(newSentinel);
       if (state.observer) state.observer.observe(newSentinel);
     }
-    setTimeout(() => loadCardCounts(newObs), 80);
+    await loadCardCounts(newObs);
   } catch(e) { console.warn('appendFeedPage:', e); }
 }
 
