@@ -1724,7 +1724,7 @@ async function loadBirdPhoto(sciName, popName) {
 
   // Fallback: iNaturalist via proxy CORS
   try {
-    const proxy = 'https://corsproxy.io/?';
+    const proxy = 'https://api.allorigins.win/raw?url=';
     const inatUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sciName)}&rank=species&per_page=1`;
     const res  = await fetch(proxy + encodeURIComponent(inatUrl));
     const data = await res.json();
@@ -1862,9 +1862,10 @@ async function renderFeed(containerId, limit) {
   </div>`;
 
   try {
+    // Busca sem join de profiles para evitar ambiguidade de FK
     const { data, error } = await db
       .from('observations')
-      .select('*, profiles(nome, handle, avatar_url)')
+      .select('id, user_id, species_pop, species_sci, obs_date, location_label, notes, photo_url, companion_handle, published_inat')
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -1886,21 +1887,34 @@ async function renderFeed(containerId, limit) {
       return;
     }
 
-    const allObs = data.map(o => ({
-      id: o.id,
-      species:  o.species_pop || o.species_sci,
-      sciName:  o.species_sci,
-      date:     o.obs_date,
-      location: o.location_label || '',
-      notes:    o.notes || '',
-      photoUrl: o.photo_url || null,
-      user: {
-        name:   o.profiles?.nome   || o.profiles?.handle || 'Usuário',
-        handle: o.profiles?.handle || ''
-      },
-      companionHandle: o.companion_handle || null,
-      companionName:   null,
-    }));
+    // Busca perfis dos autores em lote (sem join ambíguo)
+    const userIds = [...new Set((data || []).map(o => o.user_id).filter(Boolean))];
+    let profilesMap = {};
+    if (userIds.length) {
+      const { data: profData } = await db.from('profiles')
+        .select('id, nome, handle, avatar_url')
+        .in('id', userIds);
+      (profData || []).forEach(p => { profilesMap[p.id] = p; });
+    }
+
+    const allObs = (data || []).map(o => {
+      const prof = profilesMap[o.user_id] || {};
+      return {
+        id: o.id,
+        species:  o.species_pop || o.species_sci,
+        sciName:  o.species_sci,
+        date:     o.obs_date,
+        location: o.location_label || '',
+        notes:    o.notes || '',
+        photoUrl: o.photo_url || null,
+        user: {
+          name:   prof.nome   || prof.handle || 'Usuário',
+          handle: prof.handle || ''
+        },
+        companionHandle: o.companion_handle || null,
+        companionName:   null,
+      };
+    });
 
     container.innerHTML = allObs.map((obs) => {
       const userName   = obs.user?.name   || 'Usuário';
@@ -4658,7 +4672,7 @@ async function getBirdPhoto(sci) {
   } catch(e) {}
   // Fallback: iNaturalist via proxy CORS (evita bloqueio do GitHub Pages)
   try {
-    const proxy = 'https://corsproxy.io/?';
+    const proxy = 'https://api.allorigins.win/raw?url=';
     const inatUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&per_page=1`;
     const r = await fetch(proxy + encodeURIComponent(inatUrl));
     const j = await r.json();
