@@ -1819,7 +1819,7 @@ async function renderFeed(containerId, limit) {
   try {
     const { data, error } = await db
       .from('observations')
-      .select('*, profiles(nome, handle, avatar_url)')
+      .select('*, profiles(nome, handle, avatar_url), companion:profiles!observations_companion_id_fkey(nome, handle)')
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -1852,7 +1852,9 @@ async function renderFeed(containerId, limit) {
       user: {
         name:   o.profiles?.nome   || o.profiles?.handle || 'Usuário',
         handle: o.profiles?.handle || ''
-      }
+      },
+      companionHandle: o.companion?.handle || o.companion_handle || null,
+      companionName:   o.companion?.nome   || null,
     }));
 
     container.innerHTML = allObs.map((obs) => {
@@ -1874,6 +1876,10 @@ async function renderFeed(containerId, limit) {
           </div>
           <div class="obs-species">${escHtml(capitalize(obs.species||obs.sciName||''))}</div>
           <div class="obs-sci">${escHtml(obs.sciName||'')}</div>
+          ${obs.companionHandle ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">` +
+            `📸 <span onclick="event.stopPropagation();openPublicProfile('${escHtml(obs.user?.handle||'')}');" style="color:var(--sky);cursor:pointer;">@${escHtml(obs.user?.handle||'')}</span>` +
+            ` e <span onclick="event.stopPropagation();openPublicProfile('${escHtml(obs.companionHandle||'')}');" style="color:var(--sky);cursor:pointer;">@${escHtml(obs.companionHandle||'')}</span>` +
+            `</div>` : ''}
           ${obs.location ? `<div class="obs-location">📍 ${escHtml(obs.location)}</div>` : ''}
         </div>
         <div class="obs-card-footer">
@@ -2545,6 +2551,50 @@ function showLoginAnimation(userName) {
     overlay.style.opacity = '0';
     setTimeout(() => overlay.remove(), 350);
   }, 1800);
+}
+
+
+/* ════════════════════════════════════════
+   HELPER — CRÉDITO COM COMPANIONS
+════════════════════════════════════════ */
+function buildCreditHtml(obs) {
+  const handle  = obs.user?.handle || '';
+  const name    = obs.user?.name   || obs.userName || 'Usuário';
+  const inatId  = obs.inatId || obs.inat_id || null;
+  const isAvAvista = !!obs.id && !inatId;
+
+  // Monta lista de companions (pode ser array ou single)
+  const companions = [];
+  if (obs.companionHandle) companions.push({ handle: obs.companionHandle, name: obs.companionName || obs.companionHandle });
+  if (obs.companions && Array.isArray(obs.companions)) {
+    obs.companions.forEach(c => { if (c.handle && !companions.find(x => x.handle === c.handle)) companions.push(c); });
+  }
+
+  // Monta parte do autor principal
+  let authorPart = '';
+  if (isAvAvista && handle) {
+    authorPart = `<span onclick="openPublicProfile('${escHtml(handle)}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${escHtml(handle)}</span>`;
+  } else if (inatId) {
+    authorPart = `<a href="https://www.inaturalist.org/observations/${inatId}" target="_blank" style="color:var(--sky);font-weight:600;">${escHtml(name)} · iNaturalist ↗</a>`;
+  } else if (name) {
+    authorPart = `<span style="font-weight:600;">${escHtml(name)}</span>`;
+  }
+
+  // Monta parte dos companions
+  let companionPart = '';
+  if (companions.length > 0) {
+    const parts = companions.map(c =>
+      `<span onclick="openPublicProfile('${escHtml(c.handle)}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${escHtml(c.handle)}</span>`
+    );
+    if (parts.length === 1) {
+      companionPart = ' e ' + parts[0];
+    } else {
+      companionPart = ', ' + parts.slice(0, -1).join(', ') + ' e ' + parts[parts.length - 1];
+    }
+  }
+
+  if (!authorPart && !companionPart) return '';
+  return `📸 ${authorPart}${companionPart} · Ave à Vista`;
 }
 
 async function doLogin() {
@@ -3619,11 +3669,12 @@ async function renderAmizades() {
         const other = mine ? f.addr : f.req;
         return { handle: other?.handle||'?', name: other?.nome||'Usuário', color:'#0ea5e9', sharedObs: f.shared_obs||0 };
       });
-    } catch(e) { console.warn(e); }
+    } catch(e) { console.warn(e); _renderGuards['amizades'] = false; }
   }
   friends.sort((a,b) => b.sharedObs - a.sharedObs);
   if (!friends.length) {
     grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:32px;">Nenhuma amizade ainda.<br>Registre avistamentos em conjunto! 🐦</p>';
+    _renderGuards['amizades'] = false;
     return;
   }
   grid.innerHTML = friends.map(f => {
@@ -3633,16 +3684,22 @@ async function renderAmizades() {
     const safeName   = escHtml(f.name);
     const safeHandle = escHtml(f.handle);
     const initial    = (f.name||'?')[0].toUpperCase();
-    return `<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);">
-      <div style="width:44px;height:44px;border-radius:50%;background:${escHtml(f.color||'#0ea5e9')};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;flex-shrink:0;">${initial}</div>
+    const nextLabel  = fl.lvl < 5 ? escHtml(FRIEND_LEVELS[fl.lvl + 1]?.label || '') : '';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;" onclick="openPublicProfile('${safeHandle}')">
+      <div style="width:48px;height:48px;border-radius:50%;background:${escHtml(f.color||'#0ea5e9')};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;flex-shrink:0;">${initial}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:14px;">${safeName}</div>
-        <div style="font-size:12px;color:var(--text-muted);">@${safeHandle} · ${f.sharedObs} registros juntos</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-          <span class="obs-rank-badge ${fl.cls}" style="font-size:10.5px;">${escHtml(fl.label)}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+          <div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</div>
+          <span class="obs-rank-badge ${fl.cls}" style="font-size:10px;flex-shrink:0;">${escHtml(fl.label)}</span>
         </div>
-        <div class="friendship-bar"><div class="friendship-fill ${fl.cls}" style="width:${pct}%;"></div></div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${fl.lvl<5?`${f.sharedObs}/${nextLvl.min} para nível ${fl.lvl+1}`:'Nível máximo 🌟'}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">@${safeHandle} · ${f.sharedObs} avistamento${f.sharedObs !== 1 ? 's' : ''} juntos</div>
+        <div style="margin-top:6px;">
+          <div class="friendship-bar"><div class="friendship-fill ${fl.cls}" style="width:${pct}%;transition:width .6s ease;"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:3px;">
+            <span style="font-size:10px;color:var(--text-muted);">${fl.lvl < 5 ? `${f.sharedObs} / ${nextLvl.min} obs para ${nextLabel}` : '🌟 Nível máximo'}</span>
+            <span style="font-size:10px;color:var(--text-muted);">${fl.lvl < 5 ? Math.round(pct) + '%' : ''}</span>
+          </div>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -3751,19 +3808,7 @@ async function openPhotoExpand(obs) {
   document.getElementById('photo-expand-species').textContent = capitalize(obs.species || obs.sciName || '');
   document.getElementById('photo-expand-sci').textContent = obs.sciName || '';
 
-  const handle  = obs.user?.handle || '';
-  const name    = obs.user?.name   || obs.userName || 'Usuário';
-  const inatId  = obs.inatId || obs.inat_id || null;
-  const isAvAvista = !!obs.id && !inatId;
-  let credit = '';
-  if (isAvAvista && handle) {
-    credit = `📸 <span onclick="openPublicProfile('${escHtml(handle)}')" style="color:var(--sky);cursor:pointer;font-weight:600;">@${escHtml(handle)}</span> · Ave à Vista`;
-  } else if (inatId) {
-    credit = `📸 <a href="https://www.inaturalist.org/observations/${inatId}" target="_blank" style="color:var(--sky);font-weight:600;">${escHtml(name)} · iNaturalist ↗</a>`;
-  } else if (name) {
-    credit = `📸 ${escHtml(name)}`;
-  }
-
+  const credit = buildCreditHtml(obs);
   document.getElementById('photo-expand-meta').innerHTML =
     `${credit ? credit+'<br>' : ''}📅 ${formatDate(obs.date)||'—'}${obs.location?' &nbsp;📍 '+escHtml(obs.location):''}${obs.notes?'<br>📝 '+escHtml(obs.notes):''}`;
 
@@ -4794,7 +4839,7 @@ async function openSpeciesModal(sci, pop) {
     if (!photos.length) { gal.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px 0;">Nenhuma foto ainda.</div>'; return; }
     gal.innerHTML = photos.map(o => {
       const h = o.profiles?.handle||'?';
-      const obsObj = { id: o.id, species: capitalize(pop), sciName: sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: o.profiles?.nome||h, handle: h } };
+      const obsObj = { id: o.id, species: capitalize(pop), sciName: sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: o.profiles?.nome||h, handle: h }, companionHandle: o.companion_handle || null };
       return `<div style="border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsObj).replace(/"/g,'&quot;')})">
         <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center>🐦</div>'">
         <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));padding:4px 5px;">
@@ -4946,7 +4991,7 @@ async function openPublicProfile(handle) {
     const galleryEl = document.getElementById('pub-gallery-grid');
     if (photos.length) {
       galleryEl.innerHTML = photos.map(o => {
-        const obsObj = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle } };
+        const obsObj = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle }, companionHandle: o.companion_handle || null };
         const safeJson = JSON.stringify(obsObj).replace(/"/g,'&quot;');
         return '<div class="gallery-item" onclick="openPhotoExpand(' + safeJson + ')">'
           + '<img src="' + escHtml(o.photo_url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'&#128038;\'">'
