@@ -1405,3 +1405,12 @@ body::before {
   font-family: 'DM Sans', sans-serif;
   text-align: left;
 }
+
+/* ── Animações utilitárias ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes logoutProgress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
