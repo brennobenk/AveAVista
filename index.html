@@ -26,7 +26,8 @@
     <button class="sidebar-toggle" id="sidebar-toggle" title="Menu">☰</button>
 
     <div class="sidebar-logo-row">
-      <div class="sidebar-logo">🦜</div>
+      <img src="logo.png" alt="Ave à Vista" class="sidebar-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="sidebar-logo" style="display:none">🦜</div>
       <span class="sidebar-logo-label">Ave à Vista</span>
     </div>
 
@@ -79,7 +80,8 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-title" onclick="navigateTo('home', document.querySelector('[data-page=home]'))" style="cursor:pointer;" title="Ir para o início">
-      <div class="tb-logo-icon">🦜</div>
+      <img src="logo.png" alt="Ave à Vista" class="tb-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="tb-logo-icon" style="display:none">🦜</div>
       <span>Ave à Vista</span>
     </div>
     <div class="topbar-search" id="topbar-search-wrap">
@@ -727,9 +729,9 @@
 <div class="celebration-overlay" id="celebration" onclick="this.classList.remove('show')">
   <div class="celebration-box" onclick="event.stopPropagation()">
     <div class="celebration-emoji">🎉</div>
-    <div class="celebration-title">Ave registrada!</div>
+    <h2 class="celebration-title" style="margin:0 0 6px;">Ave registrada!</h2>
     <div class="celebration-sub" id="celebration-sub">Você encontrou mais uma espécie!</div>
-    <button onclick="document.getElementById('celebration').classList.remove('show')" style="margin-top:14px;background:var(--forest);border:none;border-radius:20px;color:white;padding:6px 20px;font-size:13px;font-weight:600;cursor:pointer;">OK 🎉</button>
+    <button onclick="document.getElementById('celebration').classList.remove('show')" style="margin-top:14px;background:var(--cel-color,var(--forest));border:none;border-radius:20px;color:white;padding:6px 20px;font-size:13px;font-weight:600;cursor:pointer;">OK 🎉</button>
   </div>
 </div>
 
