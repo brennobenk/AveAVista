@@ -1571,9 +1571,11 @@ db.auth.onAuthStateChange(async (event, session) => {
       startNotifRealtime();
       startRealtimeSubscriptions();
       // Re-render feed com estado de curtidas do usuário
-      renderFeed('home-feed', 4);
+      _homeFeedOffset = 0; _homeFeedHasMore = true; _homeFeedLoading = false;
+      renderFeed('home-feed', _HOME_FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('home-feed'));
       if (document.getElementById('page-feed')?.classList.contains('active')) {
-        renderFeed('full-feed', 12);
+        _feedOffset = 0; _feedHasMore = true; _feedLoading = false;
+        renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('full-feed'));
       }
       if (window._pendingNav) {
         const { pageId, btn } = window._pendingNav;
@@ -1602,9 +1604,11 @@ db.auth.onAuthStateChange(async (event, session) => {
     if (pN) pN.textContent = 'Faça login para ver seu perfil';
     if (pH) pH.textContent = '';
     // Re-renderiza feed público (sem likes do usuário)
-    renderFeed('home-feed', 4);
+    _homeFeedOffset = 0; _homeFeedHasMore = true; _homeFeedLoading = false;
+    renderFeed('home-feed', _HOME_FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('home-feed'));
     if (document.getElementById('page-feed')?.classList.contains('active')) {
-      renderFeed('full-feed', 12);
+      _feedOffset = 0; _feedHasMore = true; _feedLoading = false;
+      renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('full-feed'));
     }
     updateChecklistProgress();
   }
@@ -1640,6 +1644,10 @@ function navigateTo(pageId, btn) {
   if (pageId === 'feed') {
     _feedOffset = 0; _feedHasMore = true; _feedLoading = false;
     renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('full-feed'));
+  }
+  if (pageId === 'home') {
+    _homeFeedOffset = 0; _homeFeedHasMore = true; _homeFeedLoading = false;
+    renderFeed('home-feed', _HOME_FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('home-feed'));
   }
   if (pageId === 'profile') renderProfile();
   if (pageId === 'users')   renderUsers('');
@@ -2011,6 +2019,15 @@ async function renderFeed(containerId, limit) {
 
     // Carrega contagens após render (batched = rápido)
     setTimeout(() => loadCardCounts(allObs), 50);
+
+    // Atualiza offset para o scroll infinito continuar de onde parou
+    if (containerId === 'home-feed') {
+      _homeFeedOffset = allObs.length;
+      if (allObs.length < limit) _homeFeedHasMore = false;
+    } else if (containerId === 'full-feed') {
+      _feedOffset = allObs.length;
+      if (allObs.length < limit) _feedHasMore = false;
+    }
   } catch(e) {
     console.warn('Feed: erro:', e);
     container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Erro ao carregar avistamentos.</div>';
@@ -2049,39 +2066,76 @@ let _feedHasMore = true;
 let _feedScrollObserver = null;
 const _FEED_PAGE_SIZE = 12;
 
+/* Home feed — scroll infinito próprio */
+let _homeFeedOffset = 0;
+let _homeFeedLoading = false;
+let _homeFeedHasMore = true;
+let _homeFeedScrollObserver = null;
+const _HOME_FEED_PAGE_SIZE = 6;
+
+function _getFeedState(containerId) {
+  if (containerId === 'home-feed') return {
+    get offset()    { return _homeFeedOffset; },
+    set offset(v)   { _homeFeedOffset = v; },
+    get loading()   { return _homeFeedLoading; },
+    set loading(v)  { _homeFeedLoading = v; },
+    get hasMore()   { return _homeFeedHasMore; },
+    set hasMore(v)  { _homeFeedHasMore = v; },
+    get observer()  { return _homeFeedScrollObserver; },
+    set observer(v) { _homeFeedScrollObserver = v; },
+    pageSize: _HOME_FEED_PAGE_SIZE,
+    sentinelId: 'home-feed-scroll-sentinel'
+  };
+  return {
+    get offset()    { return _feedOffset; },
+    set offset(v)   { _feedOffset = v; },
+    get loading()   { return _feedLoading; },
+    set loading(v)  { _feedLoading = v; },
+    get hasMore()   { return _feedHasMore; },
+    set hasMore(v)  { _feedHasMore = v; },
+    get observer()  { return _feedScrollObserver; },
+    set observer(v) { _feedScrollObserver = v; },
+    pageSize: _FEED_PAGE_SIZE,
+    sentinelId: 'feed-scroll-sentinel'
+  };
+}
+
 function setupFeedInfiniteScroll(containerId) {
-  if (_feedScrollObserver) { _feedScrollObserver.disconnect(); _feedScrollObserver = null; }
+  const state = _getFeedState(containerId);
+  if (state.observer) { state.observer.disconnect(); state.observer = null; }
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  let sentinel = document.getElementById('feed-scroll-sentinel');
+  let sentinel = document.getElementById(state.sentinelId);
   if (sentinel) sentinel.remove();
   sentinel = document.createElement('div');
-  sentinel.id = 'feed-scroll-sentinel';
+  sentinel.id = state.sentinelId;
   sentinel.style.cssText = 'height:4px;grid-column:1/-1;';
   container.appendChild(sentinel);
 
-  _feedScrollObserver = new IntersectionObserver(async entries => {
-    if (!entries[0].isIntersecting || _feedLoading || !_feedHasMore) return;
-    _feedLoading = true;
+  const obs = new IntersectionObserver(async entries => {
+    if (!entries[0].isIntersecting || state.loading || !state.hasMore) return;
+    state.loading = true;
     await appendFeedPage(containerId);
-    _feedLoading = false;
+    state.loading = false;
   }, { rootMargin: '200px' });
-  _feedScrollObserver.observe(sentinel);
+  obs.observe(sentinel);
+  state.observer = obs;
 }
 
 async function appendFeedPage(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
+  const state = _getFeedState(containerId);
   try {
     const { data, error } = await db
       .from('observations')
       .select('id, user_id, species_pop, species_sci, obs_date, location_label, notes, photo_url, companion_handle, published_inat')
       .order('created_at', { ascending: false })
-      .range(_feedOffset, _feedOffset + _FEED_PAGE_SIZE - 1);
-    if (error || !data || data.length === 0) { _feedHasMore = false; return; }
-    if (data.length < _FEED_PAGE_SIZE) _feedHasMore = false;
-    _feedOffset += data.length;
+      .range(state.offset, state.offset + state.pageSize - 1);
+    if (error || !data || data.length === 0) { state.hasMore = false; return; }
+    if (data.length < state.pageSize) state.hasMore = false;
+    state.offset = state.offset + data.length;
 
     const userIds = [...new Set(data.map(o => o.user_id).filter(Boolean))];
     let profilesMap = {};
@@ -2095,7 +2149,7 @@ async function appendFeedPage(containerId) {
     });
 
     // Remove sentinel antes de inserir novos cards
-    const sentinel = document.getElementById('feed-scroll-sentinel');
+    const sentinel = document.getElementById(state.sentinelId);
     if (sentinel) sentinel.remove();
 
     const frag = document.createDocumentFragment();
@@ -2137,13 +2191,13 @@ async function appendFeedPage(containerId) {
     });
     container.appendChild(frag);
 
-    // Re-adiciona sentinel
-    if (_feedHasMore) {
+    // Re-adiciona sentinel se ainda há mais dados
+    if (state.hasMore) {
       const newSentinel = document.createElement('div');
-      newSentinel.id = 'feed-scroll-sentinel';
+      newSentinel.id = state.sentinelId;
       newSentinel.style.cssText = 'height:4px;grid-column:1/-1;';
       container.appendChild(newSentinel);
-      _feedScrollObserver.observe(newSentinel);
+      if (state.observer) state.observer.observe(newSentinel);
     }
     setTimeout(() => loadCardCounts(newObs), 80);
   } catch(e) { console.warn('appendFeedPage:', e); }
@@ -2162,8 +2216,11 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('obs-date').value = new Date().toISOString().slice(0, 10);
 
   renderBirdOfDay();
-  // Home feed: mostra 4 cards estáticos sem scroll infinito
-  renderFeed('home-feed', 4);
+  // Home feed: scroll infinito próprio (6 por página)
+  _homeFeedOffset = 0; _homeFeedHasMore = true;
+  renderFeed('home-feed', _HOME_FEED_PAGE_SIZE).then(() => {
+    setupFeedInfiniteScroll('home-feed');
+  });
   // Full feed: usa scroll infinito
   _feedOffset = 0; _feedHasMore = true;
   renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => {
@@ -2265,6 +2322,7 @@ function addToQueue() {
     photoFile,
     photoPreview: photoFile ? URL.createObjectURL(photoFile) : null,
     publishInat: false, // document.getElementById('inat-publish')?.checked — desabilitado temporariamente
+    companions: [...(_selectedCompanions || [])],
     id: Date.now()
   };
   _obsQueue.push(entry);
@@ -2334,8 +2392,8 @@ async function submitQueue() {
       if (entry.photoFile) {
         photoUrl = await uploadPhoto(entry.photoFile);
       }
-      const companionHandle = entry.companions.length > 0 ? entry.companions[0].handle : null;
-      const companionId     = entry.companions.length > 0 ? entry.companions[0].id     : null;
+      const companionHandle = (entry.companions || []).length > 0 ? entry.companions[0].handle : null;
+      const companionId     = (entry.companions || []).length > 0 ? entry.companions[0].id     : null;
       const { error } = await db.from('observations').insert({
         user_id:          currentUser.id,
         species_sci:      entry.match ? entry.match.sci : (entry.noSpecies ? null : entry.species),
@@ -4011,7 +4069,7 @@ async function toggleLike(obsId, btn) {
     // Atualizar contagem
     const { count } = await db.from('likes').select('id', { count: 'exact', head: true }).eq('obs_id', obsId);
     const likeCountSpan = document.getElementById('like-count-' + obsId);
-    if (likeCountSpan) likeCountSpan.textContent = count > 0 ? count : '';
+    if (likeCountSpan) likeCountSpan.textContent = count ?? 0;
     btn.classList.toggle('liked', !liked);
     const icon = document.getElementById('like-icon-' + obsId);
     if (icon) icon.textContent = liked ? '🤍' : '❤️';
@@ -4066,7 +4124,7 @@ async function submitComment() {
     // Atualiza contagem no card do feed
     const { count } = await db.from('comments').select('id', { count: 'exact', head: true }).eq('obs_id', _currentCommentObs);
     const countSpan = document.getElementById('comment-count-' + _currentCommentObs);
-    if (countSpan) countSpan.textContent = count > 0 ? count : '';
+    if (countSpan) countSpan.textContent = count ?? 0;
     // Se o photo-expand estiver aberto para o mesmo obs, recarrega comentários lá também
     if (window._expandObsId === _currentCommentObs) loadExpandComments(_currentCommentObs);
   } catch(e) { showToast('❌ Erro ao comentar'); }
@@ -4152,7 +4210,7 @@ async function toggleExpandLike() {
     const { count } = await db.from('likes').select('id', { count: 'exact', head: true }).eq('obs_id', obsId);
     const likeCountSpan = document.getElementById('like-count-' + obsId);
     const likeIcon = document.getElementById('like-icon-' + obsId);
-    if (likeCountSpan) likeCountSpan.textContent = count > 0 ? count : '';
+    if (likeCountSpan) likeCountSpan.textContent = count ?? 0;
     if (likeIcon) likeIcon.textContent = _expandLiked ? '❤️' : '🤍';
   } catch(e) { showToast('❌ Erro ao curtir'); }
   finally { btn._toggling = false; }
@@ -4832,7 +4890,7 @@ async function submitExpandComment() {
     loadExpandComments(obsId);
     const { count } = await db.from('comments').select('id',{count:'exact',head:true}).eq('obs_id', obsId);
     const ccEl = document.getElementById('comment-count-' + obsId);
-    if (ccEl) ccEl.textContent = count > 0 ? count : '';
+    if (ccEl) ccEl.textContent = count ?? 0;
   } catch(e) { showToast('❌ Erro ao comentar'); }
 }
 
@@ -4925,10 +4983,30 @@ async function getBirdPhoto(sci) {
       return _birdPhotoCache[sci];
     }
   } catch(e) { console.warn('[getBirdPhoto inat]', sci, e?.message); }
-  // Fallback 2: eBird / Wikimedia via nome científico
+  // Fallback 2: eBird / Macaulay Library via nome científico
   try {
-    const ebirdUrl = `https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&species=${encodeURIComponent(sci)}`;
-    // eBird não tem endpoint de foto público — usa Wikimedia como fallback real
+    // Busca o speciesCode do eBird pelo nome científico
+    const ebirdTax = await fetch(`https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&locale=pt&species=${encodeURIComponent(sci.replace(/ /g,'_'))}`);
+    if (ebirdTax.ok) {
+      const taxArr = await ebirdTax.json();
+      const speciesCode = taxArr?.[0]?.speciesCode;
+      if (speciesCode) {
+        // Macaulay Library: busca a primeira foto pública da espécie
+        const mlResp = await fetch(`https://search.macaulaylibrary.org/api/v1/search?taxonCode=${speciesCode}&mediaType=photo&count=1&sort=rating_rank_desc`);
+        if (mlResp.ok) {
+          const mlJson = await mlResp.json();
+          const asset = mlJson?.results?.content?.[0];
+          if (asset?.previewUrl) {
+            _birdPhotoCache[sci] = { url: asset.previewUrl, author: asset.userDisplayName || 'Macaulay Library', source: 'macaulay' };
+            return _birdPhotoCache[sci];
+          }
+        }
+      }
+    }
+  } catch(e) { console.warn('[eBird/Macaulay fallback]', sci, e?.message); }
+
+  // Fallback 3: Wikimedia via nome científico
+  try {
     const wikiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(sci.replace(/ /g,'_'))}`;
     const wr = await fetch(wikiUrl);
     if (wr.ok) {
@@ -5508,11 +5586,36 @@ function startRealtimeSubscriptions() {
 
   const obsChannel = db.channel('obs-feed')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'observations' }, () => {
-      if (document.getElementById('page-home')?.classList.contains('active')) renderFeed('home-feed', 4);
-      if (document.getElementById('page-feed')?.classList.contains('active')) renderFeed('full-feed', 12);
+      // Mostra banner discreto "novos avistamentos" em vez de re-renderizar tudo
+      _showNewObsBanner();
     })
     .subscribe();
   _realtimeChannels.push(obsChannel);
+}
+
+function _showNewObsBanner() {
+  let banner = document.getElementById('_new_obs_banner');
+  if (!banner) {
+    banner = document.createElement('button');
+    banner.id = '_new_obs_banner';
+    banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--sky);color:white;border:none;border-radius:24px;padding:8px 20px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(14,165,233,0.4);display:none;animation:bannerIn .3s cubic-bezier(.34,1.56,.64,1);';
+    banner.onclick = () => {
+      banner.style.display = 'none';
+      if (document.getElementById('page-home')?.classList.contains('active')) {
+        _homeFeedOffset = 0; _homeFeedHasMore = true; _homeFeedLoading = false;
+        renderFeed('home-feed', _HOME_FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('home-feed'));
+      }
+      if (document.getElementById('page-feed')?.classList.contains('active')) {
+        _feedOffset = 0; _feedHasMore = true; _feedLoading = false;
+        renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('full-feed'));
+      }
+    };
+    document.body.appendChild(banner);
+  }
+  banner.textContent = '🔭 Novos avistamentos — clique para atualizar';
+  banner.style.display = 'block';
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(() => { banner.style.display = 'none'; }, 8000);
 }
 
 function stopRealtimeSubscriptions() {
@@ -5666,32 +5769,25 @@ async function toggleFollowUser(targetId, handle, btn) {
 let _refreshInterval = null;
 
 async function refreshAllData() {
-  // Atualiza feeds públicos
-  if (document.getElementById('page-home')?.classList.contains('active')) {
-    renderFeed('home-feed', 4);
-  }
-  if (document.getElementById('page-feed')?.classList.contains('active')) {
-    renderFeed('full-feed', 12);
-  }
+  // Auto-refresh: só atualiza badges e notificações, NÃO re-renderiza o feed completo
+  // (evita flickering e perda do scroll position)
 
   // Se o usuário estiver logado, atualiza badges
   if (currentUser) {
     await loadNotifBadge();
-    // Se você criou a função loadMsgBadge (conforme explicado antes), descomente a linha abaixo
-    // if (typeof loadMsgBadge === 'function') await loadMsgBadge();
   }
 
   // Se o modal de notificações estiver aberto, recarrega a lista
   const notifModal = document.getElementById('notif-modal');
   if (notifModal && notifModal.classList.contains('open') && currentUser) {
-    await openNotifications(); // recarrega e marca como lidas
+    await openNotifications();
   }
 
   // Se o modal de mensagens estiver aberto, recarrega contatos e thread atual
   const msgModal = document.getElementById('messages-modal');
   if (msgModal && msgModal.classList.contains('open') && currentUser) {
     await renderContacts();
-    if (window._activeContactId) { // a variável _activeContactId já existe no código
+    if (window._activeContactId) {
       await loadThread(window._activeContactId);
     }
   }
