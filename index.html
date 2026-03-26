@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ave à Vista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- ══ SUPABASE ══ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     LAYOUT
+════════════════════════════════════════ -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-toggle" id="sidebar-toggle" title="Menu">☰</button>
+
+    <div class="sidebar-logo-row">
+      <div class="sidebar-logo">🦜</div>
+      <span class="sidebar-logo-label">Ave à Vista</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="sidebar-btn active" data-page="home" onclick="navigateTo('home', this)">
+        <span class="s-icon">🏠</span><span class="s-label">Início</span>
+      </button>
+      <button class="sidebar-btn" data-page="feed" onclick="navigateTo('feed', this)">
+        <span class="s-icon">📷</span><span class="s-label">Avistamentos</span>
+      </button>
+      <button class="sidebar-btn" data-page="upload" onclick="navigateTo('upload', this)">
+        <span class="s-icon">➕</span><span class="s-label">Registrar</span>
+      </button>
+      <button class="sidebar-btn" data-page="profile" onclick="navigateTo('profile', this)">
+        <span class="s-icon">👤</span><span class="s-label">Perfil</span>
+      </button>
+      <button class="sidebar-btn" data-page="users" onclick="navigateTo('users', this)">
+        <span class="s-icon">🔍</span><span class="s-label">Pesquisar</span>
+      </button>
+      <button class="sidebar-btn" data-page="ranking" onclick="navigateTo('ranking', this)">
+        <span class="s-icon">🏆</span><span class="s-label">Ranking</span>
+      </button>
+      <button class="sidebar-btn" data-page="birds" onclick="navigateTo('birds', this)">
+        <span class="s-icon">🦜</span><span class="s-label">Aves</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-btn" onclick="document.getElementById('help-modal').classList.add('open')">
+        <span class="s-icon">❓</span><span class="s-label">Ajuda</span>
+      </button>
+      <button class="sidebar-btn" id="theme-btn" onclick="toggleTheme()">
+        <span class="s-icon" id="theme-icon">🌙</span><span class="s-label">Tema</span>
+      </button>
+      <button class="sidebar-btn" onclick="document.getElementById('science-modal').classList.add('open')">
+        <span class="s-icon">🔬</span><span class="s-label">Análise Científica</span>
+      </button>
+      <div class="sidebar-divider"></div>
+      <!-- Login / Perfil do usuário logado -->
+      <div id="sidebar-auth">
+        <button class="sidebar-login-pill" onclick="openAuthModal()">
+          <span class="s-icon">🔑</span><span class="s-label">Entrar / Registrar</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-title" onclick="navigateTo('home', document.querySelector('[data-page=home]'))" style="cursor:pointer;" title="Ir para o início">
+      <div class="tb-logo-icon">🦜</div>
+      <span>Ave à Vista</span>
+    </div>
+    <div class="topbar-search" id="topbar-search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" placeholder="Buscar espécies, usuários…" id="global-search"
+    onfocus="document.getElementById('topbar-search-wrap').classList.add('focused')"
+    onblur="setTimeout(() => { if (!document.activeElement?.closest('#global-search-results')) document.getElementById('topbar-search-wrap').classList.remove('focused'); }, 150)"
+    oninput="searchGlobal(this.value)">
+  <div id="global-search-results" style="position:absolute; top:100%; left:0; right:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-height:300px; overflow-y:auto; z-index:1000; display:none;"></div>
+  </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="navigateTo('upload', document.querySelector('[data-page=upload]'))" title="Registrar avistamento">➕</button>
+      <button class="topbar-btn" onclick="openMessages()" title="Mensagens" id="topbar-msg-btn" style="position:relative;">💬<span id="msg-badge" style="display:none;position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--coral);border-radius:50%;"></span></button>
+      <button class="topbar-btn" onclick="openNotifications()" title="Notificações" style="position:relative;">🔔<span id="notif-badge" style="display:none;position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--coral);border-radius:50%;"></span></button>
+      <button class="topbar-btn" onclick="toggleTheme()" title="Alternar tema" id="topbar-theme">🌙</button>
+      <button class="topbar-btn" onclick="authBtnClick()" title="Perfil / Login" id="topbar-auth-btn">👤</button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- ── PÁGINA HOME (Ave do Dia + Feed resumido) ── -->
+    <section class="page active" id="page-home">
+
+      <!-- Ave do Dia -->
+      <div class="section-title"><span>☀️</span> Ave do Dia</div>
+      <div class="bird-of-day-card" id="bird-of-day-card">
+        <div class="bird-img-area" id="bird-img-area">
+          <div class="bird-day-badge">🗓 Ave do Dia</div>
+          <div class="bird-img-loading" id="bird-img-loading">
+            <div class="bird-emoji-big">🦅</div>
+            <span>Buscando foto…</span>
+          </div>
+          <img id="bird-day-img" src="" alt="" style="display:none;" onload="this.style.display='block'; document.getElementById('bird-img-loading').style.display='none';" onerror="this.style.display='none';">
+          <div class="bird-inat-badge" id="bird-inat-badge" style="display:none;">
+            🌿 Ver no iNaturalist
+          </div>
+        </div>
+        <div class="bird-info-area" id="bird-info-area">
+          <div>
+            <div class="bird-ordem-tag" id="bird-ordem-tag">—</div>
+            <div class="bird-popular-name" id="bird-popular-name">Carregando…</div>
+            <div class="bird-sci-name" id="bird-sci-name">—</div>
+            <div class="bird-facts" id="bird-facts"></div>
+            <div id="bird-local-desc" style="margin-top:12px;font-size:13px;color:var(--text-mid);line-height:1.65;max-height:120px;overflow-y:auto;padding-right:4px;border-top:1px solid var(--border);padding-top:10px;"></div>
+          </div>
+          <div>
+            <div class="bird-actions">
+              <button class="btn-found" id="btn-found" onclick="markBirdFound()">
+                ✅ Encontrei esta ave!
+              </button>
+              <button class="btn-inat-link" id="btn-inat" onclick="openInat()">
+                🌿 iNaturalist
+              </button>
+            </div>
+            <div class="bird-checklist-progress">
+              <div class="checklist-label">Seu checklist de SC</div>
+              <div class="checklist-bar">
+                <div class="checklist-fill" id="checklist-fill" style="width:0%"></div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:4px;" id="checklist-count">0 / 691 espécies encontradas</div>
+            </div>
+            <!-- Quem já encontrou esta ave -->
+            <div id="bird-day-finders" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+              <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.5px;margin-bottom:8px;">🐦 JÁ ENCONTRARAM ESTA AVE</div>
+              <div id="bird-day-finders-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feed resumido -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="section-title" style="margin-bottom:0;"><span>📷</span> Avistamentos Recentes</div>
+        <button class="back-to-science" onclick="navigateTo('feed', document.querySelector('[data-page=feed]'))">Ver todos →</button>
+      </div>
+      <div class="feed-grid" id="home-feed"></div>
+
+    </section>
+
+    <!-- ── PÁGINA FEED ── -->
+    <section class="page" id="page-feed">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div class="section-title" style="margin-bottom:0;"><span>📷</span> Avistamentos da Comunidade</div>
+        <button class="btn-found" style="min-width:auto;padding:0 18px;" onclick="navigateTo('upload', document.querySelector('[data-page=upload]'))">+ Registrar</button>
+      </div>
+      <div class="feed-grid" id="full-feed"></div>
+    </section>
+
+    <!-- ── PÁGINA UPLOAD ── -->
+    <section class="page" id="page-upload">
+      <div class="upload-card">
+        <div class="upload-title">📍 Registrar Avistamento</div>
+        <div class="upload-subtitle">Compartilhe sua observação com a comunidade e contribua para a ciência.</div>
+
+        <div class="upload-dropzone" id="dropzone">
+          <input type="file" accept="image/*" id="photo-input" onchange="previewPhoto(this)">
+          <div class="drop-icon">📸</div>
+          <div class="drop-text">Clique ou arraste uma foto aqui</div>
+          <div class="drop-hint">JPG, PNG, WEBP — máx. 10MB</div>
+        </div>
+
+        <div class="upload-preview" id="upload-preview">
+          <img id="preview-img" src="" alt="Preview">
+          <button class="preview-remove" onclick="removePreview()">✕</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Espécie *</label>
+            <input class="form-input" type="text" id="species-input" placeholder="Ex: Turdus rufiventris" list="species-datalist" autocomplete="off">
+            <datalist id="species-datalist"></datalist>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data *</label>
+            <input class="form-input" type="date" id="obs-date" value="">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Hora</label>
+            <input class="form-input" type="time" id="obs-time">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quantidade</label>
+            <input class="form-input" type="number" id="obs-qty" min="1" value="1">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Localização</label>
+          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <button type="button" class="btn-location" onclick="openMapPicker()" id="btn-map" style="background:var(--violet-light);border-color:var(--violet);color:var(--violet);">🗺️ Apontar no mapa</button>
+            <button type="button" class="btn-location" onclick="toggleMunicipioInput()" id="btn-mun" style="background:var(--sun-light);border-color:var(--sun);color:#92400e;">🏘️ Indicar município</button>
+          </div>
+          <div class="location-display" id="location-display">Nenhuma localização selecionada</div>
+          <div id="municipio-input-wrap" style="display:none;margin-top:8px;position:relative;">
+            <input type="text" id="municipio-search" class="form-input"
+              placeholder="🔍 Buscar município de SC…"
+              oninput="filterMunicipios(this.value)"
+              onfocus="filterMunicipios(this.value)"
+              autocomplete="off"
+              style="height:40px;padding:0 12px;">
+            <div id="municipio-dropdown"
+              style="display:none;position:absolute;top:44px;left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);z-index:300;max-height:220px;overflow-y:auto;box-shadow:var(--shadow-md);">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Notas / comportamento</label>
+            <textarea class="form-textarea" id="obs-notes" placeholder="Ex: cantando em galho alto, alimentando filhotes…"></textarea>
+          </div>
+        </div>
+
+        <!-- Não especificar espécie -->
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--coral-light);border:1px solid var(--coral);border-radius:var(--radius-md);cursor:pointer;margin-bottom:4px;">
+          <input type="checkbox" id="no-species-check" onchange="toggleNoSpecies(this.checked)" style="width:16px;height:16px;accent-color:var(--coral);">
+          <div>
+            <div style="font-weight:600;font-size:13.5px;color:var(--coral);">❓ Não especificar espécie?</div>
+            <div style="font-size:12px;color:var(--text-muted);">O registro terá −1 ponto até que alguém sugira e você aceite a espécie</div>
+          </div>
+        </label>
+
+        <!-- Adicionar companheiro ao registro -->
+        <div style="background:var(--sky-light);border:1px solid var(--sky);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:13.5px;font-weight:600;color:var(--sky-dark);">🤝 Companheiro de registro</div>
+            <button type="button" onclick="openCompanionModal()" title="Adicionar companheiro"
+              style="width:30px;height:30px;border-radius:50%;background:var(--sky);border:none;color:white;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-weight:300;">+</button>
+          </div>
+          <div id="companion-selected" style="display:flex;flex-wrap:wrap;gap:6px;min-height:16px;"></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Apenas 1 companheiro por registro. O companheiro receberá uma solicitação — se aceitar, ambos ganham pontos de amizade</div>
+        </div>
+
+        <label class="inat-toggle" id="inat-toggle">
+          <input type="checkbox" id="inat-publish" checked>
+          <div class="inat-toggle-text">
+            <strong>🌿 Publicar no iNaturalist</strong><br>
+            <span style="font-size:12px;color:var(--text-muted);">Sua observação contribui para o banco de dados global de biodiversidade</span>
+          </div>
+        </label>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-submit-upload" id="btn-submit" onclick="submitObservation()" style="flex:1;min-width:160px;">
+            📤 Enviar Avistamento
+          </button>
+          <button onclick="addToQueue()" style="flex:1;min-width:140px;height:44px;border:1.5px solid var(--sky);border-radius:var(--radius-md);background:var(--bg);color:var(--sky);font-weight:700;font-size:13px;cursor:pointer;" title="Adiciona à fila para enviar vários de uma vez">
+            ➕ Adicionar à Fila
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PÁGINA PERFIL ── -->
+    <section class="page" id="page-profile">
+      <div class="profile-hero">
+        <!-- CAPA (clipada) -->
+        <div style="position:relative;height:180px;background:linear-gradient(135deg,#0369a1 0%,#065f46 50%,#92400e 100%);border-radius:var(--radius-xl) var(--radius-xl) 0 0;overflow:hidden;" id="profile-cover-el">
+          <div class="profile-cover-pattern" id="profile-cover-pattern"></div>
+          <img id="profile-cover-img" src="" alt=""
+            style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;transition:object-position .2s;">
+          <!-- Ajuste de posição -->
+          <div id="cover-adjust-bar" style="display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:8px 16px;z-index:5;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="color:white;font-size:12px;white-space:nowrap;">↕ Posição</span>
+              <input type="range" id="cover-pos-slider" min="0" max="100" value="50" style="flex:1;" oninput="adjustCoverPosition(this.value)">
+              <button onclick="saveCoverPosition()" style="background:var(--sky);border:none;border-radius:6px;color:white;font-size:12px;padding:4px 12px;cursor:pointer;">✅</button>
+            </div>
+          </div>
+          <!-- Botões da capa -->
+          <div style="position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:5;">
+            <button id="btn-cover-adjust" onclick="toggleCoverAdjust()" style="display:none;background:rgba(0,0,0,0.55);border:none;border-radius:8px;color:white;font-size:12px;padding:5px 10px;cursor:pointer;backdrop-filter:blur(4px);">↕ Ajustar</button>
+            <button onclick="openEditProfileModal()" style="background:rgba(0,0,0,0.5);border:none;border-radius:8px;color:white;font-size:12px;padding:5px 12px;cursor:pointer;backdrop-filter:blur(4px);font-weight:600;">⚙️ Configurações</button>
+          </div>
+        </div>
+
+        <!-- CORPO DO PERFIL -->
+        <div style="position:relative;padding:0 28px 24px;">
+          <!-- Avatar (sai da capa) -->
+          <div style="position:absolute;top:-44px;left:28px;z-index:10;">
+            <div class="profile-avatar" id="profile-avatar" style="position:relative;overflow:hidden;">
+              <span id="profile-avatar-letter">?</span>
+              <img id="profile-avatar-img" src="" alt=""
+                style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            </div>
+          </div>
+
+          <!-- Info + stats -->
+          <div style="padding-top:52px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px;">
+            <div style="flex:1;min-width:200px;">
+              <div class="profile-name" id="profile-name">Meu Perfil</div>
+              <div class="profile-handle" id="profile-handle"></div>
+              <div id="profile-bio" class="profile-bio" style="margin:6px 0 10px;min-height:20px;color:var(--text-mid);"></div>
+              <div class="badges-row" id="badges-row">
+                <!-- Preenchido dinamicamente por renderDynamicBadges() -->
+              </div>
+            </div>
+            <div class="profile-stats" style="margin-top:4px;">
+              <div class="profile-stat" onclick="openStatModal('followers')" style="cursor:pointer;">
+                <div class="profile-stat-num" id="stat-followers">0</div>
+                <div class="profile-stat-label">Seguidores</div>
+              </div>
+              <div class="profile-stat" onclick="openStatModal('following')" style="cursor:pointer;">
+                <div class="profile-stat-num" id="stat-following">0</div>
+                <div class="profile-stat-label">Seguindo</div>
+              </div>
+              <div class="profile-stat" onclick="openStatModal('species')" style="cursor:pointer;">
+                <div class="profile-stat-num" id="stat-species">0</div>
+                <div class="profile-stat-label">Espécies</div>
+              </div>
+              <div class="profile-stat" onclick="openStatModal('obs')" style="cursor:pointer;">
+                <div class="profile-stat-num" id="stat-obs">0</div>
+                <div class="profile-stat-label">Avistamentos</div>
+              </div>
+              <div class="profile-stat" onclick="openStatModal('photos')" style="cursor:pointer;">
+                <div class="profile-stat-num" id="stat-photos">0</div>
+                <div class="profile-stat-label">Fotos</div>
+              </div>
+              <div class="profile-stat" onclick="openStatModal('days')" style="cursor:pointer;">
+                <div class="profile-stat-num" id="stat-days">0</div>
+                <div class="profile-stat-label">Dias em campo</div>
+              </div>
+              <div class="profile-stat" onclick="navigateTo('ranking',document.querySelector('[data-page=ranking]'))" style="cursor:pointer;border-left:2px solid var(--sun);padding-left:16px;margin-left:4px;">
+                <div class="profile-stat-num" id="stat-points" style="color:var(--sun);">0</div>
+                <div class="profile-stat-label">Pts Indicadoras</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Abas do perfil -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;" id="profile-tabs">
+        <button class="profile-tab-btn active" onclick="switchProfileTab('gallery', this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid var(--sky);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--sky);cursor:pointer;margin-bottom:-2px;">📷 Galeria</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('checklist', this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">✅ Checklist</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('amizades', this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">🤝 Amizades</button>
+      </div>
+
+      <div id="profile-checklist" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:14px;color:var(--text-mid);" id="checklist-status-text">0 espécies encontradas</span>
+          <input type="text" placeholder="🔍 Filtrar…" id="checklist-filter"
+            style="height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);font-size:13px;color:var(--text);outline:none;width:180px;"
+            oninput="filterChecklist(this.value)">
+        </div>
+        <div class="species-checklist-grid" id="checklist-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma espécie encontrada ainda.<br>Comece registrando avistamentos! 🐦</div>
+        </div>
+      </div>
+
+      <div id="profile-gallery">
+        <div class="profile-gallery" id="gallery-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma foto ainda.<br>Registre um avistamento com foto! 📸</div>
+        </div>
+      </div>
+      <div id="profile-amizades" style="display:none;" id="profile-amizades-panel">
+        <div id="amizades-grid" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;"></div>
+      </div>
+    </section>
+
+
+    <!-- ── PÁGINA PERFIL PÚBLICO ── -->
+    <section class="page" id="page-public-profile">
+      <div style="position:relative;height:180px;background:linear-gradient(135deg,#0369a1 0%,#065f46 50%,#92400e 100%);border-radius:var(--radius-xl) var(--radius-xl) 0 0;overflow:hidden;" id="pub-cover-el">
+        <div style="position:absolute;inset:0;opacity:0.15;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.15) 0,rgba(255,255,255,0.15) 1px,transparent 0,transparent 50%);background-size:12px 12px;pointer-events:none;"></div>
+        <img id="pub-cover-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;">
+        <button onclick="closePubProfile()" style="position:absolute;top:12px;left:14px;background:rgba(0,0,0,0.5);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;padding:6px 14px;cursor:pointer;backdrop-filter:blur(4px);">&#8592; Voltar</button>
+      </div>
+      <div style="position:relative;padding:0 28px 24px;background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-xl) var(--radius-xl);margin-bottom:20px;">
+        <div style="position:absolute;top:-44px;left:28px;z-index:10;">
+          <div id="pub-avatar" style="width:88px;height:88px;border-radius:50%;border:3px solid var(--card);background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:32px;color:white;font-weight:700;overflow:hidden;box-shadow:var(--shadow-md);">?</div>
+        </div>
+        <div style="padding-top:14px;display:flex;justify-content:flex-end;gap:8px;" id="pub-action-row"></div>
+        <div id="pub-friendship-bar" style="display:none;"></div>
+        <div style="padding-top:10px;">
+          <div id="pub-name" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);">Carregando...</div>
+          <div id="pub-handle" style="font-size:13px;color:var(--sky);margin-bottom:3px;"></div>
+          <div id="pub-city" style="font-size:12px;color:var(--text-muted);margin-bottom:6px;"></div>
+          <div id="pub-bio" style="font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:14px;"></div>
+          <div class="profile-stats" style="border-top:1px solid var(--border);padding-top:16px;">
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-followers">—</div><div class="profile-stat-label">Seguidores</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-following">—</div><div class="profile-stat-label">Seguindo</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-species">—</div><div class="profile-stat-label">Espécies</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-obs">—</div><div class="profile-stat-label">Avistamentos</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-photos">—</div><div class="profile-stat-label">Fotos</div></div>
+            <div class="profile-stat"><div class="profile-stat-num" id="pub-stat-days">—</div><div class="profile-stat-label">Dias em campo</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;">
+        <button id="pub-tab-gallery" onclick="switchPubTab('gallery',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid var(--sky);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--sky);cursor:pointer;margin-bottom:-2px;">&#128247; Galeria</button>
+        <button id="pub-tab-checklist" onclick="switchPubTab('checklist',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">&#10003; Checklist</button>
+      </div>
+      <div id="pub-panel-gallery">
+        <div id="pub-gallery-grid" class="profile-gallery"><div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Carregando...</div></div>
+      </div>
+      <div id="pub-panel-checklist" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <span id="pub-checklist-status" style="font-size:14px;color:var(--text-mid);">0 espécies encontradas</span>
+          <input type="text" placeholder="Filtrar..." id="pub-checklist-filter" style="height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);font-size:13px;color:var(--text);outline:none;width:180px;" oninput="filterPubChecklist(this.value)">
+        </div>
+        <div class="species-checklist-grid" id="pub-checklist-grid"></div>
+      </div>
+    </section>
+
+    <!-- ── PÁGINA PESQUISA DE USUÁRIOS ── -->
+    <section class="page" id="page-users">
+      <div class="section-title"><span>🔍</span> Pesquisar Ornitólogos</div>
+      <div class="user-search-bar">
+        <input class="user-search-input" type="text" id="user-search-input" placeholder="Buscar por nome ou @usuário…" oninput="searchUsers(this.value)">
+        <button class="btn-search-users" onclick="searchUsers(document.getElementById('user-search-input').value)">Buscar</button>
+      </div>
+      <div class="users-grid" id="users-grid"></div>
+    </section>
+
+    <!-- ── PÁGINA RANKING ── -->
+    <section class="page" id="page-ranking">
+      <div class="section-title"><span>🏆</span> Ranking de Observadores</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+        <button id="rank-tab-total" class="btn-found" style="min-width:auto;padding:0 18px;" onclick="switchRankTab('total')">🐦 Total de Espécies</button>
+        <button id="rank-tab-indicadoras" class="btn-location" onclick="switchRankTab('indicadoras')" style="background:var(--sun-light);border-color:var(--sun);color:#92400e;">⭐ Espécies Indicadoras</button>
+      </div>
+      <div id="rank-legend-indicadoras" style="display:none;background:var(--sun-light);border:1px solid var(--sun);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:16px;font-size:13px;color:#78350f;line-height:1.7;">
+        <strong>Como funciona o ranking de Indicadoras?</strong><br>
+        Cada espécie ameaçada ou sensível tem um peso de pontos baseado em seu status de conservação (SC, ICMBio, IUCN) e sensibilidade ecológica.
+        <span style="margin:0 8px;">🔴 Crítica: 5–6 pts</span>
+        <span style="margin:0 8px;">🟠 Alta: 3–4 pts</span>
+        <span style="margin:0 8px;">🟡 Média: 2 pts</span>
+        <span style="margin:0 8px;">🟢 Baixa: 1 pt</span>
+      </div>
+      <div id="ranking-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </section>
+
+
+    <!-- ── PÁGINA AVES ── -->
+    <section class="page" id="page-birds">
+      <div class="section-title"><span>🦜</span> Explorar Aves de SC</div>
+      <div style="position:relative;margin-bottom:20px;">
+        <input id="birds-search-input" class="form-input" type="text"
+          placeholder="🔍  Nome popular ou científico…"
+          oninput="searchBirds(this.value)" autocomplete="off"
+          style="width:100%;padding:14px 18px;font-size:15px;border-radius:var(--radius-lg);">
+        <div id="birds-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:0 0 var(--radius-md) var(--radius-md);box-shadow:var(--shadow-lg);max-height:260px;overflow-y:auto;"></div>
+      </div>
+      <div id="birds-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL ANÁLISE CIENTÍFICA
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="science-modal">
+  <div class="modal-box" style="max-width:520px;background:transparent;border:none;box-shadow:none;">
+
+    <!-- Card escuro (o bonito) -->
+    <div style="
+      background: linear-gradient(135deg, #0f2e1e 0%, #0c1a2e 60%, #1a0a2e 100%);
+      border-radius: var(--radius-xl);
+      padding: 32px 32px 28px;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      position: relative; overflow: hidden;
+    ">
+      <!-- Brilho decorativo -->
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 80% 40%,rgba(14,165,233,0.09) 0%,transparent 70%);pointer-events:none;"></div>
+
+      <!-- Botão X -->
+      <button onclick="document.getElementById('science-modal').classList.remove('open')" style="
+        position:absolute;top:16px;right:16px;
+        background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+        border-radius:50%;width:32px;height:32px;
+        color:rgba(255,255,255,0.6);font-size:16px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        transition:background .15s,color .15s;z-index:1;
+      " onmouseover="this.style.background='rgba(255,255,255,0.16)';this.style.color='white'"
+         onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.6)'">✕</button>
+
+      <!-- Header do card -->
+      <div style="position:relative;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Módulo Científico</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+          <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:white;line-height:1.1;">🔬 Análise Científica</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+          <span style="background:rgba(14,165,233,0.15);border:1px solid rgba(14,165,233,0.3);color:#7dd3fc;border-radius:20px;padding:3px 12px;font-size:11.5px;font-weight:600;">691 espécies</span>
+          <span style="background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);color:#86efac;border-radius:20px;padding:3px 12px;font-size:11.5px;font-weight:600;">20 ferramentas</span>
+          <span style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;border-radius:20px;padding:3px 12px;font-size:11.5px;font-weight:600;">100% no navegador</span>
+        </div>
+
+        <!-- Descritivo -->
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.85;margin-bottom:24px;">
+          Plataforma científica completa para análise ornitológica de Santa Catarina. Importe suas espécies e explore:
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-top:12px;font-size:12.5px;color:rgba(255,255,255,0.5);">
+            <span>🌳 Árvore filogenética</span>
+            <span>🛡️ Status de conservação</span>
+            <span>🗺️ Mapa de distribuição</span>
+            <span>📈 Curvas do coletor</span>
+            <span>📉 Rarefação</span>
+            <span>📅 Sazonalidade</span>
+            <span>🔄 Turnover temporal</span>
+            <span>🌸 Fenologia</span>
+            <span>🔗 Co-ocorrência</span>
+            <span>🍽️ Guilda alimentar</span>
+            <span>⚠️ Espécies indicadoras</span>
+            <span>🔀 Comparar listas</span>
+          </div>
+        </div>
+
+        <!-- Botão Visitar -->
+        <a href="https://brennobenk.github.io/OrnitologiaSantaCatarina/" target="_blank" style="text-decoration:none;display:block;">
+          <button style="
+            width:100%;height:50px;
+            background:linear-gradient(135deg,rgba(14,165,233,0.9),rgba(22,163,74,0.9));
+            border:none;border-radius:var(--radius-md);
+            font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+            color:white;cursor:pointer;letter-spacing:0.3px;
+            display:flex;align-items:center;justify-content:center;gap:10px;
+            transition:opacity .2s,transform .2s;
+            box-shadow:0 4px 20px rgba(14,165,233,0.25);
+          " onmouseover="this.style.opacity='.9';this.style.transform='translateY(-2px)'"
+             onmouseout="this.style.opacity='1';this.style.transform=''">
+            Visitar Análise Científica →
+          </button>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL DE LOGIN / REGISTRO
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="auth-modal-title">🔑 Entrar</div>
+      <button class="modal-close" onclick="document.getElementById('auth-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login', this)">Entrar</button>
+        <button class="auth-tab" onclick="switchAuthTab('register', this)">Registrar</button>
+        <button class="auth-tab" onclick="switchAuthTab('forgot', this)">Esqueci</button>
+      </div>
+
+      <!-- Login -->
+      <div class="auth-panel active" id="auth-login">
+        <!-- Entrar com Google -->
+        <button class="btn-google" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0;"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.8 7.4 29.1 5 24 5 12.9 5 4 13.9 4 25s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.8 7.4 29.1 5 24 5 16.3 5 9.7 9.2 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5 0 9.6-1.9 13.1-5l-6-5.2C29.3 36.5 26.8 37.5 24 37.5c-5.2 0-9.5-3.5-11.1-8.3l-6.5 5C9.5 40.7 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.5l6 5.2C41.3 35 44 30.4 44 25c0-1.3-.1-2.6-.4-3.9z"/></svg>
+          Entrar com Google
+        </button>
+        <div class="auth-divider">ou</div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input class="form-input" type="email" id="login-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input class="form-input" type="password" id="login-pass" placeholder="••••••••">
+        </div>
+        <button class="forgot-link" onclick="switchAuthTab('forgot', document.querySelectorAll('.auth-tab')[2])">Esqueceu a senha?</button>
+        <button class="btn-auth-submit" onclick="doLogin()">Entrar</button>
+        <div style="text-align:center;font-size:13px;color:var(--text-muted);">
+          Não tem conta? <span style="color:var(--sky);cursor:pointer;font-weight:600;" onclick="switchAuthTab('register', document.querySelectorAll('.auth-tab')[1])">Registre-se</span>
+        </div>
+      </div>
+
+      <!-- Registro -->
+      <div class="auth-panel" id="auth-register">
+        <!-- Registrar com Google -->
+        <button class="btn-google" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0;"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.8 7.4 29.1 5 24 5 12.9 5 4 13.9 4 25s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.8 7.4 29.1 5 24 5 16.3 5 9.7 9.2 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5 0 9.6-1.9 13.1-5l-6-5.2C29.3 36.5 26.8 37.5 24 37.5c-5.2 0-9.5-3.5-11.1-8.3l-6.5 5C9.5 40.7 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.5l6 5.2C41.3 35 44 30.4 44 25c0-1.3-.1-2.6-.4-3.9z"/></svg>
+          Registrar com Google
+        </button>
+        <div class="auth-divider">ou crie uma conta</div>
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input class="form-input" type="text" id="reg-name" placeholder="Seu nome completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">@usuário</label>
+          <input class="form-input" type="text" id="reg-handle" placeholder="seu usuario (espaços viram _)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input class="form-input" type="email" id="reg-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input class="form-input" type="password" id="reg-pass" placeholder="mínimo 8 caracteres">
+        </div>
+        <label class="terms-check">
+          <input type="checkbox" id="terms-check">
+          Concordo com os <span class="terms-link" onclick="openTerms()">Termos de Uso</span> e a publicação de avistamentos no iNaturalist
+        </label>
+        <button class="btn-auth-submit" onclick="doRegister()">Criar Conta</button>
+      </div>
+
+      <!-- Esqueceu senha -->
+      <div class="auth-panel" id="auth-forgot">
+        <p style="font-size:14px;color:var(--text-mid);margin-bottom:16px;">Digite seu e-mail e enviaremos um link para redefinir sua senha.</p>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input class="form-input" type="email" id="forgot-email" placeholder="seu@email.com">
+        </div>
+        <button class="btn-auth-submit" onclick="doForgot()">📧 Enviar Link</button>
+        <div style="text-align:center;font-size:13px;color:var(--text-muted);">
+          <span style="color:var(--sky);cursor:pointer;" onclick="switchAuthTab('login', document.querySelectorAll('.auth-tab')[0])">← Voltar para o login</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL ESCOLHER @USUÁRIO (pós-Google)
+     Bloqueante — não fecha sem preencher
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="handle-modal" style="z-index:2100;">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-header" style="padding-bottom:0;">
+      <div>
+        <div class="modal-title">👋 Bem-vindo!</div>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">Uma última coisa antes de começar</p>
+      </div>
+      <!-- sem botão X — modal bloqueante -->
+    </div>
+    <div class="modal-body">
+      <!-- Avatar + nome do Google -->
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg);border-radius:var(--radius-md);margin-bottom:20px;">
+        <div id="google-avatar" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:18px;color:white;font-weight:700;flex-shrink:0;">?</div>
+        <div>
+          <div id="google-name" style="font-weight:600;font-size:14px;color:var(--text);">—</div>
+          <div id="google-email" style="font-size:12px;color:var(--text-muted);">—</div>
+        </div>
+        <div style="margin-left:auto;background:#d1fae5;color:#065f46;border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:700;">Google ✓</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:8px;">
+        <label class="form-label">Escolha seu @usuário <span style="color:var(--coral);">*</span></label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;font-weight:600;">@</span>
+          <input class="form-input" type="text" id="handle-input"
+            placeholder="seu_usuario"
+            style="padding-left:28px;"
+            oninput="validateHandle(this.value)"
+            onkeydown="if(event.key==='Enter') confirmHandle()">
+        </div>
+        <div id="handle-feedback" style="font-size:12px;margin-top:5px;min-height:18px;"></div>
+      </div>
+
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">
+        Seu @usuário é como a comunidade vai te encontrar. Use letras, números e _ (sem espaços). Pode ser alterado depois nas configurações.
+      </p>
+
+      <button class="btn-auth-submit" id="handle-confirm-btn" onclick="confirmHandle()" disabled style="opacity:0.5;cursor:not-allowed;">
+        Entrar no Ave à Vista 🦜
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL AJUDA
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="help-modal">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title">❓ Como usar o Ave à Vista</div>
+      <button class="modal-close" onclick="document.getElementById('help-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:var(--sky-light);border-left:4px solid var(--sky);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;">
+        <strong>☀️ Ave do Dia</strong><br>
+        <span style="font-size:13px;color:var(--text-mid);">Toda vez que você abre o site, uma espécie diferente de Santa Catarina é sorteada. Clique em "Encontrei esta ave!" para marcar no seu checklist.</span>
+      </div>
+      <div style="background:var(--sun-light);border-left:4px solid var(--sun);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;">
+        <strong>📷 Registrar Avistamento</strong><br>
+        <span style="font-size:13px;color:var(--text-mid);">Tire uma foto, informe a espécie e a localização. O registro pode ser publicado automaticamente no iNaturalist, contribuindo para a ciência.</span>
+      </div>
+      <div style="background:#f0fdf4;border-left:4px solid var(--forest);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;">
+        <strong>✅ Checklist</strong><br>
+        <span style="font-size:13px;color:var(--text-mid);">Acompanhe quantas das ~691 espécies de SC você já encontrou. O checklist fica salvo no seu perfil.</span>
+      </div>
+      <div style="background:var(--violet-light);border-left:4px solid var(--violet);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;">
+        <strong>🔬 Análise Científica</strong><br>
+        <span style="font-size:13px;color:var(--text-mid);">Para análises estatísticas, filogenia e mapas, acesse o módulo de Análise Científica pelo menu lateral.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     CELEBRAÇÃO "ENCONTREI!"
+════════════════════════════════════════ -->
+<div class="celebration-overlay" id="celebration" onclick="this.classList.remove('show')">
+  <div class="celebration-box" onclick="event.stopPropagation()">
+    <div class="celebration-emoji">🎉</div>
+    <div class="celebration-title">Ave registrada!</div>
+    <div class="celebration-sub" id="celebration-sub">Você encontrou mais uma espécie!</div>
+    <button onclick="document.getElementById('celebration').classList.remove('show')" style="margin-top:14px;background:var(--forest);border:none;border-radius:20px;color:white;padding:6px 20px;font-size:13px;font-weight:600;cursor:pointer;">OK 🎉</button>
+  </div>
+</div>
+
+<!-- MODAL MAPA DE LOCALIZAÇÃO -->
+<div class="modal-overlay" id="map-modal">
+  <div class="modal-box" style="max-width:640px;padding:0;overflow:hidden;">
+    <div class="modal-header" style="padding:16px 20px;">
+      <div class="modal-title">🗺️ Apontar localização</div>
+      <button class="modal-close" onclick="closeMapModal()">✕</button>
+    </div>
+    <!-- Busca de endereço dentro do mapa -->
+    <div style="padding:0 16px 10px;display:flex;gap:8px;">
+      <input id="map-search-input" class="form-input" type="text" placeholder="🔍 Buscar endereço ou localidade em SC…"
+        style="flex:1;height:38px;" onkeydown="if(event.key==='Enter')searchMapAddress()">
+      <button class="btn-location" onclick="searchMapAddress()" style="white-space:nowrap;">Buscar</button>
+    </div>
+    <div id="map-container" style="height:380px;width:100%;position:relative;background:#e8f4f8;">
+      <!-- Canvas do mapa via MapLibre -->
+      <div id="maplibre-map" style="width:100%;height:100%;"></div>
+      <!-- Indicador central fixo -->
+      <div id="map-pin" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);font-size:32px;pointer-events:none;z-index:10;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));transition:transform .15s;">📍</div>
+      <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.55);color:white;border-radius:20px;padding:4px 14px;font-size:12px;pointer-events:none;z-index:10;">
+        Arraste o mapa — o pin fica no centro
+      </div>
+    </div>
+    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);">
+      <div id="map-coords-label" style="font-size:13px;color:var(--text-muted);flex:1;">Mova o mapa para posicionar o pino</div>
+      <button class="btn-found" style="min-width:auto;padding:0 20px;" onclick="confirmMapLocation()">✅ Confirmar ponto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL STATS -->
+<div class="modal-overlay" id="stat-modal">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-title" id="stat-modal-title">Espécies</div>
+      <button class="modal-close" onclick="document.getElementById('stat-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="stat-modal-body" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- MODAL ESCOLHER CAPA -->
+<div class="modal-overlay" id="cover-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-title">📷 Foto de capa</div>
+      <button class="modal-close" onclick="document.getElementById('cover-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Escolha uma das suas fotos de avistamento para usar como capa do perfil.</p>
+      <div id="cover-gallery-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:50vh;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PERFIL -->
+<div class="modal-overlay" id="edit-profile-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Configurações</div>
+      <button class="modal-close" onclick="document.getElementById('edit-profile-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Foto de perfil -->
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--text-mid);margin-bottom:8px;">📸 Foto de perfil</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="edit-avatar-preview" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:24px;color:white;font-weight:800;font-family:'Syne',sans-serif;overflow:hidden;flex-shrink:0;">B</div>
+          <label style="cursor:pointer;">
+            <div style="background:var(--sky-light);border:1.5px solid var(--sky);color:var(--sky-dark);border-radius:var(--radius-md);padding:8px 16px;font-size:13px;font-weight:600;">Escolher foto</div>
+            <input type="file" accept="image/*" id="avatar-input" style="display:none;" onchange="uploadAvatar(this);previewAvatarEdit(this)">
+          </label>
+        </div>
+      </div>
+      <!-- Foto de capa -->
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--text-mid);margin-bottom:8px;">🖼️ Foto de capa</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="openCoverPicker();document.getElementById('edit-profile-modal').classList.remove('open')" style="background:var(--sky-light);border:1.5px solid var(--sky);color:var(--sky-dark);border-radius:var(--radius-md);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;">📷 Da galeria</button>
+          <button id="btn-cover-adjust-modal" onclick="document.getElementById('edit-profile-modal').classList.remove('open');toggleCoverAdjust()" style="display:none;background:var(--violet-light);border:1.5px solid var(--violet);color:var(--violet);border-radius:var(--radius-md);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;">↕ Ajustar posição</button>
+        </div>
+      </div>
+      <!-- Bio -->
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--text-mid);margin-bottom:6px;">📝 Descrição <span style="font-weight:400;color:var(--text-muted);">(máx. 1000 chars)</span></div>
+        <textarea id="profile-bio-input" maxlength="1000"
+          style="width:100%;resize:vertical;min-height:80px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-md);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--bg);outline:none;line-height:1.6;transition:border-color .2s;"
+          oninput="updateBioCount(this.value)"
+          onfocus="this.style.borderColor='var(--sky)'" onblur="this.style.borderColor='var(--border)'"
+          placeholder="Fale sobre você, sua região, suas aves favoritas…"></textarea>
+        <div style="text-align:right;font-size:12px;color:var(--text-muted);margin-top:2px;"><span id="bio-char-count">0</span> / 1000</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="document.getElementById('edit-profile-modal').classList.remove('open')" style="flex:1;background:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;font-size:14px;cursor:pointer;color:var(--text-muted);">Cancelar</button>
+        <button onclick="document.getElementById('edit-profile-modal').classList.remove('open');doLogout();" style="flex:1;background:none;border:1.5px solid var(--coral);border-radius:var(--radius-md);padding:12px;font-size:14px;cursor:pointer;color:var(--coral);font-weight:700;">🚪 Sair</button>
+        <button onclick="saveProfileFromModal()" style="flex:2;background:var(--sky);border:none;border-radius:var(--radius-md);padding:12px;font-size:14px;font-weight:700;cursor:pointer;color:white;font-family:'Syne',sans-serif;">Salvar alterações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MAPA DA ESPÉCIE -->
+<div class="modal-overlay" id="species-map-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:560px;padding:0;overflow:hidden;">
+    <div class="modal-header" style="padding:16px 20px;">
+      <div class="modal-title" id="species-map-title">🗺️ Mapa da espécie</div>
+      <button class="modal-close" onclick="document.getElementById('species-map-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="species-maplibre" style="height:340px;width:100%;"></div>
+    <div id="species-map-legend" style="padding:10px 16px;font-size:12px;color:var(--text-muted);background:var(--surface);">Seus pontos de avistamento desta espécie</div>
+  </div>
+</div>
+
+<!-- MODAL COMPROVAÇÃO AVE DO DIA -->
+<div class="modal-overlay" id="proof-modal">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">📸 Comprovação de avistamento</div>
+      <button class="modal-close" onclick="document.getElementById('proof-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+      <p style="font-size:13px;color:var(--text-mid);line-height:1.6;">
+        Para confirmar que você encontrou a <strong id="proof-bird-name">esta ave</strong>, envie uma foto como prova de avistamento.
+      </p>
+      <div class="upload-dropzone" id="proof-dropzone" style="padding:24px;">
+        <input type="file" accept="image/*" id="proof-photo-input" onchange="previewProofPhoto(this)">
+        <div class="drop-icon">📸</div>
+        <div class="drop-text">Clique para escolher uma foto</div>
+        <div class="drop-hint">JPG, PNG — prova de avistamento</div>
+      </div>
+      <div id="proof-preview-wrap" style="display:none;position:relative;">
+        <img id="proof-preview-img" src="" style="width:100%;border-radius:12px;max-height:240px;object-fit:cover;">
+        <button onclick="clearProofPhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;color:white;width:28px;height:28px;cursor:pointer;font-size:14px;">✕</button>
+      </div>
+      <button id="proof-confirm-btn" onclick="confirmBirdFound()" disabled
+        style="background:var(--forest);border:none;border-radius:var(--radius-md);color:white;padding:14px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:not-allowed;opacity:0.5;transition:opacity .2s;">
+        ✅ Confirmar avistamento
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOTO EXPANDIDA -->
+<div class="modal-overlay" id="photo-expand-modal" onclick="if(event.target===this)this.classList.remove('open')" style="background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);">
+  <div style="max-width:700px;width:100%;position:relative;display:flex;flex-direction:column;gap:0;">
+    <button onclick="document.getElementById('photo-expand-modal').classList.remove('open')"
+      style="position:absolute;top:-40px;right:0;background:rgba(255,255,255,0.15);border:none;border-radius:50%;color:white;width:36px;height:36px;font-size:18px;cursor:pointer;z-index:10;">✕</button>
+    <img id="photo-expand-img" src="" style="width:100%;max-height:60vh;object-fit:contain;border-radius:14px 14px 0 0;">
+    <div id="photo-expand-info" style="background:var(--card);border-radius:0 0 14px 14px;padding:16px 20px;">
+      <div id="photo-expand-species" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;"></div>
+      <div id="photo-expand-sci" style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:8px;"></div>
+      <div id="photo-expand-meta" style="font-size:13px;color:var(--text-mid);"></div>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button id="photo-expand-like" class="obs-action-btn" onclick="toggleExpandLike()" style="flex:1;justify-content:center;">🤍 Curtir</button>
+        <button class="obs-action-btn" onclick="openExpandComment()" style="flex:1;justify-content:center;">💬 Comentar</button>
+      </div>
+      <div id="photo-expand-comments" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;"></div>
+      <div id="photo-expand-comment-box" style="display:none;margin-top:10px;">
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input id="photo-expand-comment-input" class="form-input" type="text" placeholder="Escreva um comentário…" style="flex:1;height:38px;"
+            onkeydown="if(event.key==='Enter')submitExpandComment()">
+          <button onclick="submitExpandComment()" class="btn-found" style="min-width:auto;padding:0 14px;">Enviar</button>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">🔍 Sugerir espécie</div>
+          <div style="display:flex;gap:8px;">
+            <input id="expand-suggest-input" class="form-input" type="text" list="species-datalist"
+              placeholder="Nome popular ou científico…" style="flex:1;height:34px;font-size:13px;">
+            <button onclick="submitExpandSuggestion()" style="background:var(--forest);border:none;border-radius:var(--radius-md);color:white;padding:0 12px;font-size:12px;font-weight:600;cursor:pointer;">Sugerir</button>
+          </div>
+          <div id="expand-suggestions-list" style="margin-top:6px;display:flex;flex-direction:column;gap:5px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMENTAR CARD DO FEED -->
+<div class="modal-overlay" id="comment-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">💬 Comentários</div>
+      <button class="modal-close" onclick="document.getElementById('comment-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="comment-list" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input id="comment-input" class="form-input" type="text" placeholder="Escreva um comentário…" style="flex:1;height:38px;"
+          onkeydown="if(event.key==='Enter')submitComment()">
+        <button onclick="submitComment()" class="btn-found" style="min-width:auto;padding:0 14px;">Enviar</button>
+      </div>
+      <!-- Sugerir espécie -->
+      <div id="suggest-species-box" style="border-top:1px solid var(--border);padding-top:10px;margin-top:8px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">🔍 Sugerir espécie para este registro</div>
+        <div style="display:flex;gap:8px;">
+          <input id="suggest-species-input" class="form-input" type="text" list="species-datalist"
+            placeholder="Nome popular ou científico…" style="flex:1;height:36px;font-size:13px;">
+          <button onclick="submitSpeciesSuggestion()" style="background:var(--forest);border:none;border-radius:var(--radius-md);color:white;padding:0 14px;font-size:13px;font-weight:600;cursor:pointer;">Sugerir</button>
+        </div>
+        <div id="suggestions-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPANHEIRO DE REGISTRO -->
+<div class="modal-overlay" id="companion-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-title">🤝 Adicionar companheiro</div>
+      <button class="modal-close" onclick="document.getElementById('companion-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:16px;">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Escolha 1 companheiro para este registro</p>
+      <input class="form-input" type="text" id="companion-modal-search" placeholder="🔍 Buscar por @usuário ou nome…"
+        style="height:38px;margin-bottom:10px;" oninput="filterCompanionModal(this.value)">
+      <div id="companion-modal-list" style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SEGUIDORES / SEGUINDO -->
+<div class="modal-overlay" id="follows-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title" id="follows-modal-title">Seguidores</div>
+      <button class="modal-close" onclick="document.getElementById('follows-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="follows-modal-body" class="modal-body" style="max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px;"></div>
+  </div>
+</div>
+
+<!-- MODAL MENSAGENS -->
+<div class="modal-overlay" id="messages-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:520px;padding:0;height:70vh;display:flex;flex-direction:column;">
+    <div class="modal-header" style="padding:16px 20px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+      <div class="modal-title">💬 Mensagens</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="openNewMessageSearch()" title="Nova conversa"
+          style="height:32px;padding:0 12px;background:var(--sky);border:none;border-radius:var(--radius-md);color:white;font-size:13px;font-weight:700;cursor:pointer;">+ Nova</button>
+        <button class="modal-close" onclick="document.getElementById('messages-modal').classList.remove('open')">✕</button>
+      </div>
+    </div>
+    <div id="msg-new-search-box" style="display:none;padding:0 12px 10px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <input class="form-input" type="text" id="msg-new-search-input" placeholder="🔍 Buscar usuário para conversar…"
+        style="height:36px;" oninput="searchNewMsgContact(this.value)">
+      <div id="msg-new-search-results" style="margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto;"></div>
+    </div>
+    <div style="display:flex;flex:1;overflow:hidden;">
+      <div id="msg-contacts" style="width:180px;border-right:1px solid var(--border);overflow-y:auto;padding:8px 0;flex-shrink:0;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;">
+        <div id="msg-thread-header" style="display:none;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--sky);flex-shrink:0;"></div>
+        <div id="msg-thread" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;">
+          <input id="msg-input" class="form-input" type="text" placeholder="Mensagem…" style="flex:1;height:36px;"
+            onkeydown="if(event.key==='Enter')sendMessage()">
+          <button onclick="sendMessage()" class="btn-found" style="min-width:auto;padding:0 12px;">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOTIFICAÇÕES -->
+<div class="modal-overlay" id="notif-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-title">🔔 Notificações</div>
+      <button class="modal-close" onclick="document.getElementById('notif-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="notif-list" class="modal-body" style="max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+
+<!-- MODAL TERMOS DE USO -->
+<div class="modal-overlay" id="terms-modal">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title">📜 Termos de Uso</div>
+      <button class="modal-close" onclick="document.getElementById('terms-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;font-size:13px;color:var(--text);line-height:1.6;">
+      <p><strong>TERMO DE USO DO SITE AVE A VISTA!</strong><br>Última atualização: 24/03/2026</p>
+      <p>Ao acessar, navegar, cadastrar-se ou utilizar o site Ave A Vista!, o usuário declara que leu, compreendeu e concorda integralmente com os presentes Termos de Uso. Caso não concorde com qualquer disposição aqui prevista, o usuário não deverá utilizar a plataforma.</p>
+      <h3>1. OBJETO</h3>
+      <p>O site Ave A Vista! é uma plataforma destinada ao compartilhamento, registro, organização e exibição de fotografias, informações e observações relacionadas a aves e conteúdos correlatos. Ao utilizar a plataforma, o usuário concorda em fornecer conteúdos para fins de funcionamento do sistema, organização de registros, exibição pública e eventual integração com bases externas de dados, inclusive quando aplicável ao iNaturalist ou a outras bases utilizadas pelo site.</p>
+      <h3>2. CADASTRO E RESPONSABILIDADE DO USUÁRIO</h3>
+      <p>Para utilizar determinadas funcionalidades, o usuário poderá precisar se cadastrar e fornecer informações verdadeiras, completas e atualizadas. O usuário é o único responsável por: a) manter a veracidade dos dados fornecidos; b) preservar a confidencialidade de sua conta e senha; c) todo conteúdo publicado por meio de sua conta; d) garantir que possui os direitos necessários sobre as fotos e demais materiais enviados à plataforma.</p>
+      <h3>3. ENVIO E USO DAS FOTOGRAFIAS</h3>
+      <p>Ao enviar fotografias ao Ave A Vista!, o usuário declara e concorda que: a) autoriza o armazenamento das imagens em bancos de dados internos do site, para fins de organização, registro, segurança, exibição e funcionamento da plataforma; b) autoriza que as imagens sejam exibidas a outros usuários do site, de forma pública ou semipública, conforme a estrutura e as funcionalidades da plataforma; c) autoriza o uso das imagens em seções, destaques ou bases internas do site, incluindo, mas não se limitando, a quadros como “Ave do Dia”, galerias, rankings, páginas de espécie, coleções e outras áreas de destaque; d) autoriza, quando aplicável, o compartilhamento, sincronização, publicação ou envio das imagens a plataformas integradas, como o iNaturalist, ou a outras bases de dados utilizadas pelo site para registro e organização dos conteúdos.</p>
+      <h3>4. DIREITOS AUTORAIS E AUTORIA</h3>
+      <p>O envio da fotografia não implica transferência de autoria. Todos os direitos autorais sobre as fotografias permanecem com o autor original da imagem, sendo reconhecido, para todos os fins, que a autoria pertence exclusivamente ao usuário que produziu a fotografia, salvo disposição legal em contrário ou prova diversa. O Ave A Vista! não se torna proprietário das imagens enviadas. O que é concedido ao site é apenas uma autorização de uso, armazenamento, exibição e divulgação nos termos deste documento, sem cessão definitiva da titularidade da obra.</p>
+      <h3>5. LICENÇA DE USO CONCEDIDA AO SITE</h3>
+      <p>Ao enviar uma imagem, o usuário concede ao Ave A Vista! uma licença não exclusiva, gratuita, válida por prazo indeterminado, irrevogável enquanto o conteúdo permanecer na plataforma, e com alcance necessário para a operação do site, para: a) armazenar; b) reproduzir; c) exibir; d) distribuir internamente e em áreas públicas da plataforma; e) organizar em bancos de dados; f) destacar em páginas, campanhas e seções especiais; g) compartilhar em integrações técnicas da plataforma, quando necessário. Essa licença não transfere ao site a propriedade intelectual da fotografia, que continuará pertencendo ao autor.</p>
+      <h3>6. RESPONSABILIDADE SOBRE O CONTEÚDO ENVIADO</h3>
+      <p>O usuário declara ser o legítimo autor da fotografia enviada ou possuir autorização expressa do titular dos direitos para publicá-la e licenciá-la nos termos deste Termo. É proibido enviar imagens de terceiros sem autorização, imagens obtidas ilegalmente, ou conteúdo que viole direitos autorais, direitos de imagem, privacidade, legislação vigente ou qualquer norma aplicável. Caso haja reclamação, contestação ou suspeita de violação de direitos, o Ave A Vista! poderá remover o conteúdo, total ou parcialmente, sem prejuízo de outras medidas cabíveis.</p>
+      <h3>7. EXIBIÇÃO PÚBLICA DO CONTEÚDO</h3>
+      <p>O usuário compreende e concorda que as fotos enviadas poderão ser visualizadas por outros usuários, visitantes e, quando aplicável, por parceiros de integração do site. O usuário também está ciente de que, uma vez publicados, os conteúdos poderão ser indexados, compartilhados ou destacados dentro da própria plataforma, respeitando-se sempre a autoria original da fotografia.</p>
+      <h3>8. MODERAÇÃO E REMOÇÃO</h3>
+      <p>O Ave A Vista! poderá moderar, ocultar, editar metadados, reposicionar ou remover conteúdos que violem estes Termos de Uso, a legislação aplicável ou as políticas internas da plataforma. A remoção do conteúdo não afeta o reconhecimento da autoria da imagem, que permanecerá atribuída ao autor original sempre que possível e tecnicamente viável.</p>
+      <h3>9. PRIVACIDADE E DADOS</h3>
+      <p>O tratamento de dados pessoais eventualmente coletados pelo site observará a legislação aplicável e a Política de Privacidade da plataforma, quando existente. O usuário concorda que os dados necessários ao funcionamento do site e à organização das publicações poderão ser armazenados em banco de dados, inclusive em associação com as imagens e registros enviados.</p>
+      <h3>10. ALTERAÇÕES DESTES TERMOS</h3>
+      <p>O Ave A Vista! poderá alterar este Termo de Uso a qualquer momento, mediante atualização em sua plataforma. O uso continuado do site após as alterações implica concordância com a nova versão.</p>
+      <h3>11. DISPOSIÇÕES FINAIS</h3>
+      <p>Se qualquer disposição deste Termo for considerada inválida ou inexequível, as demais permanecerão em pleno vigor.</p>
+      <h3>12. DOS REGISTROS E PUBLICAÇÕES – CONDIÇÕES ÉTICAS E AMBIENTAIS</h3>
+      <p>O compromisso do Ave A Vista! com a observação responsável da avifauna silvestre é inegociável. Dessa forma, ao realizar qualquer registro ou publicação na plataforma, o usuário declara, sob sua exclusiva responsabilidade, que: a) Toda publicação deve conter, no mínimo, a indicação do município de ocorrência, sendo este dado essencial para a contabilização da espécie e para a validade do registro científico e estatístico no âmbito da plataforma; b) A ave registrada encontra-se em estado de vida livre, não estando sob nenhuma condição de cativeiro, ainda que autorizado, nem em situação de ferimento, contenção, abuso ou qualquer forma de privação de liberdade, exceto quando se tratar de registro vinculado a instituição devidamente identificada e que comprove tratar-se de coleta ou captura para fins de salvamento ou pesquisa científica, conforme procedimento descrito no item “d” abaixo; c) Nenhuma prática de caça, captura, coleta, perseguição ou qualquer ato que possa causar dano, estresse ou morte ao animal foi realizada para a obtenção do registro fotográfico ou da observação, salvo a hipótese de exceção prevista na alínea anterior; d) Registros que envolvam coleta ou captura institucional ou científica somente serão admitidos se o usuário enviar previamente um e-mail para <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="afcdddcac1c1c0cdcac1c4efc7c0dbc2cec6c381ccc0c2">[email&#160;protected]</a>, contendo explicação detalhada e documentos comprobatórios da autorização institucional ou científica (como licença ambiental, autorização do órgão competente, vinculação a projeto de pesquisa ou ação de salvamento). A validação do registro fica condicionada à análise e aprovação pela equipe do Ave A Vista!. Enquanto não houver essa validação prévia, o registro poderá ser removido e sujeito às medidas previstas neste Termo; e) O registro é fruto de observação ética, respeitando-se o distanciamento adequado, o bem-estar do animal e as normas ambientais vigentes.</p>
+      <p>O usuário reconhece que aves silvestres não existem para serem mantidas em gaiolas ou sob confinamento, comprometendo-se a utilizar a plataforma como ferramenta para desnormalizar essa prática, promovendo a valorização da avifauna em seu ambiente natural.</p>
+      <p>O descumprimento de qualquer das normas previstas neste item sujeitará o usuário às seguintes medidas, sem prejuízo de outras cabíveis: Remoção imediata da publicação ou do registro irregular; Advertência ou suspensão da conta do usuário, a critério do Ave A Vista!; Denúncia aos órgãos competentes, em especial à Polícia Militar Ambiental ou ao órgão de proteção animal local, sempre que a conduta configurar infração administrativa, civil ou penal, conforme a legislação aplicável.</p>
+      <p>Ao clicar em “Concordo”, cadastrar-se ou continuar utilizando o site, o usuário declara que leu, entendeu e aceita todos os termos acima.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- BOTTOM NAV — mobile only -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-btn active" data-page="home" onclick="navigateTo('home',this);syncBottomNav(this)">
+    <span class="bn-icon">🏠</span><span>Início</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="feed" onclick="navigateTo('feed',this);syncBottomNav(this)">
+    <span class="bn-icon">📷</span><span>Avistamentos</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="upload" onclick="navigateTo('upload',this);syncBottomNav(this)">
+    <span class="bn-icon">➕</span><span>Registrar</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="users" onclick="navigateTo('users',this);syncBottomNav(this)">
+    <span class="bn-icon">🔍</span><span>Buscar</span>
+  </button>
+  <button class="bottom-nav-btn" data-page="profile" onclick="navigateTo('profile',this);s
