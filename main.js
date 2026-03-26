@@ -5213,17 +5213,18 @@ function stopNotifRealtime() {
 ════════════════════════════════════════ */
 async function loadUserStats(userId, handle) {
   try {
+    // Usa select com dados reais em vez de head:true para evitar erros de RLS
     const [obsR, spR, folR] = await Promise.all([
-      db.from('observations').select('id', { count:'exact', head:true }).eq('user_id', userId),
-      db.from('species_seen').select('id',  { count:'exact', head:true }).eq('user_id', userId),
-      db.from('follows').select('follower_id',       { count:'exact', head:true }).eq('following_id', userId)
+      db.from('observations').select('id').eq('user_id', userId).limit(9999),
+      db.from('species_seen').select('species_sci').eq('user_id', userId).limit(9999),
+      db.from('follows').select('follower_id').eq('following_id', userId).limit(9999)
     ]);
     const s = document.getElementById('usp_'+handle);
     const o = document.getElementById('uob_'+handle);
     const f = document.getElementById('ufo_'+handle);
-    if (s) s.textContent = spR.count  ?? 0;
-    if (o) o.textContent = obsR.count ?? 0;
-    if (f) f.textContent = folR.count ?? 0;
+    if (s) s.textContent = (spR.data?.length) ?? 0;
+    if (o) o.textContent = (obsR.data?.length) ?? 0;
+    if (f) f.textContent = (folR.data?.length) ?? 0;
   } catch(e) {}
 }
 
