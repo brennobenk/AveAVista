@@ -1686,32 +1686,52 @@ async function loadBirdPhoto(sciName, popName) {
   const loading = document.getElementById('bird-img-loading');
   const badge   = document.getElementById('bird-inat-badge');
 
+  // Garante estado inicial: loading visível, img oculta
+  if (img)     { img.style.display = 'none'; img.src = ''; }
+  if (loading) loading.style.display = 'flex';
+  if (badge)   badge.style.display = 'none';
+
   try {
     const idx = await ensurePhotoIndex();
-    const key     = sciName.toLowerCase().trim();
+    const key     = (sciName || '').toLowerCase().trim();
     const entries = idx[key];
     if (entries && entries.length > 0) {
       const entry = entries[Math.floor(Math.random() * entries.length)];
-      img.src = entry.url;
-      img.alt = popName;
-      badge.style.display = 'flex';
-      if (entry.profileUrl) {
-        badge.innerHTML = `📸 Foto por: <a href="${entry.profileUrl}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${entry.author}</a>`;
-      } else {
-        badge.innerHTML = `📸 Foto por: ${entry.author}`;
-      }
-      badge.onclick = null;
-      document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa?q=${encodeURIComponent(sciName)}`, '_blank');
+      // Pré-carrega a imagem antes de exibir
+      const testImg = new Image();
+      testImg.onload = () => {
+        img.src = entry.url;
+        img.alt = popName;
+        img.style.display = 'block';
+        if (loading) loading.style.display = 'none';
+        if (badge) {
+          badge.style.display = 'flex';
+          if (entry.profileUrl) {
+            badge.innerHTML = `📸 Foto por: <a href="${entry.profileUrl}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${entry.author}</a>`;
+          } else {
+            badge.innerHTML = `📸 Foto por: ${entry.author}`;
+          }
+        }
+        document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa?q=${encodeURIComponent(sciName)}`, '_blank');
+      };
+      testImg.onerror = () => showNoBirdPhoto(loading, popName);
+      testImg.src = entry.url;
       return;
     }
   } catch(e) {
-    console.warn('photo_index.json não disponível, tentando iNaturalist…', e);
+    console.warn('photo_index.json indisponível:', e);
   }
 
-  // iNaturalist bloqueado por CORS — usar apenas photo_index.json
+  showNoBirdPhoto(loading, popName);
+}
 
-    loading.querySelector('.bird-emoji-big').textContent = getSpeciesEmoji(popName);
-  loading.querySelector('span').textContent = 'Sem foto disponível';
+function showNoBirdPhoto(loading, popName) {
+  if (!loading) return;
+  loading.style.display = 'flex';
+  const emojiEl = loading.querySelector('.bird-emoji-big');
+  const spanEl  = loading.querySelector('span');
+  if (emojiEl) emojiEl.textContent = getSpeciesEmoji(popName);
+  if (spanEl)  spanEl.textContent  = 'Sem foto disponível';
 }
 
 function openInat() {
@@ -1819,7 +1839,7 @@ async function renderFeed(containerId, limit) {
   try {
     const { data, error } = await db
       .from('observations')
-      .select('*, profiles(nome, handle, avatar_url), companion:profiles!observations_companion_id_fkey(nome, handle)')
+      .select('*, author:profiles!observations_user_id_fkey(nome, handle, avatar_url), companion:profiles!observations_companion_id_fkey(nome, handle)')
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -1850,8 +1870,8 @@ async function renderFeed(containerId, limit) {
       notes:    o.notes || '',
       photoUrl: o.photo_url || null,
       user: {
-        name:   o.profiles?.nome   || o.profiles?.handle || 'Usuário',
-        handle: o.profiles?.handle || ''
+        name:   o.author?.nome   || o.author?.handle || 'Usuário',
+        handle: o.author?.handle || ''
       },
       companionHandle: o.companion?.handle || o.companion_handle || null,
       companionName:   o.companion?.nome   || null,
@@ -3350,7 +3370,7 @@ async function loadRanking() {
     if (_rankTab === 'total') {
       const { data, error } = await db
         .from('species_seen')
-        .select('user_id, profiles(nome, handle, avatar_url)')
+        .select('user_id, profiles:profiles!observations_user_id_fkey(nome, handle, avatar_url)')
         .order('user_id');
       if (error) throw error;
       const byUser = {};
@@ -3387,7 +3407,7 @@ async function loadRanking() {
     } else {
       const { data, error } = await db
         .from('species_seen')
-        .select('user_id, species_sci, profiles(nome, handle, avatar_url)');
+        .select('user_id, species_sci, profiles:profiles!observations_user_id_fkey(nome, handle, avatar_url)');
       if (error) throw error;
       const byUser = {};
       (data || []).forEach(row => {
@@ -3749,7 +3769,7 @@ async function renderCommentList(obsId) {
   const list = document.getElementById('comment-list');
   try {
     const { data } = await db.from('comments')
-      .select('id, content, created_at, user_id, profiles(nome,handle)')
+      .select('id, content, created_at, user_id, profiles:profiles!comments_user_id_fkey(nome,handle)')
       .eq('obs_id', obsId)
       .order('created_at', { ascending: true });
     if (!data || !data.length) {
@@ -4266,7 +4286,7 @@ async function renderSuggestions(obsId, listId) {
     // Busca sugestões e dono do avistamento em paralelo
     const [sugR, obsR] = await Promise.all([
       db.from('species_suggestions')
-        .select('*, profiles(nome,handle)')
+        .select('*, profiles:profiles!observations_user_id_fkey(nome,handle)')
         .eq('obs_id', obsId)
         .order('created_at', { ascending: false }),
       db.from('observations').select('user_id').eq('id', obsId).maybeSingle()
@@ -4408,7 +4428,7 @@ async function loadBirdDayFinders(sci) {
   wrap.style.display = 'none';
   try {
     const { data } = await db.from('observations')
-      .select('photo_url, profiles(id, nome, handle, avatar_url)')
+      .select('photo_url, profiles:profiles!observations_user_id_fkey(id, nome, handle, avatar_url)')
       .eq('species_sci', sci)
       .not('photo_url', 'is', null)
       .order('created_at', { ascending: false })
@@ -4489,7 +4509,7 @@ async function loadExpandComments(obsId) {
   if (!el) return;
   try {
     const { data } = await db.from('comments')
-      .select('id, content, created_at, user_id, profiles(nome,handle)')
+      .select('id, content, created_at, user_id, profiles:profiles!comments_user_id_fkey(nome,handle)')
       .eq('obs_id', obsId)
       .order('created_at', { ascending: true });
     if (!data || !data.length) { el.innerHTML = ''; return; }
@@ -4563,21 +4583,39 @@ let _photoIndexPromise = null; // garante que o índice seja carregado apenas um
 
 function ensurePhotoIndex() {
   if (_photoIndexPromise) return _photoIndexPromise;
-  _photoIndexPromise = fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json')
-    .then(r => { if (!r.ok) throw new Error('network'); return r.json(); })
+  _photoIndexPromise = fetch('https://raw.githubusercontent.com/brennobenk/OrnitologiaSantaCatarina/main/photo_index.json', { cache: 'no-cache' })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(raw => {
       window._photoIndex = {};
-      for (const [photographer, info] of Object.entries(raw)) {
-        for (const foto of (info.fotos || [])) {
-          const key = (foto.cientifico || '').toLowerCase().trim();
-          if (!key) continue;
+      // Suporte tanto ao formato {fotógrafo: {fotos:[...]}} quanto [{cientifico,url,author}]
+      if (Array.isArray(raw)) {
+        raw.forEach(item => {
+          const key = (item.cientifico || item.sci || '').toLowerCase().trim();
+          if (!key) return;
           if (!window._photoIndex[key]) window._photoIndex[key] = [];
-          window._photoIndex[key].push({ url: foto.url, author: photographer, profileUrl: info.wikiaves || null });
+          window._photoIndex[key].push({ url: item.url, author: item.author || item.fotografo || 'Ave à Vista', profileUrl: item.wikiaves || null });
+        });
+      } else {
+        for (const [photographer, info] of Object.entries(raw)) {
+          for (const foto of (info.fotos || [])) {
+            const key = (foto.cientifico || foto.sci || '').toLowerCase().trim();
+            if (!key) continue;
+            if (!window._photoIndex[key]) window._photoIndex[key] = [];
+            window._photoIndex[key].push({ url: foto.url, author: photographer, profileUrl: info.wikiaves || null });
+          }
         }
       }
+      console.log('[photo_index] carregado:', Object.keys(window._photoIndex).length, 'espécies com foto');
       return window._photoIndex;
     })
-    .catch(() => { _photoIndexPromise = null; return {}; });
+    .catch(e => {
+      console.warn('[photo_index] falha ao carregar:', e.message);
+      _photoIndexPromise = null;
+      return {};
+    });
   return _photoIndexPromise;
 }
 
@@ -4827,7 +4865,7 @@ async function openSpeciesModal(sci, pop) {
 
   try {
     const { data, count } = await db.from('observations')
-      .select('id, obs_date, photo_url, profiles(nome,handle)', { count:'exact' })
+      .select('id, obs_date, photo_url, profiles:profiles!observations_user_id_fkey(nome,handle)', { count:'exact' })
       .eq('species_sci', sci).order('created_at',{ascending:false}).limit(20);
     document.getElementById('sp-total').textContent = count ?? 0;
     const uniq = new Set((data||[]).map(o=>o.profiles?.handle).filter(Boolean));
