@@ -2601,21 +2601,36 @@ async function renderProfile() {
     }
   }
 
-  // Galeria (fotos das observações do usuário)
-  const { data: userObs } = await db.from('observations')
-    .select('id, photo_url, species_pop, species_sci, obs_date, location_label')
-    .eq('user_id', currentUser.id)
-    .not('photo_url', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(60);
+  // Galeria (fotos das observações do usuário + fotos onde aparece como companheiro)
+  const [ownObsR, companionObsR] = await Promise.all([
+    db.from('observations')
+      .select('id, photo_url, species_pop, species_sci, obs_date, location_label, companion_handle')
+      .eq('user_id', currentUser.id)
+      .not('photo_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(60),
+    db.from('observations')
+      .select('id, photo_url, species_pop, species_sci, obs_date, location_label, companion_handle, user_id')
+      .eq('companion_handle', currentUser.handle)
+      .not('photo_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(30)
+  ]);
+  const ownPhotos = ownObsR.data || [];
+  const ownIds = new Set(ownPhotos.map(o => o.id));
+  const companionPhotos = (companionObsR.data || []).filter(o => !ownIds.has(o.id));
+  const allPhotos = [...ownPhotos, ...companionPhotos].sort((a,b) => (b.obs_date||'').localeCompare(a.obs_date||''));
+
   const gallery = document.getElementById('gallery-grid');
   if (gallery) {
-    if (userObs && userObs.length) {
-      gallery.innerHTML = userObs.map(o => {
-        const obsForExpand = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, location: o.location_label, notes: '', user: { name: currentUser.name, handle: currentUser.handle } };
-        return `<div class="gallery-item" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
+    if (allPhotos.length) {
+      gallery.innerHTML = allPhotos.map(o => {
+        const isCompanion = !ownIds.has(o.id);
+        const obsForExpand = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, location: o.location_label, notes: '', user: { name: currentUser.name, handle: currentUser.handle }, companionHandle: o.companion_handle || null };
+        return `<div class="gallery-item" style="position:relative;" onclick="openPhotoExpand(${JSON.stringify(obsForExpand).replace(/"/g,'&quot;')})">
           <img src="${o.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="${escHtml(o.species_pop||'')}">
           <div class="gallery-item-label">${escHtml(capitalize(o.species_pop || o.species_sci || ''))}</div>
+          ${isCompanion ? '<div style="position:absolute;top:4px;left:4px;background:rgba(22,163,74,0.85);color:white;font-size:9px;font-weight:700;border-radius:8px;padding:2px 6px;backdrop-filter:blur(4px);">📸 Junto</div>' : ''}
         </div>`;
       }).join('');
     } else {
@@ -3997,26 +4012,82 @@ async function renderAmizades() {
   if (!grid) return;
   if (_renderGuards['amizades']) return;
   _renderGuards['amizades'] = true;
+  grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">Carregando amizades…</div>';
+
   let friends = [];
   if (currentUser?.id) {
     try {
-      const { data } = await db.from('friendships')
+      // Amizades formais (tabela friendships)
+      const { data: fships } = await db.from('friendships')
         .select('shared_obs, status, requester_id, addressee_id, req:profiles!friendships_requester_id_fkey(nome,handle), addr:profiles!friendships_addressee_id_fkey(nome,handle)')
         .or(`requester_id.eq.${currentUser.id},addressee_id.eq.${currentUser.id}`)
         .eq('status','accepted');
-      if (data) friends = data.map(f => {
-        const mine = f.requester_id === currentUser.id;
-        const other = mine ? f.addr : f.req;
-        return { handle: other?.handle||'?', name: other?.nome||'Usuário', color:'#0ea5e9', sharedObs: f.shared_obs||0 };
-      });
-    } catch(e) { console.warn(e); _renderGuards['amizades'] = false; }
+
+      if (fships) {
+        friends = fships.map(f => {
+          const mine = f.requester_id === currentUser.id;
+          const other = mine ? f.addr : f.req;
+          return { handle: other?.handle||'?', name: other?.nome||'Usuário', color:'#0ea5e9', sharedObs: f.shared_obs||0, source: 'friendship' };
+        });
+      }
+
+      // Companheiros de avistamentos (companion_handle) que ainda não estão em friendships
+      const [asAuthor, asCompanion] = await Promise.all([
+        db.from('observations').select('companion_handle').eq('user_id', currentUser.id).not('companion_handle','is',null),
+        db.from('observations').select('user_id, profiles:profiles!observations_user_id_fkey(nome,handle)').eq('companion_handle', currentUser.handle)
+      ]);
+      const friendHandles = new Set(friends.map(f => f.handle));
+
+      // De avistamentos onde eu marquei alguém
+      for (const o of (asAuthor.data || [])) {
+        if (!o.companion_handle || friendHandles.has(o.companion_handle)) continue;
+        friendHandles.add(o.companion_handle);
+        // busca nome do companheiro
+        const { data: cp } = await db.from('profiles').select('nome,handle').eq('handle', o.companion_handle).maybeSingle();
+        friends.push({ handle: cp?.handle || o.companion_handle, name: cp?.nome || o.companion_handle, color:'#16a34a', sharedObs: 0, source: 'companion' });
+      }
+
+      // De avistamentos onde alguém me marcou
+      for (const o of (asCompanion.data || [])) {
+        const h = o.profiles?.handle;
+        if (!h || friendHandles.has(h)) continue;
+        friendHandles.add(h);
+        friends.push({ handle: h, name: o.profiles?.nome || h, color:'#16a34a', sharedObs: 0, source: 'companion' });
+      }
+
+    } catch(e) { console.warn(e); _renderGuards['amizades'] = false; return; }
   }
+
   friends.sort((a,b) => b.sharedObs - a.sharedObs);
+
   if (!friends.length) {
-    grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:32px;">Nenhuma amizade ainda.<br>Registre avistamentos em conjunto! 🐦</p>';
+    // Mostra estado vazio COM a barra de progressão no nível 0
+    const fl0 = FRIEND_LEVELS[0];
+    const fl1 = FRIEND_LEVELS[1];
+    grid.innerHTML = `
+      <div style="padding:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:36px;margin-bottom:8px;">🐦</div>
+          <div style="font-weight:700;font-size:15px;color:var(--text);">Nenhuma amizade ainda</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
+            Adicione companheiros ao registrar avistamentos<br>para construir amizades e subir de nível!
+          </div>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span class="obs-rank-badge ${fl0.cls}" style="font-size:11px;">${fl0.label}</span>
+            <span style="font-size:11px;color:var(--text-muted);">0 / ${fl1.min} obs juntos para <strong>${fl1.label}</strong></span>
+          </div>
+          <div class="friendship-bar"><div class="friendship-fill ${fl0.cls}" style="width:0%;transition:width .6s ease;"></div></div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">
+            ${FRIEND_LEVELS.map((l,i) => `<span style="margin-right:10px;">${l.label}: ${l.min}+ obs</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
     _renderGuards['amizades'] = false;
     return;
   }
+
   grid.innerHTML = friends.map(f => {
     const fl = getFriendLevel(f.sharedObs);
     const nextLvl = FRIEND_LEVELS[Math.min(fl.lvl + 1, 5)];
@@ -4025,6 +4096,7 @@ async function renderAmizades() {
     const safeHandle = escHtml(f.handle);
     const initial    = (f.name||'?')[0].toUpperCase();
     const nextLabel  = fl.lvl < 5 ? escHtml(FRIEND_LEVELS[fl.lvl + 1]?.label || '') : '';
+    const isCompanion = f.source === 'companion';
     return `<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;" onclick="openPublicProfile('${safeHandle}')">
       <div style="width:48px;height:48px;border-radius:50%;background:${escHtml(f.color||'#0ea5e9')};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;flex-shrink:0;">${initial}</div>
       <div style="flex:1;min-width:0;">
@@ -4032,7 +4104,10 @@ async function renderAmizades() {
           <div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</div>
           <span class="obs-rank-badge ${fl.cls}" style="font-size:10px;flex-shrink:0;">${escHtml(fl.label)}</span>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">@${safeHandle} · ${f.sharedObs} avistamento${f.sharedObs !== 1 ? 's' : ''} juntos</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
+          @${safeHandle} · ${f.sharedObs} avistamento${f.sharedObs !== 1 ? 's' : ''} juntos
+          ${isCompanion && f.sharedObs === 0 ? ' · <span style="color:var(--forest);">📸 Companheiro</span>' : ''}
+        </div>
         <div style="margin-top:6px;">
           <div class="friendship-bar"><div class="friendship-fill ${fl.cls}" style="width:${pct}%;transition:width .6s ease;"></div></div>
           <div style="display:flex;justify-content:space-between;margin-top:3px;">
@@ -5333,6 +5408,8 @@ async function openPublicProfile(handle) {
   document.getElementById('pub-stat-obs').textContent = '—';
   document.getElementById('pub-stat-photos').textContent = '—';
   document.getElementById('pub-stat-days').textContent = '—';
+  const pubStatPts = document.getElementById('pub-stat-points');
+  if (pubStatPts) pubStatPts.textContent = '—';
   document.getElementById('pub-action-row').innerHTML = '';
   document.getElementById('pub-gallery-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Carregando...</div>';
   document.getElementById('pub-checklist-grid').innerHTML = '';
@@ -5378,14 +5455,30 @@ async function openPublicProfile(handle) {
     document.getElementById('pub-stat-obs').textContent = obsR.count ?? 0;
 
     const { data: photosData } = await db.from('observations')
-      .select('id, obs_date, photo_url, species_pop, species_sci')
+      .select('id, obs_date, photo_url, species_pop, species_sci, companion_handle')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
       .limit(60);
+
+    // Fotos onde o usuário aparece como companheiro
+    const { data: companionPhotosData } = await db.from('observations')
+      .select('id, obs_date, photo_url, species_pop, species_sci, companion_handle, user_id')
+      .eq('companion_handle', profile.handle)
+      .not('photo_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
     const photos = (photosData || []).filter(o => o.photo_url);
     const uniqueDays = new Set((photosData || []).map(o => o.obs_date).filter(Boolean)).size;
     document.getElementById('pub-stat-photos').textContent = photos.length;
     document.getElementById('pub-stat-days').textContent = uniqueDays;
+
+    // Calcula pontos indicadoras do usuário público
+    const pubSpeciesSciList = (await db.from('species_seen').select('species_sci').eq('user_id', profile.id)).data || [];
+    const pubSpeciesSet = new Set(pubSpeciesSciList.map(r => r.species_sci));
+    const pubPts = calcIndicadorasPoints(pubSpeciesSet);
+    const pubPtsEl = document.getElementById('pub-stat-points');
+    if (pubPtsEl) pubPtsEl.textContent = pubPts;
 
     const actionRow = document.getElementById('pub-action-row');
     if (currentUser && currentUser.id !== profile.id) {
@@ -5440,13 +5533,21 @@ async function openPublicProfile(handle) {
     }
 
     const galleryEl = document.getElementById('pub-gallery-grid');
-    if (photos.length) {
-      galleryEl.innerHTML = photos.map(o => {
+    // Mescla fotos próprias e fotos como companheiro, sem duplicatas
+    const allGalleryPhotos = [...photos];
+    (companionPhotosData || []).forEach(o => {
+      if (!allGalleryPhotos.find(p => p.id === o.id)) allGalleryPhotos.push({ ...o, _isCompanion: true });
+    });
+    allGalleryPhotos.sort((a, b) => (b.obs_date || '').localeCompare(a.obs_date || ''));
+
+    if (allGalleryPhotos.length) {
+      galleryEl.innerHTML = allGalleryPhotos.map(o => {
         const obsObj = { id: o.id, species: o.species_pop, sciName: o.species_sci, photoUrl: o.photo_url, date: o.obs_date, user: { name: profile.nome, handle: profile.handle }, companionHandle: o.companion_handle || null };
         const safeJson = JSON.stringify(obsObj).replace(/"/g,'&quot;');
-        return '<div class="gallery-item" onclick="openPhotoExpand(' + safeJson + ')">'
+        return '<div class="gallery-item" onclick="openPhotoExpand(' + safeJson + ')" style="position:relative;">'
           + '<img src="' + escHtml(o.photo_url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'&#128038;\'">'
           + '<div class="gallery-item-label">' + escHtml(capitalize(o.species_pop || o.species_sci || '')) + '</div>'
+          + (o._isCompanion ? '<div style="position:absolute;top:4px;left:4px;background:rgba(14,165,233,0.85);color:white;font-size:9px;font-weight:700;border-radius:8px;padding:2px 6px;backdrop-filter:blur(4px);">📸 Junto</div>' : '')
           + '</div>';
       }).join('');
     } else {
