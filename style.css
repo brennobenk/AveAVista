@@ -1596,6 +1596,14 @@ body::before {
 .obs-sci:hover { text-decoration: underline; color: var(--sky); }
 
 /* ═══════════════════════════════════════════
+   BANNER "NOVOS AVISTAMENTOS"
+═══════════════════════════════════════════ */
+@keyframes bannerIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ═══════════════════════════════════════════
    LIKE COUNT — sempre visível
 ═══════════════════════════════════════════ */
 #like-count, [id^="like-count-"] {
