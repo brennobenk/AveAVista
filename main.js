@@ -1722,6 +1722,31 @@ async function loadBirdPhoto(sciName, popName) {
     console.warn('photo_index.json indisponível:', e);
   }
 
+  // Fallback: iNaturalist via proxy CORS
+  try {
+    const proxy = 'https://corsproxy.io/?';
+    const inatUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sciName)}&rank=species&per_page=1`;
+    const res  = await fetch(proxy + encodeURIComponent(inatUrl));
+    const data = await res.json();
+    if (data.results?.[0]?.default_photo) {
+      const photo  = data.results[0].default_photo;
+      const inatId = data.results[0].id;
+      const attr = photo.attribution || '';
+      const m = attr.match(/\(c\)\s*([^,]+)/i);
+      const authorName = m ? m[1].trim() : 'iNaturalist';
+      img.src = photo.medium_url;
+      img.alt = popName;
+      img.style.display = 'block';
+      if (loading) loading.style.display = 'none';
+      if (badge) {
+        badge.style.display = 'flex';
+        badge.innerHTML = `🌿 <a href="https://www.inaturalist.org/taxa/${inatId}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${authorName} · iNaturalist ↗</a>`;
+      }
+      document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa/${inatId}`, '_blank');
+      return;
+    }
+  } catch(e) { /* proxy indisponível */ }
+
   showNoBirdPhoto(loading, popName);
 }
 
@@ -1839,7 +1864,7 @@ async function renderFeed(containerId, limit) {
   try {
     const { data, error } = await db
       .from('observations')
-      .select('*, author:profiles!observations_user_id_fkey(nome, handle, avatar_url), companion:profiles!observations_companion_id_fkey(nome, handle)')
+      .select('*, profiles(nome, handle, avatar_url)')
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -1870,11 +1895,11 @@ async function renderFeed(containerId, limit) {
       notes:    o.notes || '',
       photoUrl: o.photo_url || null,
       user: {
-        name:   o.author?.nome   || o.author?.handle || 'Usuário',
-        handle: o.author?.handle || ''
+        name:   o.profiles?.nome   || o.profiles?.handle || 'Usuário',
+        handle: o.profiles?.handle || ''
       },
-      companionHandle: o.companion?.handle || o.companion_handle || null,
-      companionName:   o.companion?.nome   || null,
+      companionHandle: o.companion_handle || null,
+      companionName:   null,
     }));
 
     container.innerHTML = allObs.map((obs) => {
@@ -4631,7 +4656,21 @@ async function getBirdPhoto(sci) {
       return _birdPhotoCache[sci];
     }
   } catch(e) {}
-  // iNaturalist removido (bloqueado por CORS no GitHub Pages)
+  // Fallback: iNaturalist via proxy CORS (evita bloqueio do GitHub Pages)
+  try {
+    const proxy = 'https://corsproxy.io/?';
+    const inatUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&per_page=1`;
+    const r = await fetch(proxy + encodeURIComponent(inatUrl));
+    const j = await r.json();
+    const url = j.results?.[0]?.default_photo?.medium_url;
+    if (url) {
+      const attr = j.results[0].default_photo?.attribution || '';
+      const m = attr.match(/\(c\)\s*([^,]+)/i);
+      const author = m ? m[1].trim() : 'iNaturalist';
+      _birdPhotoCache[sci] = { url, author, source: 'inat', inatId: j.results[0].id };
+      return _birdPhotoCache[sci];
+    }
+  } catch(e) { /* proxy indisponível */ }
   _birdPhotoCache[sci] = null;
   return null;
 }
@@ -4679,9 +4718,11 @@ function renderBirdsGrid(birds) {
   _birdsPage = 0;
   const grid = document.getElementById('birds-grid');
   if (!grid) return;
-  // Remove sentinel anterior
+  // Remove sentinel e loader anteriores
   const oldSentinel = document.getElementById('birds-scroll-sentinel');
   if (oldSentinel) oldSentinel.remove();
+  const oldLoader = document.getElementById('birds-scroll-loader');
+  if (oldLoader) oldLoader.remove();
   if (_birdsScrollObserver) { _birdsScrollObserver.disconnect(); _birdsScrollObserver = null; }
 
   if (!_birdsCurrentList.length) {
@@ -4751,26 +4792,50 @@ function _appendBirdsPage(grid) {
 
 function _setupBirdsScrollObserver(grid) {
   if (!('IntersectionObserver' in window)) return;
-  // Sentinel no final do grid
+  const hasMore = _birdsCurrentList.length > _BIRDS_PER_PAGE;
+  if (!hasMore) {
+    // Mostra total sem sentinel de carregamento
+    const done = document.createElement('div');
+    done.id = 'birds-scroll-sentinel';
+    done.style.cssText = 'grid-column:1/-1;height:40px;display:flex;align-items:center;justify-content:center;';
+    done.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">✅ ${_birdsCurrentList.length} espécies carregadas</span>`;
+    grid.appendChild(done);
+    return;
+  }
+
+  // Sentinel inicialmente invisível — só aparece quando o usuário realmente chegou ao fim
   const sentinel = document.createElement('div');
   sentinel.id = 'birds-scroll-sentinel';
-  sentinel.style.cssText = 'grid-column:1/-1;height:60px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;';
-  const hasMore = _birdsCurrentList.length > _BIRDS_PER_PAGE;
-  sentinel.innerHTML = hasMore ? '<span style="animation:spin 1s linear infinite;font-size:22px;">🐦</span><span style="margin-left:8px;">Carregando mais espécies…</span>' : '';
+  sentinel.style.cssText = 'grid-column:1/-1;height:2px;display:block;';
   grid.appendChild(sentinel);
 
-  if (!hasMore) return;
+  // Loading indicator separado — aparece embaixo do sentinel quando ativado
+  const loader = document.createElement('div');
+  loader.id = 'birds-scroll-loader';
+  loader.style.cssText = 'grid-column:1/-1;height:60px;display:none;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;';
+  loader.innerHTML = '<span style="animation:spin 1s linear infinite;font-size:22px;">🐦</span><span style="margin-left:8px;">Carregando mais espécies…</span>';
+  grid.appendChild(loader);
 
+  let _loading = false;
   _birdsScrollObserver = new IntersectionObserver((entries) => {
-    if (!entries[0].isIntersecting) return;
-    sentinel.innerHTML = '<span style="animation:spin 1s linear infinite;font-size:22px;">🐦</span><span style="margin-left:8px;">Carregando mais espécies…</span>';
-    const stillMore = _appendBirdsPage(grid);
-    if (!stillMore) {
-      sentinel.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">✅ ${_birdsCurrentList.length} espécies carregadas</span>`;
-      _birdsScrollObserver.disconnect();
-    }
-  }, { rootMargin: '200px' });
-  _birdsScrollObserver.observe(sentinel);
+    if (!entries[0].isIntersecting || _loading) return;
+    _loading = true;
+    loader.style.display = 'flex';
+    // Pequeno delay para evitar trigger acidental no primeiro render
+    setTimeout(() => {
+      const stillMore = _appendBirdsPage(grid);
+      loader.style.display = 'none';
+      _loading = false;
+      if (!stillMore) {
+        loader.style.display = 'flex';
+        loader.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">✅ ${_birdsCurrentList.length} espécies carregadas</span>`;
+        _birdsScrollObserver.disconnect();
+      }
+    }, 300);
+  }, { rootMargin: '0px', threshold: 0.1 });
+
+  // Aguarda o grid ter altura antes de observar
+  setTimeout(() => _birdsScrollObserver.observe(sentinel), 500);
 }
 
 /* ════════════════════════════════════════
