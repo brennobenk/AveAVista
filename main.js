@@ -1520,6 +1520,7 @@ db.auth.onAuthStateChange(async (event, session) => {
       updateSidebarAuth();
       renderProfile();
       loadUserChecklist();
+      if (event === 'SIGNED_IN') showLoginAnimation(profile.nome || profile.handle || '');
       loadNotifBadge();
       loadMsgBadge(); // <-- adicionar aqui
       startNotifRealtime();
@@ -1707,37 +1708,9 @@ async function loadBirdPhoto(sciName, popName) {
     console.warn('photo_index.json não disponível, tentando iNaturalist…', e);
   }
 
-  try {
-    const url  = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sciName)}&rank=species&per_page=1`;
-    const res  = await fetch(url);
-    const data = await res.json();
-    if (data.results && data.results[0] && data.results[0].default_photo) {
-      const photo  = data.results[0].default_photo;
-      const inatId = data.results[0].id;
-      img.src = photo.medium_url;
-      img.alt = popName;
-      badge.style.display = 'flex';
-      let authorName = '';
-      let licenseText = '';
-      if (photo.attribution) {
-        const match = photo.attribution.match(/\(c\)\s*([^,]+)/i);
-        if (match) authorName = match[1].trim();
-        const licMatch = photo.attribution.match(/\((CC[^)]+|public domain)\)/i);
-        if (licMatch) licenseText = licMatch[1];
-      }
-      const authorHtml = authorName
-        ? `<a href="https://www.inaturalist.org/taxa/${inatId}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">${authorName}</a>`
-        : `<a href="https://www.inaturalist.org/taxa/${inatId}" target="_blank" style="color:white;text-decoration:underline;margin-left:4px;">iNaturalist</a>`;
-      badge.innerHTML = `🌿 Foto por: ${authorHtml}${licenseText ? ` <span style="opacity:.7;font-size:10px;margin-left:4px;">${licenseText}</span>` : ''}`;
-      badge.onclick = null;
-      document.getElementById('btn-inat').onclick = () => window.open(`https://www.inaturalist.org/taxa/${inatId}`, '_blank');
-      return;
-    }
-  } catch(e) {
-    console.warn('iNaturalist também indisponível:', e);
-  }
+  // iNaturalist bloqueado por CORS — usar apenas photo_index.json
 
-  loading.querySelector('.bird-emoji-big').textContent = getSpeciesEmoji(popName);
+    loading.querySelector('.bird-emoji-big').textContent = getSpeciesEmoji(popName);
   loading.querySelector('span').textContent = 'Sem foto disponível';
 }
 
@@ -2502,6 +2475,78 @@ function switchAuthTab(tab, btn) {
   if (btn) btn.classList.add('active');
 }
 
+
+/* ════════════════════════════════════════
+   ANIMAÇÃO DE LOGIN
+════════════════════════════════════════ */
+function showLoginAnimation(userName) {
+  // Remove qualquer overlay anterior
+  const existing = document.getElementById('login-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'login-overlay';
+  overlay.style.cssText = [
+    'position:fixed','inset:0','z-index:99999',
+    'display:flex','flex-direction:column','align-items:center','justify-content:center','gap:18px',
+    'background:var(--bg)','opacity:0','transition:opacity .3s ease'
+  ].join(';');
+
+  overlay.innerHTML = `
+    <div style="position:relative;width:90px;height:90px;">
+      <div id="login-bird-orbit" style="position:absolute;inset:0;animation:loginOrbit 1.1s linear infinite;">
+        <span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:22px;">🐦</span>
+      </div>
+      <div style="position:absolute;inset:8px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 4px 20px rgba(14,165,233,0.4);">
+        🌿
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);animation:loginFadeUp .5s ease .2s both;">
+        Bem-vindo${userName ? ', ' + userName.split(' ')[0] : ''}!
+      </div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px;animation:loginFadeUp .5s ease .4s both;">
+        Preparando seu ambiente…
+      </div>
+    </div>
+    <div style="width:220px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;animation:loginFadeUp .5s ease .3s both;">
+      <div style="height:100%;background:linear-gradient(90deg,var(--sky),var(--forest));border-radius:4px;animation:loginBar 1.4s ease-out .2s forwards;width:0%;"></div>
+    </div>
+  `;
+
+  // Keyframes dinâmicos (só se não existirem)
+  if (!document.getElementById('login-keyframes')) {
+    const style = document.createElement('style');
+    style.id = 'login-keyframes';
+    style.textContent = `
+      @keyframes loginOrbit {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes loginFadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes loginBar {
+        from { width: 0%; }
+        to   { width: 100%; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.body.appendChild(overlay);
+  // Fade in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+  });
+  // Remove após animação
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 350);
+  }, 1800);
+}
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
@@ -2518,7 +2563,8 @@ async function doLogin() {
       return;
     }
     document.getElementById('auth-modal').classList.remove('open');
-    showToast('✅ Bem-vindo de volta!');
+    const loginName = (await db.from('profiles').select('nome').eq('id', data.user.id).maybeSingle()).data?.nome || '';
+    showLoginAnimation(loginName);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Entrar'; }
   }
@@ -4502,18 +4548,8 @@ async function getBirdPhoto(sci) {
       return _birdPhotoCache[sci];
     }
   } catch(e) {}
-  try {
-    const r = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sci)}&rank=species&limit=1`);
-    const j = await r.json();
-    const url = j.results?.[0]?.default_photo?.medium_url;
-    if (url) {
-      const attr = j.results[0].default_photo?.attribution || '';
-      const m = attr.match(/\(c\)\s*([^,]+)/i);
-      const realAuthor = m ? m[1].trim() : 'iNaturalist';
-      _birdPhotoCache[sci] = { url, author: realAuthor, source: 'inat', inatId: j.results[0].id };
-      return _birdPhotoCache[sci];
-    }
-  } catch(e) {}
+  // iNaturalist removido (bloqueado por CORS no GitHub Pages)
+  _birdPhotoCache[sci] = null;
   return null;
 }
 
@@ -4547,64 +4583,111 @@ document.addEventListener('click', e => {
     sug.style.display='none';
 });
 
+/* ════════════════════════════════════════
+   GLOSSÁRIO — INFINITE SCROLL (50 por vez)
+════════════════════════════════════════ */
+let _birdsCurrentList = [];
+let _birdsPage = 0;
+const _BIRDS_PER_PAGE = 50;
+let _birdsScrollObserver = null;
+
 function renderBirdsGrid(birds) {
+  _birdsCurrentList = birds || [];
+  _birdsPage = 0;
   const grid = document.getElementById('birds-grid');
   if (!grid) return;
-  if (!birds || !birds.length) {
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma ave encontrada.</div>';
+  // Remove sentinel anterior
+  const oldSentinel = document.getElementById('birds-scroll-sentinel');
+  if (oldSentinel) oldSentinel.remove();
+  if (_birdsScrollObserver) { _birdsScrollObserver.disconnect(); _birdsScrollObserver = null; }
+
+  if (!_birdsCurrentList.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma ave encontrada.</div>';
     return;
   }
-  grid.innerHTML = birds.map(b => {
-    const found  = foundSpecies.has(b.sci);
-    const atRisk = b.sc && b.sc !== 'LC';
-    const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
-    return `<div id="bcard_${safeId}" onclick="openSpeciesModal('${b.sci.replace(/'/g,"\\'")}','${b.pop.replace(/'/g,"\\'")}');"
-      style="position:relative;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;height:130px;background:var(--sky-light);transition:transform .15s,box-shadow .15s;"
-      onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'"
-      onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,var(--sky),var(--forest));" data-sci="${escHtml(b.sci)}"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,0.75));"></div>
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px;">
-        <div style="font-weight:700;font-size:12px;color:white;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,0.8);">${capitalize(b.pop)}</div>
-        <div style="font-size:9.5px;color:rgba(255,255,255,0.75);font-style:italic;">${b.sci}</div>
-        <div style="display:flex;gap:3px;margin-top:3px;">
-          ${found  ? '<span style="font-size:9px;background:var(--forest);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">✓</span>' : ''}
-          ${atRisk ? '<span style="font-size:9px;background:rgba(239,68,68,0.8);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">⚠</span>' : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  grid.innerHTML = '';
+  _appendBirdsPage(grid);
+  _setupBirdsScrollObserver(grid);
+}
 
-  // Lazy-load com IntersectionObserver para não sobrecarregar
-  const bgEls = grid.querySelectorAll('[id^="bcard_bg_"]');
+function _buildBirdCard(b) {
+  const found  = foundSpecies.has(b.sci);
+  const atRisk = b.sc && b.sc !== 'LC';
+  const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
+  return `<div id="bcard_${safeId}" onclick="openSpeciesModal('${b.sci.replace(/'/g,"\'")}','${b.pop.replace(/'/g,"\'")}');"
+    style="position:relative;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;height:130px;background:var(--sky-light);transition:transform .15s,box-shadow .15s;"
+    onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'"
+    onmouseout="this.style.transform='';this.style.boxShadow=''">
+    <div id="bcard_bg_${safeId}" style="position:absolute;inset:0;background:linear-gradient(135deg,var(--sky),var(--forest));" data-sci="${escHtml(b.sci)}"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,0.75));"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px;">
+      <div style="font-weight:700;font-size:12px;color:white;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,0.8);">${capitalize(b.pop)}</div>
+      <div style="font-size:9.5px;color:rgba(255,255,255,0.75);font-style:italic;">${b.sci}</div>
+      <div style="display:flex;gap:3px;margin-top:3px;">
+        ${found  ? '<span style="font-size:9px;background:var(--forest);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">✓</span>' : ''}
+        ${atRisk ? '<span style="font-size:9px;background:rgba(239,68,68,0.8);color:white;border-radius:10px;padding:1px 5px;font-weight:700;">⚠</span>' : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function _appendBirdsPage(grid) {
+  const start = _birdsPage * _BIRDS_PER_PAGE;
+  const slice = _birdsCurrentList.slice(start, start + _BIRDS_PER_PAGE);
+  if (!slice.length) return false;
+
+  const frag = document.createDocumentFragment();
+  slice.forEach(b => {
+    const div = document.createElement('div');
+    div.innerHTML = _buildBirdCard(b);
+    frag.appendChild(div.firstElementChild);
+  });
+  grid.appendChild(frag);
+  _birdsPage++;
+
+  // Lazy-load fotos com IntersectionObserver
+  const newBgs = grid.querySelectorAll('[id^="bcard_bg_"]:not([data-observed])');
   if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((entries) => {
+    const photoObs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        const el  = entry.target;
-        const sci = el.dataset.sci;
-        if (sci && !el._loaded) {
-          el._loaded = true;
-          getBirdPhoto(sci).then(photo => {
-            if (!photo) return;
-            el.style.cssText = `position:absolute;inset:0;background-image:url(${photo.url});background-size:cover;background-position:center;`;
-          });
-        }
-        obs.unobserve(el);
+        const el = entry.target;
+        if (el._loaded) return;
+        el._loaded = true;
+        getBirdPhoto(el.dataset.sci).then(photo => {
+          if (!photo) return;
+          el.style.cssText = `position:absolute;inset:0;background-image:url(${photo.url});background-size:cover;background-position:center;`;
+        });
+        photoObs.unobserve(el);
       });
-    }, { rootMargin: '100px' });
-    bgEls.forEach(el => obs.observe(el));
-  } else {
-    // Fallback sem observer
-    birds.slice(0, 20).forEach(b => {
-      const safeId = b.sci.replace(/[^a-zA-Z0-9]/g,'_');
-      getBirdPhoto(b.sci).then(photo => {
-        if (!photo) return;
-        const bg = document.getElementById('bcard_bg_'+safeId);
-        if (bg) bg.style.cssText = `position:absolute;inset:0;background-image:url(${photo.url});background-size:cover;background-position:center;`;
-      });
-    });
+    }, { rootMargin: '150px' });
+    newBgs.forEach(el => { el.setAttribute('data-observed','1'); photoObs.observe(el); });
   }
+  return slice.length === _BIRDS_PER_PAGE; // tem mais?
+}
+
+function _setupBirdsScrollObserver(grid) {
+  if (!('IntersectionObserver' in window)) return;
+  // Sentinel no final do grid
+  const sentinel = document.createElement('div');
+  sentinel.id = 'birds-scroll-sentinel';
+  sentinel.style.cssText = 'grid-column:1/-1;height:60px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;';
+  const hasMore = _birdsCurrentList.length > _BIRDS_PER_PAGE;
+  sentinel.innerHTML = hasMore ? '<span style="animation:spin 1s linear infinite;font-size:22px;">🐦</span><span style="margin-left:8px;">Carregando mais espécies…</span>' : '';
+  grid.appendChild(sentinel);
+
+  if (!hasMore) return;
+
+  _birdsScrollObserver = new IntersectionObserver((entries) => {
+    if (!entries[0].isIntersecting) return;
+    sentinel.innerHTML = '<span style="animation:spin 1s linear infinite;font-size:22px;">🐦</span><span style="margin-left:8px;">Carregando mais espécies…</span>';
+    const stillMore = _appendBirdsPage(grid);
+    if (!stillMore) {
+      sentinel.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">✅ ${_birdsCurrentList.length} espécies carregadas</span>`;
+      _birdsScrollObserver.disconnect();
+    }
+  }, { rootMargin: '200px' });
+  _birdsScrollObserver.observe(sentinel);
 }
 
 /* ════════════════════════════════════════
