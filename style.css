@@ -331,6 +331,19 @@ body::before {
   transition: box-shadow 0.2s;
 }
 .topbar-title:hover .tb-logo-icon { box-shadow: 0 4px 16px rgba(14,165,233,0.4); }
+/* PNG logo */
+.tb-logo-img {
+  width: 32px; height: 32px;
+  object-fit: contain;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+.sidebar-logo-img {
+  width: 40px; height: 40px;
+  object-fit: contain;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
 
 .topbar-search {
   flex: 1;
@@ -706,13 +719,80 @@ body::before {
 .obs-card {
   background: var(--card);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--border);
+  overflow: visible;
+  border: 2px solid var(--border);
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.3s ease;
   cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
-.obs-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+/* clip inner content, but let 3d card overflow parent */
+.obs-card > * { border-radius: calc(var(--radius-lg) - 2px); overflow: hidden; }
+.obs-card-img { border-radius: calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px) 0 0 !important; overflow: hidden !important; }
+
+/* Shine overlay for 3D effect */
+.obs-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--radius-lg) - 2px);
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.2s;
+  opacity: 0;
+}
+.obs-card:hover::after { opacity: 1; }
+
+/* ── Rarity borders ── */
+.rarity-comum {
+  border-color: #7dd3fc55;
+  box-shadow: 0 0 0 1px #7dd3fc33, var(--shadow-sm);
+}
+.rarity-rara {
+  border-color: #f59e0b;
+  box-shadow: 0 0 8px 0 #f59e0b55, var(--shadow-sm);
+  animation: pulse-gold 2.5s ease-in-out infinite;
+}
+.rarity-muito-rara {
+  border-color: #f43f5e;
+  box-shadow: 0 0 12px 2px #f43f5e66, 0 0 24px 0 #f43f5e33, var(--shadow-sm);
+  animation: pulse-red 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 6px 0 #f59e0b44, var(--shadow-sm); border-color: #f59e0b; }
+  50%       { box-shadow: 0 0 18px 4px #f59e0baa, var(--shadow-sm); border-color: #fbbf24; }
+}
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 10px 2px #f43f5e55, var(--shadow-sm); border-color: #f43f5e; }
+  33%       { box-shadow: 0 0 22px 6px #f43f5ecc, 0 0 40px 0 #f43f5e55, var(--shadow-sm); border-color: #fb7185; }
+  66%       { box-shadow: 0 0 14px 3px #f43f5e88, var(--shadow-sm); border-color: #e11d48; }
+}
+
+/* Rarity badge on card */
+.rarity-rara .obs-card-img::after {
+  content: '⭐ Rara';
+  position: absolute; top: 8px; right: 8px;
+  background: #f59e0bdd; color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  z-index: 3;
+}
+.rarity-muito-rara .obs-card-img::after {
+  content: '🔴 Muito Rara';
+  position: absolute; top: 8px; right: 8px;
+  background: #f43f5eee; color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  z-index: 3;
+  animation: badge-flash 1.4s ease-in-out infinite;
+}
+@keyframes badge-flash {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
 
 .obs-card-img {
   width: 100%; height: 180px;
@@ -1140,7 +1220,9 @@ body::before {
   cursor: pointer; transition: all var(--transition);
   border: 1.5px solid var(--sky); background: none; color: var(--sky);
 }
-.btn-follow:hover, .btn-follow.following { background: var(--sky); color: white; border-color: var(--sky); }
+.btn-follow:hover { background: var(--sky); color: white; border-color: var(--sky); }
+.btn-follow.following { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
+.btn-follow.following:hover { background: var(--coral-light); color: var(--coral); border-color: var(--coral); }
 
 /* ═══════════════════════════════════════════
    MODAIS
@@ -1264,16 +1346,17 @@ body::before {
   border-radius: var(--radius-xl);
   padding: 40px 48px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg), 0 0 0 3px var(--cel-color, var(--sky));
+  border: 2px solid var(--cel-color, var(--sky));
   animation: celebIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
   pointer-events: auto;
+  min-width: 280px;
 }
 @keyframes celebIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .celebration-emoji { font-size: 72px; margin-bottom: 12px; }
 .celebration-title {
   font-family: 'Syne', sans-serif;
-  font-size: 26px; font-weight: 800; color: var(--text);
+  font-size: 26px; font-weight: 800; color: var(--cel-color, var(--sky));
   margin-bottom: 6px;
 }
 .celebration-sub { font-size: 15px; color: var(--text-mid); }
@@ -1414,3 +1497,30 @@ body::before {
   from { width: 0%; }
   to   { width: 100%; }
 }
+
+/* ═══════════════════════════════════════════
+   3D CARD EFFECT
+═══════════════════════════════════════════ */
+.obs-card {
+  transform-style: preserve-3d;
+}
+.card-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--radius-lg) - 2px);
+  pointer-events: none;
+  z-index: 6;
+  transition: background 0.1s;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR LOGO PNG
+═══════════════════════════════════════════ */
+.sidebar-logo-img {
+  width: 40px; height: 40px;
+  object-fit: contain;
+  border-radius: 10px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+.sidebar.expanded .sidebar-logo-img { margin-left: 16px; }
