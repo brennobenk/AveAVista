@@ -46,6 +46,51 @@ function invalidateCache(prefix) {
   Object.keys(_reqCache).forEach(k => { if (k.startsWith(prefix)) delete _reqCache[k]; });
 }
 
+/* ════════════════════════════════════════
+   RARIDADE DAS ESPÉCIES
+   Fonte: raridade.txt do repositório
+════════════════════════════════════════ */
+const MUITO_RARAS = new Set([
+  "Urubitinga coronata","Thalassarche chlororhynchos","Diomedea dabbenena",
+  "Diomedea exulans","Touit melanonotus","Pteroglossus castanotis",
+  "Limnoctites rectirostris","Phylloscartes eximius","Formicivora acutirostris",
+  "Sporophila cinnamomea","Cistothorus platensis","Sporophila angolensis",
+  "Rhea americana","Spizaetus ornatus","Pterodroma incerta","Eudocimus ruber",
+  "Aburria jacutinga","Primolius maracana","Onychorhynchus swainsoni",
+  "Polystictus pectoralis","Culicivora caudacuta","Amazona vinacea",
+  "Heliornis fulica","Tigrisoma fasciatum","Scytalopus iraiensis",
+  "Accipiter poliogaster","Xanthopsar flavus"
+]);
+
+const RARAS = new Set([
+  "Pandion haliaetus","Thalassarche chrysostoma","Thalassarche melanophris",
+  "Myiobius barbatus","Sporophila palustris","Anthus nattereri","Piprites pileata",
+  "Sporophila falcirostris","Strix huhula","Hydropsalis anomala",
+  "Corythopis delalandi","Phylloscartes difficilis","Spizaetus melanoleucus",
+  "Amadonastur lacernulatus","Crypturellus noctivagus","Calidris subruficollis",
+  "Limnodromus griseus","Calidris pusilla","Stercorarius parasiticus",
+  "Hemitriccus kaempferi","Phylloscartes sylviolus","Chloroceryle inda",
+  "Heteroxolmis dominicanus","Hemitriccus diops","Myrmoderus squamosus",
+  "Amazona pretrei","Biatas nigropectus","Procellaria conspicillata",
+  "Procellaria aequinoctialis","Sporophila beltoni","Platyrinchus leucoryphus",
+  "Pyroderus scutatus","Celeus galeatus","Drymophila squamata",
+  "Sporophila frontalis","Stilpnia peruviana","Laterallus spilopterus",
+  "Trogon viridis","Scytalopus pachecoi","Phibalura flavirostris",
+  "Loriotus cristatus","Cissopis leverianus","Thalasseus maximus",
+  "Lipaugus lanioides"
+]);
+
+function getRaridade(sci) {
+  if (MUITO_RARAS.has(sci)) return 'muito-rara';
+  if (RARAS.has(sci)) return 'rara';
+  return 'comum';
+}
+
+/* Opera GX / navegadores Chromium: fix para supabase UMD */
+if (typeof window !== 'undefined' && !window._supabaseReady) {
+  window._supabaseReady = true;
+}
+
 
 function obterDescricaoAve(sci) {
   if (!descricoesAves || Object.keys(descricoesAves).length === 0) return null;
@@ -1592,7 +1637,10 @@ function navigateTo(pageId, btn) {
     if (sidebar) sidebar.classList.remove('expanded');
     if (layout) layout.classList.remove('sidebar-expanded');
   }
-  if (pageId === 'feed')    renderFeed('full-feed', 12);
+  if (pageId === 'feed') {
+    _feedOffset = 0; _feedHasMore = true; _feedLoading = false;
+    renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => setupFeedInfiniteScroll('full-feed'));
+  }
   if (pageId === 'profile') renderProfile();
   if (pageId === 'users')   renderUsers('');
   if (pageId === 'ranking') loadRanking();
@@ -1920,11 +1968,22 @@ async function renderFeed(containerId, limit) {
       const userHandle = obs.user?.handle || '';
       const hasPhoto   = obs.photoUrl;
       const obsId      = obs.id;
+      const raridade   = getRaridade(obs.sciName || '');
+      let cardBorder = '';
+      let cardClass  = 'obs-card';
+      if (raridade === 'muito-rara') { cardClass += ' obs-card-muito-rara'; }
+      else if (raridade === 'rara') { cardClass += ' obs-card-rara'; }
+      else { cardClass += ' obs-card-comum'; }
+
+      const safeObsJson = JSON.stringify(obs).replace(/"/g,'&quot;');
       return `
-      <div class="obs-card">
-        <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${JSON.stringify(obs).replace(/"/g,'&quot;')})`:''}">
-          ${hasPhoto ? `<img src="${obs.photoUrl}" alt="${obs.species||''}" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
+      <div class="${cardClass}" style="transform-style:preserve-3d;will-change:transform;"
+        onmousemove="obs3dTilt(this,event)"
+        onmouseleave="obs3dReset(this)">
+        <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${safeObsJson})`:''}">
+          ${hasPhoto ? `<img src="${obs.photoUrl}" alt="${escHtml(obs.species||'')}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
           ${hasPhoto ? `<div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.3));border-radius:inherit;pointer-events:none;"></div>` : ''}
+          ${raridade !== 'comum' ? `<div class="raridade-badge raridade-${raridade}">${raridade === 'muito-rara' ? '🔴 Muito Rara' : '🟡 Rara'}</div>` : ''}
         </div>
         <div class="obs-card-body">
           <div class="obs-card-user">
@@ -1932,8 +1991,8 @@ async function renderFeed(containerId, limit) {
             <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml(userName||'Usuário')}</span>
             <span class="obs-date">${formatDate(obs.date||'')}</span>
           </div>
-          <div class="obs-species">${escHtml(capitalize(obs.species||obs.sciName||''))}</div>
-          <div class="obs-sci">${escHtml(obs.sciName||'')}</div>
+          <div class="obs-species" style="cursor:pointer;" onclick="event.stopPropagation();openSpeciesModal('${escHtml(obs.sciName||'')}','${escHtml(obs.species||obs.sciName||'')}')">${escHtml(capitalize(obs.species||obs.sciName||''))}</div>
+          <div class="obs-sci" style="cursor:pointer;font-style:italic;" onclick="event.stopPropagation();openSpeciesModal('${escHtml(obs.sciName||'')}','${escHtml(obs.species||obs.sciName||'')}')">${escHtml(obs.sciName||'')}</div>
           ${obs.companionHandle ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">` +
             `📸 <span onclick="event.stopPropagation();openPublicProfile('${escHtml(obs.user?.handle||'')}');" style="color:var(--sky);cursor:pointer;">@${escHtml(obs.user?.handle||'')}</span>` +
             ` e <span onclick="event.stopPropagation();openPublicProfile('${escHtml(obs.companionHandle||'')}');" style="color:var(--sky);cursor:pointer;">@${escHtml(obs.companionHandle||'')}</span>` +
@@ -1942,9 +2001,9 @@ async function renderFeed(containerId, limit) {
         </div>
         <div class="obs-card-footer">
           <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)">
-            <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}"></span>
+            <span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}">0</span>
           </button>
-          <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openCommentModal('${obsId}', '${capitalize(obs.species||obs.sciName||'')}')">💬 <span id="comment-count-${obsId}"></span></button>
+          <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openCommentModal('${obsId}', '${capitalize(obs.species||obs.sciName||'')}')">💬 <span id="comment-count-${obsId}">0</span></button>
           ${obs.inatId ? `<button class="obs-action-btn" onclick="window.open('https://www.inaturalist.org/observations/${obs.inatId}','_blank')">🌿 iNat</button>` : ''}
         </div>
       </div>`;
@@ -1959,6 +2018,139 @@ async function renderFeed(containerId, limit) {
 }
 
 /* ════════════════════════════════════════
+   EFEITO 3D RELUZENTE NOS CARDS
+════════════════════════════════════════ */
+function obs3dTilt(el, e) {
+  const rect = el.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const rotX = ((y - cy) / cy) * -8;
+  const rotY = ((x - cx) / cx) * 8;
+  el.style.transform = `perspective(600px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.04)`;
+  el.style.boxShadow = `${(x-cx)/10}px ${(y-cy)/10}px 28px rgba(14,165,233,0.25), 0 8px 32px rgba(0,0,0,0.12)`;
+  el.style.transition = 'transform 0.05s, box-shadow 0.05s';
+  el.style.zIndex = '5';
+}
+function obs3dReset(el) {
+  el.style.transform = '';
+  el.style.boxShadow = '';
+  el.style.transition = 'transform 0.35s cubic-bezier(.4,0,.2,1), box-shadow 0.35s';
+  el.style.zIndex = '';
+}
+
+/* ════════════════════════════════════════
+   INFINITE SCROLL NO FEED DE AVISTAMENTOS
+════════════════════════════════════════ */
+let _feedOffset = 0;
+let _feedLoading = false;
+let _feedHasMore = true;
+let _feedScrollObserver = null;
+const _FEED_PAGE_SIZE = 12;
+
+function setupFeedInfiniteScroll(containerId) {
+  if (_feedScrollObserver) { _feedScrollObserver.disconnect(); _feedScrollObserver = null; }
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  let sentinel = document.getElementById('feed-scroll-sentinel');
+  if (sentinel) sentinel.remove();
+  sentinel = document.createElement('div');
+  sentinel.id = 'feed-scroll-sentinel';
+  sentinel.style.cssText = 'height:4px;grid-column:1/-1;';
+  container.appendChild(sentinel);
+
+  _feedScrollObserver = new IntersectionObserver(async entries => {
+    if (!entries[0].isIntersecting || _feedLoading || !_feedHasMore) return;
+    _feedLoading = true;
+    await appendFeedPage(containerId);
+    _feedLoading = false;
+  }, { rootMargin: '200px' });
+  _feedScrollObserver.observe(sentinel);
+}
+
+async function appendFeedPage(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  try {
+    const { data, error } = await db
+      .from('observations')
+      .select('id, user_id, species_pop, species_sci, obs_date, location_label, notes, photo_url, companion_handle, published_inat')
+      .order('created_at', { ascending: false })
+      .range(_feedOffset, _feedOffset + _FEED_PAGE_SIZE - 1);
+    if (error || !data || data.length === 0) { _feedHasMore = false; return; }
+    if (data.length < _FEED_PAGE_SIZE) _feedHasMore = false;
+    _feedOffset += data.length;
+
+    const userIds = [...new Set(data.map(o => o.user_id).filter(Boolean))];
+    let profilesMap = {};
+    if (userIds.length) {
+      const { data: profData } = await db.from('profiles').select('id, nome, handle, avatar_url').in('id', userIds);
+      (profData || []).forEach(p => { profilesMap[p.id] = p; });
+    }
+    const newObs = data.map(o => {
+      const prof = profilesMap[o.user_id] || {};
+      return { id: o.id, species: o.species_pop || o.species_sci, sciName: o.species_sci, date: o.obs_date, location: o.location_label || '', notes: o.notes || '', photoUrl: o.photo_url || null, user: { name: prof.nome || prof.handle || 'Usuário', handle: prof.handle || '' }, companionHandle: o.companion_handle || null };
+    });
+
+    // Remove sentinel antes de inserir novos cards
+    const sentinel = document.getElementById('feed-scroll-sentinel');
+    if (sentinel) sentinel.remove();
+
+    const frag = document.createDocumentFragment();
+    newObs.forEach(obs => {
+      const div = document.createElement('div');
+      const userName = obs.user?.name || 'Usuário';
+      const userHandle = obs.user?.handle || '';
+      const hasPhoto = obs.photoUrl;
+      const obsId = obs.id;
+      const raridade = getRaridade(obs.sciName || '');
+      let cardClass = 'obs-card';
+      if (raridade === 'muito-rara') cardClass += ' obs-card-muito-rara';
+      else if (raridade === 'rara') cardClass += ' obs-card-rara';
+      else cardClass += ' obs-card-comum';
+      const safeJson = JSON.stringify(obs).replace(/"/g,'&quot;');
+      div.innerHTML = `<div class="${cardClass}" style="transform-style:preserve-3d;will-change:transform;"
+        onmousemove="obs3dTilt(this,event)" onmouseleave="obs3dReset(this)">
+        <div class="obs-card-img" style="cursor:${hasPhoto?'pointer':'default'};" onclick="${hasPhoto?`openPhotoExpand(${safeJson})`:''}">
+          ${hasPhoto ? `<img src="${escHtml(obs.photoUrl)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img-emoji>🐦</div>'">` : `<div class="no-img-emoji">${getSpeciesEmoji(obs.species||'')}</div>`}
+          ${hasPhoto ? `<div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.3));border-radius:inherit;pointer-events:none;"></div>` : ''}
+          ${raridade !== 'comum' ? `<div class="raridade-badge raridade-${raridade}">${raridade === 'muito-rara' ? '🔴 Muito Rara' : '🟡 Rara'}</div>` : ''}
+        </div>
+        <div class="obs-card-body">
+          <div class="obs-card-user">
+            <div class="obs-avatar" style="background:#0ea5e9;${userHandle?'cursor:pointer;':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml((userName||'?')[0].toUpperCase())}</div>
+            <span class="obs-username" style="${userHandle?'cursor:pointer;color:var(--sky);':''}" onclick="${userHandle?'event.stopPropagation();openPublicProfile(\''+escHtml(userHandle)+'\')':''}">${escHtml(userName)}</span>
+            <span class="obs-date">${formatDate(obs.date||'')}</span>
+          </div>
+          <div class="obs-species" style="cursor:pointer;" onclick="event.stopPropagation();openSpeciesModal('${escHtml(obs.sciName||'')}','${escHtml(obs.species||obs.sciName||'')}')">${escHtml(capitalize(obs.species||obs.sciName||''))}</div>
+          <div class="obs-sci" style="cursor:pointer;font-style:italic;" onclick="event.stopPropagation();openSpeciesModal('${escHtml(obs.sciName||'')}','${escHtml(obs.species||obs.sciName||'')}')">${escHtml(obs.sciName||'')}</div>
+          ${obs.location ? `<div class="obs-location">📍 ${escHtml(obs.location)}</div>` : ''}
+        </div>
+        <div class="obs-card-footer">
+          <button class="obs-action-btn" id="like-btn-${obsId}" onclick="toggleLike('${obsId}',this)"><span id="like-icon-${obsId}">🤍</span> <span id="like-count-${obsId}">0</span></button>
+          <button class="obs-action-btn" id="comment-btn-${obsId}" onclick="openCommentModal('${obsId}','${capitalize(obs.species||obs.sciName||'')}')">💬 <span id="comment-count-${obsId}">0</span></button>
+        </div>
+      </div>`;
+      frag.appendChild(div.firstElementChild);
+    });
+    container.appendChild(frag);
+
+    // Re-adiciona sentinel
+    if (_feedHasMore) {
+      const newSentinel = document.createElement('div');
+      newSentinel.id = 'feed-scroll-sentinel';
+      newSentinel.style.cssText = 'height:4px;grid-column:1/-1;';
+      container.appendChild(newSentinel);
+      _feedScrollObserver.observe(newSentinel);
+    }
+    setTimeout(() => loadCardCounts(newObs), 80);
+  } catch(e) { console.warn('appendFeedPage:', e); }
+}
+
+
+/* ════════════════════════════════════════
    UPLOAD / ENVIO — APENAS SUPABASE
 ════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
@@ -1970,7 +2162,13 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('obs-date').value = new Date().toISOString().slice(0, 10);
 
   renderBirdOfDay();
+  // Home feed: mostra 4 cards estáticos sem scroll infinito
   renderFeed('home-feed', 4);
+  // Full feed: usa scroll infinito
+  _feedOffset = 0; _feedHasMore = true;
+  renderFeed('full-feed', _FEED_PAGE_SIZE).then(() => {
+    setupFeedInfiniteScroll('full-feed');
+  });
   renderUsers('');
   startAutoRefresh();
 });
@@ -2066,8 +2264,7 @@ function addToQueue() {
     notes: document.getElementById('obs-notes').value || '',
     photoFile,
     photoPreview: photoFile ? URL.createObjectURL(photoFile) : null,
-    publishInat: document.getElementById('inat-publish').checked,
-    companions: [..._selectedCompanions],
+    publishInat: false, // document.getElementById('inat-publish')?.checked — desabilitado temporariamente
     id: Date.now()
   };
   _obsQueue.push(entry);
@@ -2229,8 +2426,11 @@ async function submitObservation() {
       : '',
     notes: document.getElementById('obs-notes').value,
     photoUrl,
-    publishInat: document.getElementById('inat-publish').checked,
+    publishInat: false, // document.getElementById('inat-publish')?.checked — desabilitado temporariamente
   };
+
+  // Verifica se é espécie nova ANTES de adicionar
+  const isNewSpecies = match && !noSpecies && !foundSpecies.has(match.sci);
 
   // Marca como encontrada no checklist
   if (match && !noSpecies) {
@@ -2258,7 +2458,7 @@ async function submitObservation() {
       : null,
     notes:          obs.notes || null,
     photo_url:      photoUrl,
-    published_inat: obs.publishInat,
+    published_inat: false, // desabilitado temporariamente
     companion_handle: companionHandle,
     companion_id:     companionId
   });
@@ -2274,8 +2474,8 @@ async function submitObservation() {
   btn.disabled = false;
   btn.innerHTML = '📤 Enviar Avistamento';
 
-  const inatMsg = obs.publishInat ? ' (marcado para referência no iNaturalist)' : '!';
-  showToast(`✅ Avistamento registrado${inatMsg}`);
+  // Animação de celebração com info de espécie nova ou já encontrada
+  showObsCelebration(obs.species || obs.sciName, isNewSpecies);
   invalidateCache('feed'); invalidateCache('profile');
 
   // Limpa formulário
@@ -3016,6 +3216,30 @@ function showCelebration(pop) {
   document.getElementById('celebration-sub').textContent = `Você encontrou o(a) ${capitalize(pop)}!`;
   cel.classList.add('show');
   setTimeout(() => cel.classList.remove('show'), 2800);
+}
+
+/* Celebração específica para novos avistamentos */
+function showObsCelebration(speciesName, isNew) {
+  // Cria overlay de celebração dedicado
+  let ov = document.getElementById('_obs_celebration');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = '_obs_celebration';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;pointer-events:none;';
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = `
+    <div style="background:var(--card);border:2px solid ${isNew?'var(--forest)':'var(--sky)'};border-radius:var(--radius-xl);padding:32px 40px;text-align:center;box-shadow:var(--shadow-lg);animation:obsCelIn .4s cubic-bezier(.34,1.56,.64,1);max-width:360px;pointer-events:auto;">
+      <div style="font-size:52px;margin-bottom:8px;">${isNew?'🎉':'📸'}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:${isNew?'var(--forest)':'var(--sky)'};margin-bottom:4px;">
+        ${isNew ? 'Nova espécie registrada!' : 'Avistamento registrado!'}
+      </div>
+      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">${escHtml(capitalize(speciesName||''))}</div>
+      <div style="font-size:13px;color:var(--text-muted);">${isNew ? '🌟 Adicionada ao seu checklist!' : '✅ Já estava no seu checklist'}</div>
+    </div>`;
+  ov.style.display = 'flex';
+  launchConfetti();
+  setTimeout(() => { ov.innerHTML = ''; ov.style.display = 'none'; }, 3200);
 }
 
 function launchConfetti() {
@@ -3861,10 +4085,25 @@ async function openPhotoExpand(obs) {
   const imgEl = document.getElementById('photo-expand-img');
   imgEl.src = obs.photoUrl;
   imgEl.style.cursor = 'zoom-in';
-  imgEl.onclick = () => showFullPhoto(obs.photoUrl);
+  // Zoom com scroll do mouse na foto expandida
+  imgEl.onclick = () => showFullPhotoZoom(obs.photoUrl);
 
   document.getElementById('photo-expand-species').textContent = capitalize(obs.species || obs.sciName || '');
-  document.getElementById('photo-expand-sci').textContent = obs.sciName || '';
+  // nome científico clicável
+  const sciEl = document.getElementById('photo-expand-sci');
+  sciEl.textContent = obs.sciName || '';
+  sciEl.style.cursor = obs.sciName ? 'pointer' : '';
+  sciEl.onclick = obs.sciName ? () => {
+    document.getElementById('photo-expand-modal').classList.remove('open');
+    setTimeout(() => openSpeciesModal(obs.sciName, obs.species || obs.sciName), 200);
+  } : null;
+  // nome popular clicável
+  const speciesEl = document.getElementById('photo-expand-species');
+  speciesEl.style.cursor = obs.sciName ? 'pointer' : '';
+  speciesEl.onclick = obs.sciName ? () => {
+    document.getElementById('photo-expand-modal').classList.remove('open');
+    setTimeout(() => openSpeciesModal(obs.sciName, obs.species || obs.sciName), 200);
+  } : null;
 
   const credit = buildCreditHtml(obs);
   document.getElementById('photo-expand-meta').innerHTML =
@@ -4512,7 +4751,6 @@ async function loadCardCounts(obsList) {
   const ids = obsList.map(o => o.id).filter(Boolean);
   if (!ids.length) return;
   try {
-    // Batch: busca todas as curtidas e comentários de uma vez
     const [likesR, commentsR] = await Promise.all([
       db.from('likes').select('obs_id, user_id').in('obs_id', ids),
       db.from('comments').select('obs_id').in('obs_id', ids)
@@ -4524,15 +4762,19 @@ async function loadCardCounts(obsList) {
       const cc   = commentsData.filter(c => c.obs_id === id).length;
       const lcEl = document.getElementById('like-count-' + id);
       const ccEl = document.getElementById('comment-count-' + id);
-      if (lcEl) lcEl.textContent = lc > 0 ? lc : '';
-      if (ccEl) ccEl.textContent = cc > 0 ? cc : '';
+      // sempre mostra contagem, mesmo 0
+      if (lcEl) lcEl.textContent = lc;
+      if (ccEl) ccEl.textContent = cc;
+      const btn  = document.getElementById('like-btn-' + id);
+      const icon = document.getElementById('like-icon-' + id);
       if (currentUser) {
         const myLike = likesData.find(l => l.obs_id === id && l.user_id === currentUser.id);
         if (myLike) {
-          const btn  = document.getElementById('like-btn-' + id);
-          const icon = document.getElementById('like-icon-' + id);
           if (btn)  btn.classList.add('liked');
           if (icon) icon.textContent = '❤️';
+        } else {
+          if (btn)  btn.classList.remove('liked');
+          if (icon) icon.textContent = '🤍';
         }
       }
     }
@@ -4683,6 +4925,22 @@ async function getBirdPhoto(sci) {
       return _birdPhotoCache[sci];
     }
   } catch(e) { console.warn('[getBirdPhoto inat]', sci, e?.message); }
+  // Fallback 2: eBird / Wikimedia via nome científico
+  try {
+    const ebirdUrl = `https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&species=${encodeURIComponent(sci)}`;
+    // eBird não tem endpoint de foto público — usa Wikimedia como fallback real
+    const wikiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(sci.replace(/ /g,'_'))}`;
+    const wr = await fetch(wikiUrl);
+    if (wr.ok) {
+      const wj = await wr.json();
+      const url = wj?.thumbnail?.source || wj?.originalimage?.source;
+      if (url) {
+        _birdPhotoCache[sci] = { url, author: 'Wikipedia', source: 'wiki' };
+        return _birdPhotoCache[sci];
+      }
+    }
+  } catch(e) { console.warn('[wiki fallback]', sci, e?.message); }
+
   _birdPhotoCache[sci] = null;
   return null;
 }
