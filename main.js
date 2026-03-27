@@ -3656,30 +3656,40 @@ async function loadRanking() {
   grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">⏳ Carregando ranking…</div>';
   try {
     if (_rankTab === 'total') {
+      // Busca species_seen sem join (evita FK errada)
       const { data, error } = await db
         .from('species_seen')
-        .select('user_id, profiles:profiles!observations_user_id_fkey(nome, handle, avatar_url)')
-        .order('user_id');
+        .select('user_id');
       if (error) throw error;
+
+      // Agrupa por usuário
       const byUser = {};
       (data || []).forEach(row => {
-        if (!byUser[row.user_id]) byUser[row.user_id] = { profile: row.profiles, count: 0 };
-        byUser[row.user_id].count++;
+        byUser[row.user_id] = (byUser[row.user_id] || 0) + 1;
       });
-      const sorted = Object.entries(byUser).sort((a,b) => b[1].count - a[1].count);
+      const sorted = Object.entries(byUser).sort((a,b) => b[1] - a[1]).slice(0, 50);
       if (!sorted.length) {
         grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Nenhum dado ainda. Registre avistamentos!</div>';
         return;
       }
-      grid.innerHTML = sorted.map(([uid, { profile, count }], i) => {
+
+      // Busca perfis em batch
+      const uids = sorted.map(([uid]) => uid);
+      const { data: profiles } = await db.from('profiles').select('id, nome, handle, avatar_url').in('id', uids);
+      const profMap = {};
+      (profiles || []).forEach(p => { profMap[p.id] = p; });
+
+      grid.innerHTML = sorted.map(([uid, count], i) => {
+        const profile = profMap[uid] || {};
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const name = escHtml(profile?.nome || 'Usuário');
-        const handle = profile?.handle ? '@' + escHtml(profile.handle) : '';
-        const initials = (profile?.nome || 'U').charAt(0).toUpperCase();
-        const avatarHtml = profile?.avatar_url
-          ? `<img src="${escHtml(profile.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
+        const name = escHtml(profile.nome || 'Usuário');
+        const handle = profile.handle ? '@' + escHtml(profile.handle) : '';
+        const initials = (profile.nome || 'U').charAt(0).toUpperCase();
+        const avatarHtml = profile.avatar_url
+          ? `<img src="${escHtml(profile.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${initials}'">`
           : `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;">${initials}</div>`;
-        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;">
+        const safeHandle = profile.handle || '';
+        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;" onclick="openPublicProfile('${escHtml(safeHandle)}')">
           <span style="font-size:22px;min-width:32px;">${medal}</span>
           ${avatarHtml}
           <div style="flex:1;">
@@ -3692,34 +3702,47 @@ async function loadRanking() {
           </div>
         </div>`;
       }).join('');
+
     } else {
+      // Ranking de indicadoras
       const { data, error } = await db
         .from('species_seen')
-        .select('user_id, species_sci, profiles:profiles!observations_user_id_fkey(nome, handle, avatar_url)');
+        .select('user_id, species_sci');
       if (error) throw error;
+
       const byUser = {};
       (data || []).forEach(row => {
         const pts = INDICADORAS[row.species_sci] || 0;
-        if (!byUser[row.user_id]) byUser[row.user_id] = { profile: row.profiles, pts: 0, count: 0 };
+        if (!byUser[row.user_id]) byUser[row.user_id] = { pts: 0, count: 0 };
         byUser[row.user_id].pts += pts;
         if (pts > 0) byUser[row.user_id].count++;
       });
       const sorted = Object.entries(byUser)
         .filter(([, v]) => v.pts > 0)
-        .sort((a,b) => b[1].pts - a[1].pts);
+        .sort((a,b) => b[1].pts - a[1].pts)
+        .slice(0, 50);
+
       if (!sorted.length) {
         grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Nenhum ponto de indicadoras registrado ainda.</div>';
         return;
       }
-      grid.innerHTML = sorted.map(([uid, { profile, pts, count }], i) => {
+
+      const uids = sorted.map(([uid]) => uid);
+      const { data: profiles } = await db.from('profiles').select('id, nome, handle, avatar_url').in('id', uids);
+      const profMap = {};
+      (profiles || []).forEach(p => { profMap[p.id] = p; });
+
+      grid.innerHTML = sorted.map(([uid, { pts, count }], i) => {
+        const profile = profMap[uid] || {};
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const name = escHtml(profile?.nome || 'Usuário');
-        const handle = profile?.handle ? '@' + escHtml(profile.handle) : '';
-        const initials = (profile?.nome || 'U').charAt(0).toUpperCase();
-        const avatarHtml = profile?.avatar_url
-          ? `<img src="${escHtml(profile.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
+        const name = escHtml(profile.nome || 'Usuário');
+        const handle = profile.handle ? '@' + escHtml(profile.handle) : '';
+        const initials = (profile.nome || 'U').charAt(0).toUpperCase();
+        const avatarHtml = profile.avatar_url
+          ? `<img src="${escHtml(profile.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${initials}'">`
           : `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sun),#f97316);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;">${initials}</div>`;
-        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--sun);border-radius:var(--radius-md);padding:14px 16px;">
+        const safeHandle = profile.handle || '';
+        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--sun);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;" onclick="openPublicProfile('${escHtml(safeHandle)}')">
           <span style="font-size:22px;min-width:32px;">${medal}</span>
           ${avatarHtml}
           <div style="flex:1;">
