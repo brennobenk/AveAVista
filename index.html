@@ -10,8 +10,8 @@
 
 <!-- ══ SUPABASE ══ -->
 <!-- Supabase UMD pinned — evita "Unexpected token export" -->
-<!-- Supabase UMD — unpkg, versão fixada, sem ESM -->
-<script src="https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+<!-- Supabase UMD — jsDelivr (não bloqueado por Tracking Prevention) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script src="main.js" defer></script>
 </head>
 <body>
@@ -400,9 +400,9 @@
         <div style="position:absolute;top:-44px;left:28px;z-index:10;">
           <div id="pub-avatar" style="width:88px;height:88px;border-radius:50%;border:3px solid var(--card);background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:32px;color:white;font-weight:700;overflow:hidden;box-shadow:var(--shadow-md);">?</div>
         </div>
-        <div style="padding-top:14px;display:flex;justify-content:flex-end;gap:8px;" id="pub-action-row"></div>
+        <div style="min-height:52px;display:flex;align-items:flex-start;justify-content:flex-end;padding-top:10px;" id="pub-action-row"></div>
         <div id="pub-friendship-bar" style="display:none;"></div>
-        <div style="padding-top:10px;">
+        <div style="padding-top:4px;">
           <div id="pub-name" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);">Carregando...</div>
           <div id="pub-handle" style="font-size:13px;color:var(--sky);margin-bottom:3px;"></div>
           <div id="pub-city" style="font-size:12px;color:var(--text-muted);margin-bottom:6px;"></div>
@@ -421,7 +421,6 @@
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;">
         <button id="pub-tab-gallery" onclick="switchPubTab('gallery',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid var(--sky);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--sky);cursor:pointer;margin-bottom:-2px;">&#128247; Galeria</button>
         <button id="pub-tab-checklist" onclick="switchPubTab('checklist',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">&#10003; Checklist</button>
-        <button id="pub-tab-amizades" onclick="switchPubTab('amizades',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">🤝 Amizades</button>
       </div>
       <div id="pub-panel-gallery">
         <div id="pub-gallery-grid" class="profile-gallery"><div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Carregando...</div></div>
@@ -432,9 +431,6 @@
           <input type="text" placeholder="Filtrar..." id="pub-checklist-filter" style="height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);font-size:13px;color:var(--text);outline:none;width:180px;" oninput="filterPubChecklist(this.value)">
         </div>
         <div class="species-checklist-grid" id="pub-checklist-grid"></div>
-      </div>
-      <div id="pub-panel-amizades" style="display:none;">
-        <div id="pub-amizades-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
     </section>
 
@@ -478,6 +474,7 @@
         <div id="birds-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:0 0 var(--radius-md) var(--radius-md);box-shadow:var(--shadow-lg);max-height:260px;overflow-y:auto;"></div>
       </div>
       <div id="birds-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;"></div>
+      <div id="birds-pagination" style="padding:20px 0;text-align:center;"></div>
     </section>
 
   </main>
@@ -613,13 +610,12 @@
         </button>
         <div class="auth-divider">ou crie uma conta</div>
         <div class="form-group">
-          <label class="form-label">Nome <span style="color:var(--text-muted);font-size:11px;">(pode ter espaços)</span></label>
-          <input class="form-input" type="text" id="reg-name" placeholder="Ex: João Silva" oninput="autoFillHandle(this.value)">
+          <label class="form-label">Nome</label>
+          <input class="form-input" type="text" id="reg-name" placeholder="Seu nome completo">
         </div>
         <div class="form-group">
-          <label class="form-label">@usuário <span style="color:var(--coral);font-size:11px;">*sem espaços</span></label>
-          <input class="form-input" type="text" id="reg-handle" placeholder="joao_silva" oninput="validateRegHandle(this.value)" autocomplete="off">
-          <div id="reg-handle-feedback" style="font-size:11px;margin-top:3px;color:var(--text-muted);"></div>
+          <label class="form-label">@usuário</label>
+          <input class="form-input" type="text" id="reg-handle" placeholder="seu usuario (espaços viram _)">
         </div>
         <div class="form-group">
           <label class="form-label">E-mail</label>
