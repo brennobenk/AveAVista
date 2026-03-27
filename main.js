@@ -1570,16 +1570,11 @@ db.auth.onAuthStateChange(async (event, session) => {
       loadMsgBadge(); // <-- adicionar aqui
       startNotifRealtime();
       startRealtimeSubscriptions();
-      // Re-render feed — debounced para evitar duplo disparo de onAuthStateChange
-      clearTimeout(window._authFeedDebounce);
-      window._authFeedDebounce = setTimeout(() => {
-        _renderGuards['feed_home-feed'] = false;
-        _renderGuards['feed_full-feed'] = false;
-        renderFeed('home-feed', 4);
-        if (document.getElementById('page-feed')?.classList.contains('active')) {
-          renderFeed('full-feed', 12);
-        }
-      }, 150);
+      // Re-render feed com estado de curtidas do usuário
+      renderFeed('home-feed', 4);
+      if (document.getElementById('page-feed')?.classList.contains('active')) {
+        renderFeed('full-feed', 12);
+      }
       if (window._pendingNav) {
         const { pageId, btn } = window._pendingNav;
         window._pendingNav = null;
@@ -1607,15 +1602,10 @@ db.auth.onAuthStateChange(async (event, session) => {
     if (pN) pN.textContent = 'Faça login para ver seu perfil';
     if (pH) pH.textContent = '';
     // Re-renderiza feed público (sem likes do usuário)
-    clearTimeout(window._authFeedDebounce);
-    window._authFeedDebounce = setTimeout(() => {
-      _renderGuards['feed_home-feed'] = false;
-      _renderGuards['feed_full-feed'] = false;
-      renderFeed('home-feed', 4);
-      if (document.getElementById('page-feed')?.classList.contains('active')) {
-        renderFeed('full-feed', 12);
-      }
-    }, 150);
+    renderFeed('home-feed', 4);
+    if (document.getElementById('page-feed')?.classList.contains('active')) {
+      renderFeed('full-feed', 12);
+    }
     updateChecklistProgress();
   }
 });
@@ -1912,6 +1902,7 @@ async function renderFeed(containerId, limit) {
   if (!container) return;
   if (_renderGuards['feed_' + containerId]) return;
   _renderGuards['feed_' + containerId] = true;
+  // Release guard on scroll/outside calls after 8s max
   const _feedGuardTimer = setTimeout(() => { _renderGuards['feed_' + containerId] = false; }, 8000);
   container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-muted);">
     <div style="font-size:32px;margin-bottom:8px;">🔭</div><div>Carregando avistamentos…</div>
@@ -2023,9 +2014,6 @@ async function renderFeed(containerId, limit) {
   } catch(e) {
     console.warn('Feed: erro:', e);
     container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Erro ao carregar avistamentos.</div>';
-  } finally {
-    clearTimeout(_feedGuardTimer);
-    _renderGuards['feed_' + containerId] = false;
   }
 }
 
@@ -3644,11 +3632,12 @@ async function loadRanking() {
     if (_rankTab === 'total') {
       const { data, error } = await db
         .from('species_seen')
-        .select('user_id');
+        .select('user_id, profiles:profiles!observations_user_id_fkey(nome, handle, avatar_url)')
+        .order('user_id');
       if (error) throw error;
       const byUser = {};
       (data || []).forEach(row => {
-        if (!byUser[row.user_id]) byUser[row.user_id] = { count: 0 };
+        if (!byUser[row.user_id]) byUser[row.user_id] = { profile: row.profiles, count: 0 };
         byUser[row.user_id].count++;
       });
       const sorted = Object.entries(byUser).sort((a,b) => b[1].count - a[1].count);
@@ -3656,13 +3645,7 @@ async function loadRanking() {
         grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Nenhum dado ainda. Registre avistamentos!</div>';
         return;
       }
-      // Busca perfis em batch
-      const uids = sorted.map(([uid]) => uid);
-      const { data: profData } = await db.from('profiles').select('id, nome, handle, avatar_url').in('id', uids);
-      const profMap = {};
-      (profData || []).forEach(p => { profMap[p.id] = p; });
-      grid.innerHTML = sorted.map(([uid, { count }], i) => {
-        const profile = profMap[uid];
+      grid.innerHTML = sorted.map(([uid, { profile, count }], i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
         const name = escHtml(profile?.nome || 'Usuário');
         const handle = profile?.handle ? '@' + escHtml(profile.handle) : '';
@@ -3670,7 +3653,7 @@ async function loadRanking() {
         const avatarHtml = profile?.avatar_url
           ? `<img src="${escHtml(profile.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
           : `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--forest));display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;">${initials}</div>`;
-        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;" onclick="openPublicProfile('${escHtml(profile?.handle||'')}')">
+        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;">
           <span style="font-size:22px;min-width:32px;">${medal}</span>
           ${avatarHtml}
           <div style="flex:1;">
@@ -3686,12 +3669,12 @@ async function loadRanking() {
     } else {
       const { data, error } = await db
         .from('species_seen')
-        .select('user_id, species_sci');
+        .select('user_id, species_sci, profiles:profiles!observations_user_id_fkey(nome, handle, avatar_url)');
       if (error) throw error;
       const byUser = {};
       (data || []).forEach(row => {
         const pts = INDICADORAS[row.species_sci] || 0;
-        if (!byUser[row.user_id]) byUser[row.user_id] = { pts: 0, count: 0 };
+        if (!byUser[row.user_id]) byUser[row.user_id] = { profile: row.profiles, pts: 0, count: 0 };
         byUser[row.user_id].pts += pts;
         if (pts > 0) byUser[row.user_id].count++;
       });
@@ -3702,13 +3685,7 @@ async function loadRanking() {
         grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Nenhum ponto de indicadoras registrado ainda.</div>';
         return;
       }
-      // Busca perfis em batch
-      const uids2 = sorted.map(([uid]) => uid);
-      const { data: profData2 } = await db.from('profiles').select('id, nome, handle, avatar_url').in('id', uids2);
-      const profMap2 = {};
-      (profData2 || []).forEach(p => { profMap2[p.id] = p; });
-      grid.innerHTML = sorted.map(([uid, { pts, count }], i) => {
-        const profile = profMap2[uid];
+      grid.innerHTML = sorted.map(([uid, { profile, pts, count }], i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
         const name = escHtml(profile?.nome || 'Usuário');
         const handle = profile?.handle ? '@' + escHtml(profile.handle) : '';
@@ -3716,7 +3693,7 @@ async function loadRanking() {
         const avatarHtml = profile?.avatar_url
           ? `<img src="${escHtml(profile.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
           : `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sun),#f97316);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;">${initials}</div>`;
-        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--sun);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;" onclick="openPublicProfile('${escHtml(profile?.handle||'')}')">
+        return `<div style="display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--sun);border-radius:var(--radius-md);padding:14px 16px;">
           <span style="font-size:22px;min-width:32px;">${medal}</span>
           ${avatarHtml}
           <div style="flex:1;">
@@ -5003,7 +4980,7 @@ document.addEventListener('click', e => {
 ════════════════════════════════════════ */
 let _birdsCurrentList = [];
 let _birdsPage = 0;
-const _BIRDS_PER_PAGE = 50;
+const _BIRDS_PER_PAGE = 100;
 let _birdsScrollObserver = null;
 
 function renderBirdsGrid(birds) {
@@ -5011,20 +4988,68 @@ function renderBirdsGrid(birds) {
   _birdsPage = 0;
   const grid = document.getElementById('birds-grid');
   if (!grid) return;
-  // Remove sentinel e loader anteriores
-  const oldSentinel = document.getElementById('birds-scroll-sentinel');
-  if (oldSentinel) oldSentinel.remove();
-  const oldLoader = document.getElementById('birds-scroll-loader');
-  if (oldLoader) oldLoader.remove();
+
+  // Remove sentinels/observers anteriores
+  const old = document.getElementById('birds-scroll-sentinel');
+  if (old) old.remove();
+  const oldL = document.getElementById('birds-scroll-loader');
+  if (oldL) oldL.remove();
   if (_birdsScrollObserver) { _birdsScrollObserver.disconnect(); _birdsScrollObserver = null; }
 
   if (!_birdsCurrentList.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Nenhuma ave encontrada.</div>';
+    _renderBirdsPagination();
     return;
   }
   grid.innerHTML = '';
   _appendBirdsPage(grid);
-  _setupBirdsScrollObserver(grid);
+  _renderBirdsPagination();
+}
+
+function _renderBirdsPagination() {
+  const container = document.getElementById('birds-pagination');
+  if (!container) return;
+  const total = _birdsCurrentList.length;
+  const totalPages = Math.ceil(total / _BIRDS_PER_PAGE);
+  if (totalPages <= 1) { container.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">${total} espécie${total!==1?'s':''} encontrada${total!==1?'s':''}</span>`; return; }
+
+  const start = _birdsPage * _BIRDS_PER_PAGE + 1;
+  const end   = Math.min(start + _BIRDS_PER_PAGE - 1, total);
+  const prevDisabled = _birdsPage === 0;
+  const nextDisabled = _birdsPage >= totalPages - 1;
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <button onclick="_birdsPrevPage()" ${prevDisabled?'disabled':''} style="height:34px;padding:0 16px;border-radius:20px;border:1.5px solid var(--border);background:${prevDisabled?'var(--bg)':'var(--card)'};color:${prevDisabled?'var(--text-muted)':'var(--text)'};cursor:${prevDisabled?'default':'pointer'};font-size:13px;font-weight:600;">‹ Anterior</button>
+      <span style="font-size:13px;color:var(--text-muted);">${start}–${end} de ${total} espécies · Página ${_birdsPage+1} de ${totalPages}</span>
+      <button onclick="_birdsNextPage()" ${nextDisabled?'disabled':''} style="height:34px;padding:0 16px;border-radius:20px;border:1.5px solid var(--border);background:${nextDisabled?'var(--bg)':'var(--sky)'};color:${nextDisabled?'var(--text-muted)':'white'};cursor:${nextDisabled?'default':'pointer'};font-size:13px;font-weight:600;">Próxima ›</button>
+    </div>`;
+}
+
+function _birdsPrevPage() {
+  if (_birdsPage <= 0) return;
+  _birdsPage--;
+  const grid = document.getElementById('birds-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  _appendBirdsPage(grid);
+  _renderBirdsPagination();
+  // Scroll to top of birds section
+  document.getElementById('page-birds')?.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function _birdsNextPage() {
+  const totalPages = Math.ceil(_birdsCurrentList.length / _BIRDS_PER_PAGE);
+  if (_birdsPage >= totalPages - 1) return;
+  _birdsPage++;
+  const grid = document.getElementById('birds-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  _appendBirdsPage(grid);
+  _renderBirdsPagination();
+  document.getElementById('page-birds')?.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function _buildBirdCard(b) {
@@ -5081,54 +5106,6 @@ function _appendBirdsPage(grid) {
     newBgs.forEach(el => { el.setAttribute('data-observed','1'); photoObs.observe(el); });
   }
   return slice.length === _BIRDS_PER_PAGE; // tem mais?
-}
-
-function _setupBirdsScrollObserver(grid) {
-  if (!('IntersectionObserver' in window)) return;
-  const hasMore = _birdsCurrentList.length > _BIRDS_PER_PAGE;
-  if (!hasMore) {
-    // Mostra total sem sentinel de carregamento
-    const done = document.createElement('div');
-    done.id = 'birds-scroll-sentinel';
-    done.style.cssText = 'grid-column:1/-1;height:40px;display:flex;align-items:center;justify-content:center;';
-    done.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">✅ ${_birdsCurrentList.length} espécies carregadas</span>`;
-    grid.appendChild(done);
-    return;
-  }
-
-  // Sentinel inicialmente invisível — só aparece quando o usuário realmente chegou ao fim
-  const sentinel = document.createElement('div');
-  sentinel.id = 'birds-scroll-sentinel';
-  sentinel.style.cssText = 'grid-column:1/-1;height:2px;display:block;';
-  grid.appendChild(sentinel);
-
-  // Loading indicator separado — aparece embaixo do sentinel quando ativado
-  const loader = document.createElement('div');
-  loader.id = 'birds-scroll-loader';
-  loader.style.cssText = 'grid-column:1/-1;height:60px;display:none;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;';
-  loader.innerHTML = '<span style="animation:spin 1s linear infinite;font-size:22px;">🐦</span><span style="margin-left:8px;">Carregando mais espécies…</span>';
-  grid.appendChild(loader);
-
-  let _loading = false;
-  _birdsScrollObserver = new IntersectionObserver((entries) => {
-    if (!entries[0].isIntersecting || _loading) return;
-    _loading = true;
-    loader.style.display = 'flex';
-    // Pequeno delay para evitar trigger acidental no primeiro render
-    setTimeout(() => {
-      const stillMore = _appendBirdsPage(grid);
-      loader.style.display = 'none';
-      _loading = false;
-      if (!stillMore) {
-        loader.style.display = 'flex';
-        loader.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">✅ ${_birdsCurrentList.length} espécies carregadas</span>`;
-        _birdsScrollObserver.disconnect();
-      }
-    }, 300);
-  }, { rootMargin: '0px', threshold: 0.1 });
-
-  // Aguarda o grid ter altura antes de observar
-  setTimeout(() => _birdsScrollObserver.observe(sentinel), 500);
 }
 
 /* ════════════════════════════════════════
