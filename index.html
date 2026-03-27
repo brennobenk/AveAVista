@@ -421,6 +421,7 @@
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;">
         <button id="pub-tab-gallery" onclick="switchPubTab('gallery',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid var(--sky);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--sky);cursor:pointer;margin-bottom:-2px;">&#128247; Galeria</button>
         <button id="pub-tab-checklist" onclick="switchPubTab('checklist',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">&#10003; Checklist</button>
+        <button id="pub-tab-amizades" onclick="switchPubTab('amizades',this)" style="padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;margin-bottom:-2px;">🤝 Amizades</button>
       </div>
       <div id="pub-panel-gallery">
         <div id="pub-gallery-grid" class="profile-gallery"><div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Carregando...</div></div>
@@ -431,6 +432,9 @@
           <input type="text" placeholder="Filtrar..." id="pub-checklist-filter" style="height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);font-size:13px;color:var(--text);outline:none;width:180px;" oninput="filterPubChecklist(this.value)">
         </div>
         <div class="species-checklist-grid" id="pub-checklist-grid"></div>
+      </div>
+      <div id="pub-panel-amizades" style="display:none;">
+        <div id="pub-amizades-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
     </section>
 
@@ -609,12 +613,13 @@
         </button>
         <div class="auth-divider">ou crie uma conta</div>
         <div class="form-group">
-          <label class="form-label">Nome</label>
-          <input class="form-input" type="text" id="reg-name" placeholder="Seu nome completo">
+          <label class="form-label">Nome <span style="color:var(--text-muted);font-size:11px;">(pode ter espaços)</span></label>
+          <input class="form-input" type="text" id="reg-name" placeholder="Ex: João Silva" oninput="autoFillHandle(this.value)">
         </div>
         <div class="form-group">
-          <label class="form-label">@usuário</label>
-          <input class="form-input" type="text" id="reg-handle" placeholder="seu usuario (espaços viram _)">
+          <label class="form-label">@usuário <span style="color:var(--coral);font-size:11px;">*sem espaços</span></label>
+          <input class="form-input" type="text" id="reg-handle" placeholder="joao_silva" oninput="validateRegHandle(this.value)" autocomplete="off">
+          <div id="reg-handle-feedback" style="font-size:11px;margin-top:3px;color:var(--text-muted);"></div>
         </div>
         <div class="form-group">
           <label class="form-label">E-mail</label>
