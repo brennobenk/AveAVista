@@ -5867,15 +5867,75 @@ async function _setBgPhoto() {
 
 /* ════════════════════════════════════════
    IDENTIFICAÇÃO POR IA — Claude Vision via Supabase Edge Function
-   A Edge Function "identify-bird" fica no projeto Supabase e chama
-   o Claude API com a imagem, retornando sugestões de espécie.
-   Deploy: supabase functions deploy identify-bird
+/* ════════════════════════════════════════
+   IDENTIFICAÇÃO POR IA — iNaturalist Vision API
+   Gratuito, sem chave, chamado direto do browser.
+   Documentação: https://api.inaturalist.org/v1/docs/#!/Computervision/post_computervision_score_image
 ════════════════════════════════════════ */
 
 let _aiIdFile = null;
 let _aiIdFromUpload = false;
 
-const _IDENTIFY_BIRD_URL = 'https://jxcscrtzbitbnkuhrmur.supabase.co/functions/v1/identify-bird';
+/* Converte base64 → Blob → FormData e envia para iNaturalist */
+async function _callIdentifyBird(base64Jpeg) {
+  // base64 → Uint8Array → Blob
+  const binary = atob(base64Jpeg);
+  const bytes  = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const blob = new Blob([bytes], { type: 'image/jpeg' });
+
+  const form = new FormData();
+  form.append('image', blob, 'photo.jpg');
+  // Localização de SC como dica geográfica para aumentar precisão
+  form.append('lat', '-27.5');
+  form.append('lng', '-50.5');
+
+  const resp = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
+    method: 'POST',
+    body: form
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`iNaturalist Vision API ${resp.status}: ${errText.slice(0, 120)}`);
+  }
+
+  const json = await resp.json();
+
+  // Mapeia para o formato interno { sci, pop, confidence, notes }
+  const results = (json.results || [])
+    .filter(r => r.taxon?.rank === 'species') // só espécies, não gêneros/famílias
+    .slice(0, 5)
+    .map(r => {
+      const sci = r.taxon?.name || '';
+      // Tenta nome popular em pt-BR via SC_BIRDS, fallback ao nome do iNaturalist
+      const scBird = _matchToScBirds(sci);
+      const pop = scBird
+        ? capitalize(scBird.pop)
+        : (r.taxon?.preferred_common_name || sci);
+      const score = Math.round((r.score || 0) * 100);
+      // Nota contextual baseada na confiança e no rank
+      const notes = score >= 85
+        ? 'Alta confiança — características bem visíveis'
+        : score >= 60
+          ? 'Confiança moderada — confira as marcas de campo'
+          : 'Baixa confiança — foto pode estar parcialmente obscurecida';
+      return { sci, pop, confidence: score, notes };
+    });
+
+  // Se filtrou tudo (só gêneros/famílias), tenta pegar sem filtro de rank
+  if (!results.length && json.results?.length) {
+    const fallback = (json.results).slice(0, 3).map(r => ({
+      sci:        r.taxon?.name || '',
+      pop:        r.taxon?.preferred_common_name || r.taxon?.name || '',
+      confidence: Math.round((r.score || 0) * 100),
+      notes:      `Rank: ${r.taxon?.rank || '?'}`
+    }));
+    return { results: fallback };
+  }
+
+  return { results };
+}
 
 function openAiIdFromUpload() {
   const input = document.getElementById('photo-input');
@@ -5950,19 +6010,7 @@ async function _resizeImageForAi(file, maxSize = 1024) {
   });
 }
 
-/* Chama a Edge Function do Supabase */
-async function _callIdentifyBird(base64Jpeg) {
-  const resp = await fetch(_IDENTIFY_BIRD_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageBase64: base64Jpeg })
-  });
-  if (!resp.ok) {
-    const err = await resp.text().catch(() => '');
-    throw new Error(`Edge function error ${resp.status}: ${err}`);
-  }
-  return await resp.json();
-}
+
 
 /* Mapeia para lista SC_BIRDS */
 function _matchToScBirds(sciName) {
@@ -6051,14 +6099,13 @@ async function runAiId() {
   } catch(e) {
     console.error('AI ID error:', e);
     // Verifica se é erro de edge function não deployada
-    const isNotDeployed = e.message?.includes('404') || e.message?.includes('Edge function');
+    const isOffline = e.message?.includes('Failed to fetch') || e.message?.includes('NetworkError');
     resultEl.innerHTML = `<div style="padding:20px;border-radius:var(--radius-md);background:var(--coral-light);border:1px solid var(--coral);">
-      <div style="font-weight:700;color:var(--coral);margin-bottom:6px;">⚠️ ${isNotDeployed ? 'Edge Function não encontrada' : 'Erro ao identificar'}</div>
-      ${isNotDeployed
+      <div style="font-weight:700;color:var(--coral);margin-bottom:6px;">⚠️ ${isOffline ? 'Sem conexão' : 'Erro ao identificar'}</div>
+      ${isOffline
         ? `<div style="font-size:12px;color:var(--text-mid);line-height:1.6;">
-            Para usar a identificação por IA, deploye a Edge Function no Supabase:<br>
-            <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:11px;">supabase functions deploy identify-bird</code><br>
-            E adicione o secret: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:11px;">ANTHROPIC_API_KEY</code>
+            Verifique sua conexão com a internet.<br>
+            A identificação usa a API do iNaturalist (grátis).
            </div>`
         : `<div style="font-size:12px;color:var(--text-muted);">${escHtml(e.message || 'Erro desconhecido')}</div>`
       }
