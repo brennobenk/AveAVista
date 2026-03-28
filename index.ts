@@ -1,0 +1,115 @@
+// ════════════════════════════════════════
+//  Supabase Edge Function — identify-bird
+//  Usa a iNaturalist Computer Vision API.
+//  GRÁTIS — sem chave de API, sem custo algum.
+//
+//  Esta Edge Function não é mais obrigatória:
+//  o main.js chama a iNaturalist API diretamente
+//  do browser. Mantenha-a só se quiser centralizar
+//  chamadas ou adicionar cache no futuro.
+//
+//  Deploy (opcional):
+//  supabase functions deploy identify-bird --no-verify-jwt
+// ════════════════════════════════════════
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const INAT_VISION_URL = "https://api.inaturalist.org/v1/computervision/score_image";
+
+// Santa Catarina center — melhora precisão geográfica
+const SC_LAT = "-27.5";
+const SC_LNG = "-50.5";
+
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: CORS_HEADERS });
+  }
+
+  try {
+    const { imageBase64 } = await req.json();
+    if (!imageBase64) throw new Error("imageBase64 é obrigatório");
+
+    // Converte base64 → Uint8Array → Blob
+    const binaryStr = atob(imageBase64);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    const blob = new Blob([bytes], { type: "image/jpeg" });
+
+    // Monta FormData para iNaturalist
+    const form = new FormData();
+    form.append("image", blob, "photo.jpg");
+    form.append("lat", SC_LAT);
+    form.append("lng", SC_LNG);
+
+    const inatResp = await fetch(INAT_VISION_URL, {
+      method: "POST",
+      body: form,
+    });
+
+    if (!inatResp.ok) {
+      const errText = await inatResp.text().catch(() => "");
+      throw new Error(`iNaturalist Vision API ${inatResp.status}: ${errText.slice(0, 200)}`);
+    }
+
+    const inatData = await inatResp.json();
+
+    // Mapeia para o formato esperado pelo frontend
+    type InatResult = {
+      taxon?: {
+        name?: string;
+        preferred_common_name?: string;
+        rank?: string;
+      };
+      score?: number;
+    };
+
+    const results = ((inatData.results || []) as InatResult[])
+      .filter((r) => r.taxon?.rank === "species")
+      .slice(0, 5)
+      .map((r) => {
+        const sci = r.taxon?.name || "";
+        const pop = r.taxon?.preferred_common_name || sci;
+        const score = Math.round((r.score || 0) * 100);
+        const notes =
+          score >= 85
+            ? "Alta confiança — características bem visíveis"
+            : score >= 60
+            ? "Confiança moderada — confira as marcas de campo"
+            : "Baixa confiança — foto pode estar obscurecida";
+        return { sci, pop, confidence: score, notes };
+      });
+
+    // Fallback: inclui gênero/família se não houver espécies
+    const finalResults =
+      results.length > 0
+        ? results
+        : ((inatData.results || []) as InatResult[]).slice(0, 3).map((r) => ({
+            sci: r.taxon?.name || "",
+            pop: r.taxon?.preferred_common_name || r.taxon?.name || "",
+            confidence: Math.round((r.score || 0) * 100),
+            notes: `Rank: ${r.taxon?.rank || "?"}`,
+          }));
+
+    return new Response(JSON.stringify({ results: finalResults }), {
+      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("identify-bird error:", message);
+    return new Response(
+      JSON.stringify({ error: message, results: [] }),
+      {
+        status: 400,
+        headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+      }
+    );
+  }
+});
