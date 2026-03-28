@@ -1645,6 +1645,7 @@ function navigateTo(pageId, btn) {
   if (pageId === 'users')   renderUsers('');
   if (pageId === 'ranking') loadRanking();
   if (pageId === 'birds')   renderBirdsGrid(SC_BIRDS);
+  if (pageId === 'ai-id')   aiIdReset();
 }
 
 /* ════════════════════════════════════════
@@ -2180,6 +2181,9 @@ function previewPhoto(input) {
     document.getElementById('preview-img').src = e.target.result;
     document.getElementById('upload-preview').style.display = 'block';
     document.getElementById('dropzone').style.display = 'none';
+    // Mostra botão de ID por IA
+    const aiBtn = document.getElementById('btn-ai-id-upload');
+    if (aiBtn) aiBtn.style.display = 'flex';
   };
   reader.readAsDataURL(file);
 }
@@ -2189,6 +2193,9 @@ function removePreview() {
   document.getElementById('dropzone').style.display = 'block';
   document.getElementById('photo-input').value = '';
   document.getElementById('preview-img').src = '';
+  // Esconde botão de ID por IA
+  const aiBtn = document.getElementById('btn-ai-id-upload');
+  if (aiBtn) aiBtn.style.display = 'none';
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -5856,4 +5863,235 @@ async function _setBgPhoto() {
     img.onerror = () => {}; // silencioso em falhas
     img.src = url;
   } catch(e) { /* silencioso */ }
+}
+
+/* ════════════════════════════════════════
+   IDENTIFICAÇÃO POR IA — iNaturalist Vision
+   Converte imagem → base64 → envia para iNat Vision API
+   Retorna as top sugestões de espécie com confiança
+════════════════════════════════════════ */
+
+let _aiIdFile = null;          // arquivo atual na página de ID
+let _aiIdFromUpload = false;   // chamado a partir do form de upload?
+
+/* Abre a página de ID já com a foto do upload preenchida */
+function openAiIdFromUpload() {
+  const input = document.getElementById('photo-input');
+  if (!input?.files?.length) return;
+  _aiIdFromUpload = true;
+  navigateTo('ai-id', document.querySelector('[data-page=ai-id]'));
+  // Pequeno delay para garantir que a página está ativa
+  setTimeout(() => {
+    const file = input.files[0];
+    _loadAiIdFile(file);
+  }, 120);
+}
+
+/* Reset da página de ID */
+function aiIdReset() {
+  _aiIdFile = null;
+  const preview = document.getElementById('ai-id-preview');
+  const dropzone = document.getElementById('ai-id-dropzone');
+  const result = document.getElementById('ai-id-result');
+  const btn = document.getElementById('ai-id-btn');
+  const inp = document.getElementById('ai-id-input');
+  if (preview) preview.style.display = 'none';
+  if (dropzone) dropzone.style.display = 'block';
+  if (result) { result.style.display = 'none'; result.innerHTML = ''; }
+  if (btn) btn.disabled = true;
+  if (inp) inp.value = '';
+  const btnText = document.getElementById('ai-id-btn-text');
+  if (btnText) btnText.textContent = '🔍 Identificar Espécie';
+  const spinner = document.getElementById('ai-id-spinner');
+  if (spinner) spinner.style.display = 'none';
+}
+
+/* Usuário selecionou arquivo na página de ID */
+function aiIdHandleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  _loadAiIdFile(file);
+}
+
+function _loadAiIdFile(file) {
+  _aiIdFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('ai-id-img');
+    const preview = document.getElementById('ai-id-preview');
+    const dropzone = document.getElementById('ai-id-dropzone');
+    const btn = document.getElementById('ai-id-btn');
+    const result = document.getElementById('ai-id-result');
+    if (img) img.src = e.target.result;
+    if (preview) preview.style.display = 'block';
+    if (dropzone) dropzone.style.display = 'none';
+    if (btn) btn.disabled = false;
+    if (result) { result.style.display = 'none'; result.innerHTML = ''; }
+  };
+  reader.readAsDataURL(file);
+}
+
+/* Redimensiona imagem para no máximo 1024px (iNat Vision aceita até ~2MB) */
+async function _resizeImageForAi(file, maxSize = 1024) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else { w = Math.round(w * maxSize / h); h = maxSize; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* Chama iNaturalist Vision API */
+async function _callInatVision(base64Jpeg) {
+  // iNaturalist Vision v2 — endpoint público, sem chave para identificação básica
+  const formData = new FormData();
+  // Converte base64 de volta para Blob
+  const byteString = atob(base64Jpeg);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+  const blob = new Blob([ab], { type: 'image/jpeg' });
+  formData.append('image', blob, 'photo.jpg');
+
+  const resp = await fetch('https://api.inaturalist.org/v2/computervision/score_image', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: formData
+  });
+  if (!resp.ok) throw new Error(`iNat Vision HTTP ${resp.status}`);
+  return await resp.json();
+}
+
+/* Mapeia resultado da Vision API para a lista SC_BIRDS */
+function _matchToScBirds(taxonName) {
+  if (!taxonName) return null;
+  const q = taxonName.toLowerCase().trim();
+  // Tenta match exato por nome científico
+  let found = SC_BIRDS.find(b => b.sci.toLowerCase() === q);
+  if (!found) {
+    // Match parcial (gênero)
+    const genus = q.split(' ')[0];
+    found = SC_BIRDS.find(b => b.sci.toLowerCase().startsWith(genus + ' '));
+  }
+  return found || null;
+}
+
+/* Executa identificação e renderiza resultados */
+async function runAiId() {
+  if (!_aiIdFile) return;
+  const btn = document.getElementById('ai-id-btn');
+  const btnText = document.getElementById('ai-id-btn-text');
+  const spinner = document.getElementById('ai-id-spinner');
+  const resultEl = document.getElementById('ai-id-result');
+
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+  btnText.textContent = 'Analisando…';
+  resultEl.style.display = 'none';
+  resultEl.innerHTML = '';
+
+  try {
+    const base64 = await _resizeImageForAi(_aiIdFile);
+    const json = await _callInatVision(base64);
+
+    // iNat Vision retorna array "results" com taxa ordenados por score
+    const results = (json.results || []).slice(0, 6);
+
+    if (!results.length) {
+      resultEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);">Nenhuma espécie identificada. Tente uma foto mais nítida.</div>';
+      resultEl.style.display = 'block';
+      return;
+    }
+
+    let html = `<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:10px;color:var(--text);">
+      🎯 Sugestões de identificação
+    </div>`;
+
+    results.forEach((r, i) => {
+      const taxon = r.taxon || {};
+      const sci = taxon.name || '';
+      const pop = taxon.preferred_common_name || taxon.name || sci;
+      const score = Math.round((r.combined_score || r.vision_score || 0) * 100);
+      const scBird = _matchToScBirds(sci);
+      const isTop = i === 0;
+      const barWidth = Math.max(4, score);
+      const barColor = score >= 70 ? 'var(--forest)' : score >= 40 ? 'var(--sky)' : 'var(--text-muted)';
+      const thumbUrl = taxon.default_photo?.square_url || taxon.default_photo?.medium_url || '';
+
+      html += `<div class="ai-id-result-item ${isTop ? 'top-match' : ''}"
+        onclick="_aiIdSelectSpecies('${escHtml(sci)}', '${escHtml(scBird ? capitalize(scBird.pop) : pop)}', '${escHtml(scBird?.sci || sci)}')">
+        ${thumbUrl ? `<img src="${escHtml(thumbUrl)}" style="width:46px;height:46px;border-radius:8px;object-fit:cover;flex-shrink:0;">` :
+          `<div style="width:46px;height:46px;border-radius:8px;background:var(--sky-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🐦</div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13.5px;">${escHtml(capitalize(scBird ? capitalize(scBird.pop) : pop))}</div>
+          <div style="font-size:11px;color:var(--text-muted);font-style:italic;">${escHtml(sci)}</div>
+          <div class="ai-id-confidence-bar" style="margin-top:5px;">
+            <div class="ai-id-confidence-fill" style="width:${barWidth}%;background:${barColor};"></div>
+          </div>
+        </div>
+        <div class="ai-id-confidence" style="color:${barColor};">
+          ${score}%
+          ${scBird ? '<div style="font-size:9px;background:var(--forest);color:white;border-radius:8px;padding:1px 5px;margin-top:2px;font-weight:700;">✓ SC</div>' : ''}
+        </div>
+      </div>`;
+    });
+
+    // Nota sobre como usar
+    html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-md);">
+      💡 Clique em uma sugestão para ${_aiIdFromUpload ? 'preencher o formulário de registro' : 'ver a ficha da espécie'}.
+    </div>`;
+
+    resultEl.innerHTML = html;
+    resultEl.style.display = 'block';
+
+  } catch(e) {
+    console.error('AI ID error:', e);
+    resultEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--coral);">
+      ⚠️ Erro ao identificar. Verifique sua conexão e tente novamente.<br>
+      <span style="font-size:11px;color:var(--text-muted);">${escHtml(e.message || '')}</span>
+    </div>`;
+    resultEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.textContent = '🔍 Identificar Novamente';
+  }
+}
+
+/* Usuário clicou numa sugestão */
+function _aiIdSelectSpecies(sciRaw, popRaw, sciBirds) {
+  const sci = sciRaw;
+  const pop = popRaw;
+
+  if (_aiIdFromUpload) {
+    // Volta ao form de upload e preenche o campo de espécie
+    _aiIdFromUpload = false;
+    navigateTo('upload', document.querySelector('[data-page=upload]'));
+    setTimeout(() => {
+      const input = document.getElementById('species-input');
+      if (!input) return;
+      // Tenta preencher com o nome popular da lista SC_BIRDS primeiro
+      const scBird = SC_BIRDS.find(b => b.sci.toLowerCase() === sci.toLowerCase());
+      input.value = scBird ? capitalize(scBird.pop) : pop;
+      // Dispara input para acionar o datalist
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      showToast(`✅ Espécie preenchida: ${scBird ? capitalize(scBird.pop) : pop}`);
+    }, 300);
+  } else {
+    // Abre o modal da espécie
+    openSpeciesModal(sci, pop);
+  }
 }
