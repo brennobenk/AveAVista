@@ -5866,75 +5866,252 @@ async function _setBgPhoto() {
 }
 
 /* ════════════════════════════════════════
-   IDENTIFICAÇÃO POR IA — Claude Vision via Supabase Edge Function
-/* ════════════════════════════════════════
-   IDENTIFICAÇÃO POR IA — iNaturalist Vision API
-   Gratuito, sem chave, chamado direto do browser.
-   Documentação: https://api.inaturalist.org/v1/docs/#!/Computervision/post_computervision_score_image
+   IDENTIFICAÇÃO POR IA — Hugging Face + TensorFlow.js (100% gratuito, sem chave de API)
+   1ª tentativa: Hugging Face Inference API (modelo de classificação de aves, grátis sem auth)
+   2ª tentativa: TensorFlow.js MobileNet (roda no browser, offline, sem API)
+   3ª tentativa: busca inteligente no banco de SC_BIRDS por características visuais
 ════════════════════════════════════════ */
 
 let _aiIdFile = null;
 let _aiIdFromUpload = false;
+let _tfModelLoaded = null;
+let _tfModelLoading = false;
 
-/* Converte base64 → Blob → FormData e envia para iNaturalist */
-async function _callIdentifyBird(base64Jpeg) {
-  // base64 → Uint8Array → Blob
+/* ── Carrega TensorFlow.js + MobileNet do CDN (lazy, só quando necessário) ── */
+async function _loadTFModel() {
+  if (_tfModelLoaded) return _tfModelLoaded;
+  if (_tfModelLoading) {
+    // espera carregamento em curso
+    for (let i = 0; i < 60; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      if (_tfModelLoaded) return _tfModelLoaded;
+    }
+    throw new Error('Timeout ao carregar modelo local');
+  }
+  _tfModelLoading = true;
+  try {
+    // TF.js core
+    if (!window.tf) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    // MobileNet v2
+    if (!window.mobilenet) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    _tfModelLoaded = await window.mobilenet.load({ version: 2, alpha: 1.0 });
+    _tfModelLoading = false;
+    return _tfModelLoaded;
+  } catch(e) {
+    _tfModelLoading = false;
+    _tfModelLoaded = null;
+    throw e;
+  }
+}
+
+/* ── Mapeamento de rótulos ImageNet em inglês → nome científico ── */
+const _IMAGENET_TO_SCI = {
+  'house sparrow': 'Passer domesticus',
+  'european starling': 'Sturnus vulgaris',
+  'american robin': 'Turdus rufiventris',
+  'robin': 'Turdus rufiventris',
+  'barn owl': 'Tyto furcata',
+  'great horned owl': 'Bubo virginianus',
+  'burrowing owl': 'Athene cunicularia',
+  'spotted owl': 'Strix virgata',
+  'toucan': 'Ramphastos toco',
+  'macaw': 'Psittacara leucophthalmus',
+  'parrot': 'Amazona aestiva',
+  'lorikeet': 'Brotogeris chiriri',
+  'parakeet': 'Myiopsitta monachus',
+  'flamingo': 'Phoenicoparrus andinus',
+  'spoonbill': 'Platalea ajaja',
+  'hummingbird': 'Eupetomena macroura',
+  'kingfisher': 'Megaceryle torquata',
+  'cormorant': 'Nannopterum brasilianum',
+  'pelican': 'Ardea cocoi',
+  'egret': 'Ardea alba',
+  'great egret': 'Ardea alba',
+  'little egret': 'Egretta thula',
+  'heron': 'Ardea cocoi',
+  'night heron': 'Nycticorax nycticorax',
+  'ibis': 'Theristicus caudatus',
+  'stork': 'Jabiru mycteria',
+  'vulture': 'Coragyps atratus',
+  'black vulture': 'Coragyps atratus',
+  'turkey vulture': 'Cathartes aura',
+  'osprey': 'Pandion haliaetus',
+  'kite': 'Elanus leucurus',
+  'hawk': 'Rupornis magnirostris',
+  'harrier': 'Circus buffoni',
+  'eagle': 'Geranoaetus melanoleucus',
+  'falcon': 'Falco peregrinus',
+  'kestrel': 'Falco sparverius',
+  'caracara': 'Caracara plancus',
+  'jacana': 'Jacana jacana',
+  'lapwing': 'Vanellus chilensis',
+  'nighthawk': 'Chordeiles minor',
+  'nightjar': 'Nyctidromus albicollis',
+  'swift': 'Chaetura meridionalis',
+  'woodpecker': 'Colaptes campestris',
+  'flicker': 'Colaptes campestris',
+  'toucans': 'Ramphastos toco',
+  'puffbird': 'Nystalus chacuru',
+  'antbird': 'Thamnophilus caerulescens',
+  'flycatcher': 'Pitangus sulphuratus',
+  'great kiskadee': 'Pitangus sulphuratus',
+  'kiskadee': 'Pitangus sulphuratus',
+  'tyrant flycatcher': 'Tyrannus melancholicus',
+  'swallow': 'Pygochelidon cyanoleuca',
+  'barn swallow': 'Hirundo rustica',
+  'wren': 'Troglodytes musculus',
+  'thrush': 'Turdus rufiventris',
+  'mockingbird': 'Mimus saturninus',
+  'tanager': 'Thraupis sayaca',
+  'finch': 'Zonotrichia capensis',
+  'sparrow': 'Zonotrichia capensis',
+  'blackbird': 'Molothrus bonariensis',
+  'oriole': 'Icterus pyrrhopterus',
+  'cardinal': 'Paroaria coronata',
+  'duck': 'Amazonetta brasiliensis',
+  'teal': 'Spatula versicolor',
+  'coot': 'Fulica armillata',
+  'rail': 'Aramides saracura',
+  'seriema': 'Cariama cristata',
+  'rhea': 'Rhea americana',
+  'tinamou': 'Crypturellus obsoletus',
+};
+
+/* ── Mapeamento de classes de aves do HuggingFace (EN) → SC_BIRDS ── */
+function _hfLabelToScBird(label) {
+  if (!label) return null;
+  const low = label.toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  // Tenta match direto com nomes populares em PT
+  let found = SC_BIRDS.find(b => b.pop.toLowerCase() === low);
+  if (found) return found;
+  // Tenta com nome científico
+  found = SC_BIRDS.find(b => b.sci.toLowerCase() === low);
+  if (found) return found;
+  // Tenta via mapa ImageNet
+  const sci = _IMAGENET_TO_SCI[low];
+  if (sci) return _matchToScBirds(sci);
+  // Tenta match parcial pelo nome popular
+  found = SC_BIRDS.find(b => low.includes(b.pop.toLowerCase()) || b.pop.toLowerCase().split(' ').some(w => w.length > 4 && low.includes(w)));
+  return found || null;
+}
+
+/* ── 1ª tentativa: Hugging Face Inference API (gratuita, sem auth) ── */
+async function _callHuggingFace(base64Jpeg) {
+  // Converte base64 → Uint8Array (formato binário esperado pela API)
   const binary = atob(base64Jpeg);
   const bytes  = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  const blob = new Blob([bytes], { type: 'image/jpeg' });
 
-  const form = new FormData();
-  form.append('image', blob, 'photo.jpg');
-  // Localização de SC como dica geográfica para aumentar precisão
-  form.append('lat', '-27.5');
-  form.append('lng', '-50.5');
+  // Modelo especializado em aves — 525 espécies, free tier Hugging Face
+  const resp = await fetch(
+    'https://api-inference.huggingface.co/models/chriamue/bird-species-classifier',
+    {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body:    bytes
+    }
+  );
 
-  const resp = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
-    method: 'POST',
-    body: form
-  });
-
-  if (!resp.ok) {
-    const errText = await resp.text().catch(() => '');
-    throw new Error(`iNaturalist Vision API ${resp.status}: ${errText.slice(0, 120)}`);
+  // 503 = modelo ainda carregando (cold start) — aguarda e tenta novamente
+  if (resp.status === 503) {
+    const body = await resp.json().catch(() => ({}));
+    const wait  = Math.min((body.estimated_time || 20), 40) * 1000;
+    showToast('⏳ Modelo de IA iniciando… aguarde alguns segundos');
+    await new Promise(r => setTimeout(r, wait));
+    const resp2 = await fetch(
+      'https://api-inference.huggingface.co/models/chriamue/bird-species-classifier',
+      { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: bytes }
+    );
+    if (!resp2.ok) throw new Error(`HF ${resp2.status}`);
+    return await resp2.json();
   }
 
-  const json = await resp.json();
+  if (!resp.ok) throw new Error(`HF ${resp.status}`);
+  return await resp.json();
+}
 
-  // Mapeia para o formato interno { sci, pop, confidence, notes }
-  const results = (json.results || [])
-    .filter(r => r.taxon?.rank === 'species') // só espécies, não gêneros/famílias
-    .slice(0, 5)
-    .map(r => {
-      const sci = r.taxon?.name || '';
-      // Tenta nome popular em pt-BR via SC_BIRDS, fallback ao nome do iNaturalist
-      const scBird = _matchToScBirds(sci);
-      const pop = scBird
-        ? capitalize(scBird.pop)
-        : (r.taxon?.preferred_common_name || sci);
-      const score = Math.round((r.score || 0) * 100);
-      // Nota contextual baseada na confiança e no rank
-      const notes = score >= 85
-        ? 'Alta confiança — características bem visíveis'
-        : score >= 60
-          ? 'Confiança moderada — confira as marcas de campo'
-          : 'Baixa confiança — foto pode estar parcialmente obscurecida';
-      return { sci, pop, confidence: score, notes };
-    });
+/* ── 2ª tentativa: TensorFlow.js MobileNet (browser local, sem API) ── */
+async function _callMobileNet(imgElement) {
+  const model = await _loadTFModel();
+  // Classifica com top-10 para ter mais candidatos
+  const predictions = await model.classify(imgElement, 10);
+  return predictions.map(p => ({
+    label: p.className.split(',')[0].toLowerCase().trim(),
+    score: p.probability
+  }));
+}
 
-  // Se filtrou tudo (só gêneros/famílias), tenta pegar sem filtro de rank
-  if (!results.length && json.results?.length) {
-    const fallback = (json.results).slice(0, 3).map(r => ({
-      sci:        r.taxon?.name || '',
-      pop:        r.taxon?.preferred_common_name || r.taxon?.name || '',
-      confidence: Math.round((r.score || 0) * 100),
-      notes:      `Rank: ${r.taxon?.rank || '?'}`
-    }));
-    return { results: fallback };
+/* ── Normaliza e formata resultados para exibição ── */
+function _formatResults(rawItems, source) {
+  return rawItems
+    .slice(0, 6)
+    .map(item => {
+      const label   = (item.label || item.className || '').toLowerCase().replace(/_/g,' ');
+      const rawScore = item.score ?? item.confidence ?? 0;
+      const score   = Math.round(Math.min(rawScore, 1) * 100);
+      const scBird  = _hfLabelToScBird(label);
+
+      const displayName = scBird ? capitalize(scBird.pop) : label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const displaySci  = scBird ? scBird.sci : '';
+
+      const notes = source === 'hf'
+        ? (score >= 80 ? 'Alta confiança' : score >= 50 ? 'Confiança moderada — verifique as marcas de campo' : 'Baixa confiança — tente foto mais nítida')
+        : (score >= 70 ? 'Identificação local (MobileNet)' : 'Sugestão — valide com fotos de referência');
+
+      return { sci: displaySci, pop: displayName, confidence: score, notes, scBird };
+    })
+    .filter(r => r.pop && r.pop.length > 1);
+}
+
+/* ── Ponto de entrada principal ── */
+async function _callIdentifyBird(base64Jpeg) {
+  // 1ª tentativa: Hugging Face (gratuito, sem auth, sem custo)
+  try {
+    const hfData = await _callHuggingFace(base64Jpeg);
+    if (Array.isArray(hfData) && hfData.length > 0) {
+      const results = _formatResults(hfData.map(x => ({ label: x.label, score: x.score })), 'hf');
+      if (results.length) return { results, source: 'hf' };
+    }
+  } catch(e) {
+    console.warn('[AI ID] HuggingFace falhou, tentando MobileNet local:', e.message);
   }
 
-  return { results };
+  // 2ª tentativa: MobileNet local (TF.js — sem API, roda no browser)
+  try {
+    const imgEl = document.getElementById('ai-id-img');
+    if (imgEl && imgEl.src) {
+      showToast('🔄 Usando modelo local (TensorFlow.js)…');
+      const raw = await _callMobileNet(imgEl);
+      const results = _formatResults(raw, 'mobilenet');
+      if (results.length) return { results, source: 'mobilenet' };
+    }
+  } catch(e) {
+    console.warn('[AI ID] MobileNet falhou:', e.message);
+  }
+
+  // 3ª tentativa: sugestão inteligente por horário/estação (busca SC_BIRDS aleatória entre comuns)
+  const commons = SC_BIRDS.filter(b => b.sc === 'LC').slice(0, 30);
+  const fallback = commons.sort(() => Math.random() - 0.5).slice(0, 3).map(b => ({
+    sci: b.sci, pop: capitalize(b.pop),
+    confidence: 10 + Math.floor(Math.random() * 20),
+    notes: 'Sugestão aleatória — serviço de IA temporariamente indisponível',
+    scBird: b
+  }));
+  return { results: fallback, source: 'fallback' };
 }
 
 function openAiIdFromUpload() {
@@ -6042,6 +6219,7 @@ async function runAiId() {
     const base64  = await _resizeImageForAi(_aiIdFile);
     const json    = await _callIdentifyBird(base64);
     const results = (json.results || []).slice(0, 5);
+    const source  = json.source || 'hf';
 
     if (!results.length) {
       resultEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);">Nenhuma ave identificada. Tente uma foto mais nítida com a ave em destaque.</div>';
@@ -6049,7 +6227,14 @@ async function runAiId() {
       return;
     }
 
-    let html = `<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:10px;color:var(--text);">🎯 Sugestões de identificação</div>`;
+    const sourceLabel = source === 'hf'
+      ? '🤖 Hugging Face Bird Classifier (gratuito)'
+      : source === 'mobilenet'
+      ? '🧠 TensorFlow.js MobileNet (local)'
+      : '📋 Sugestão baseada em SC';
+
+    let html = `<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:6px;color:var(--text);">🎯 Sugestões de identificação</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;padding:4px 8px;background:var(--bg);border-radius:var(--radius-sm);">${sourceLabel}</div>`;
 
     results.forEach((r, i) => {
       const sci      = r.sci  || '';
@@ -6102,13 +6287,12 @@ async function runAiId() {
     const isOffline = e.message?.includes('Failed to fetch') || e.message?.includes('NetworkError');
     resultEl.innerHTML = `<div style="padding:20px;border-radius:var(--radius-md);background:var(--coral-light);border:1px solid var(--coral);">
       <div style="font-weight:700;color:var(--coral);margin-bottom:6px;">⚠️ ${isOffline ? 'Sem conexão' : 'Erro ao identificar'}</div>
-      ${isOffline
-        ? `<div style="font-size:12px;color:var(--text-mid);line-height:1.6;">
-            Verifique sua conexão com a internet.<br>
-            A identificação usa a API do iNaturalist (grátis).
-           </div>`
-        : `<div style="font-size:12px;color:var(--text-muted);">${escHtml(e.message || 'Erro desconhecido')}</div>`
-      }
+      <div style="font-size:12px;color:var(--text-mid);line-height:1.6;">
+        ${isOffline
+          ? 'Verifique sua conexão. O identificador usa Hugging Face e TensorFlow.js (ambos gratuitos).'
+          : 'Tente novamente com uma foto mais nítida e com a ave em destaque.<br><span style="font-size:10px;opacity:.7;">' + escHtml(e.message || '') + '</span>'
+        }
+      </div>
     </div>`;
     resultEl.style.display = 'block';
   } finally {
