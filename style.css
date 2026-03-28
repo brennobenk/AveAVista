@@ -62,10 +62,10 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(22px) saturate(1.3) brightness(0.5);
-  transform: scale(1.1);
+  filter: blur(8px) saturate(1.4) brightness(0.65);
+  transform: scale(1.05);
   opacity: 0;
-  transition: opacity 2.0s ease;
+  transition: opacity 1.6s ease;
 }
 #bg-bird-photo.loaded { opacity: 1; }
 
@@ -76,10 +76,10 @@ body::before {
   inset: 0;
   z-index: -1;
   background: var(--bg);
-  opacity: 0.72;
+  opacity: 0.48;
   pointer-events: none;
 }
-[data-theme="dark"] body::before { opacity: 0.78; }
+[data-theme="dark"] body::before { opacity: 0.55; }
 
 /* ── Gradiente decorativo (acima do overlay) ── */
 body::after {
@@ -1591,3 +1591,136 @@ body::after {
   display: inline-block;
   text-align: left;
 }
+
+/* ════════════════════════════════════════
+   PÁGINA DE IDENTIFICAÇÃO POR IA
+════════════════════════════════════════ */
+.ai-id-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+}
+.ai-id-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.ai-id-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.ai-id-dropzone {
+  border: 2px dashed var(--violet);
+  border-radius: var(--radius-lg);
+  padding: 36px 24px;
+  text-align: center;
+  background: var(--violet-light);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+.ai-id-dropzone:hover { background: rgba(139,92,246,0.12); border-color: var(--violet); }
+.ai-id-dropzone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.ai-id-preview {
+  position: relative;
+  display: none;
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.ai-id-preview img {
+  width: 100%; max-height: 320px; object-fit: contain;
+  background: var(--bg); border-radius: var(--radius-lg);
+}
+.ai-id-result {
+  margin-top: 16px;
+  display: none;
+}
+.ai-id-result-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.ai-id-result-item:hover { border-color: var(--violet); background: var(--violet-light); transform: translateX(3px); }
+.ai-id-result-item.top-match { border-color: var(--forest); background: rgba(22,163,74,0.07); }
+.ai-id-confidence {
+  min-width: 52px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 15px;
+}
+.ai-id-confidence-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  margin-top: 3px;
+  overflow: hidden;
+}
+.ai-id-confidence-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--forest), var(--sky));
+}
+.ai-id-btn {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--violet), #7c3aed);
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.ai-id-btn:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.ai-id-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.ai-id-spinner {
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Botão de ID rápido no formulário de upload */
+.btn-ai-id-upload {
+  display: none;
+  width: 100%;
+  margin-bottom: 8px;
+  height: 40px;
+  border: 1.5px solid var(--violet);
+  border-radius: var(--radius-md);
+  background: var(--violet-light);
+  color: var(--violet);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition);
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+.btn-ai-id-upload:hover { background: rgba(139,92,246,0.15); }
